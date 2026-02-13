@@ -2,144 +2,278 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fotoğraf Sırala ve PDF Yap</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; text-align: center; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        
-        /* Buton ve Input Stilleri */
-        .controls { margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        input[type="file"] { display: none; }
-        .btn { padding: 10px 20px; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        .btn-select { background-color: #3498db; }
-        .btn-pdf { background-color: #27ae60; display: none; } /* Başlangıçta gizli */
-        .btn:hover { opacity: 0.8; }
-
-        /* Fotoğraf Listesi Stilleri */
-        #photo-list { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-            gap: 15px; 
-            margin-top: 20px; 
-            padding: 10px;
-            border: 2px dashed #ccc;
-            min-height: 200px;
-        }
-        .photo-item { position: relative; cursor: grab; break-inside: avoid; }
-        .photo-item img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .photo-item:active { cursor: grabbing; }
-        
-        /* Silme butonu */
-        .remove-btn {
-            position: absolute; top: -5px; right: -5px; background: red; color: white;
-            border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Foto PDF Pro</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    <style>
+        /* Genel Mobil Uyumlu Tasarım */
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; padding-bottom: 80px; }
+        .header { background: #6200ea; color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        h2 { margin: 0; font-size: 1.2rem; }
+
+        /* Fotoğraf Izgarası */
+        #gallery { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); /* Mobilde yan yana 2 resim */
+            gap: 10px; 
+            padding: 10px;
+        }
+        
+        .photo-card {
+            background: white; border-radius: 8px; overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative;
+            touch-action: none; /* Sürüklemeyi iyileştirir */
+        }
+
+        .photo-card img {
+            width: 100%; height: 150px; object-fit: cover; display: block;
+        }
+
+        /* Kart Üzerindeki Butonlar */
+        .card-actions {
+            display: flex; justify-content: space-between; padding: 8px; background: #fff;
+        }
+        .btn-icon {
+            border: none; background: #eee; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 14px;
+        }
+        .btn-edit { color: #2980b9; font-weight: bold; }
+        .btn-del { color: #c0392b; font-weight: bold; }
+
+        /* Alt Kontrol Barı */
+        .bottom-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: white; padding: 10px; display: flex; gap: 10px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 20;
+        }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 14px; cursor: pointer; }
+        .btn-add { background-color: #6200ea; }
+        .btn-preview { background-color: #f39c12; }
+        .btn-pdf { background-color: #27ae60; }
+
+        /* Modal (Düzenleme ve Önizleme Ekranları) */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 50; flex-direction: column;
+        }
+        .modal-header { padding: 10px; display: flex; justify-content: space-between; background: #333; color: white; }
+        .modal-body { flex: 1; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #222; }
+        
+        /* Cropper Alanı */
+        #image-to-crop { max-width: 100%; max-height: 80vh; }
+
+        /* PDF Önizleme Listesi */
+        #preview-list {
+            width: 100%; height: 100%; overflow-y: scroll; padding: 20px; box-sizing: border-box; background: #525659;
+        }
+        .preview-page {
+            background: white; margin-bottom: 20px; padding: 10px; min-height: 300px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .preview-page img { max-width: 100%; max-height: 100%; }
+
+    </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>📸 Fotoğraf Sırala & PDF Yap</h2>
-    <p>Fotoğrafları seçin, sürükleyerek sıralayın ve PDF olarak indirin.</p>
+<div class="header">
+    <h2>Foto Sırala & Düzenle</h2>
+</div>
 
-    <div class="controls">
-        <label class="btn btn-select">
-            📁 Fotoğraf Seç (Çoklu)
-            <input type="file" id="imageInput" multiple accept="image/*">
-        </label>
-        <button class="btn btn-pdf" id="generatePdfBtn">📄 PDF Olarak İndir</button>
+<div id="gallery"></div>
+
+<div class="bottom-bar">
+    <button class="btn btn-add" onclick="document.getElementById('fileInput').click()">+ Ekle</button>
+    <input type="file" id="fileInput" multiple accept="image/*" style="display:none">
+    
+    <button class="btn btn-preview" onclick="openPreview()">Önizle</button>
+    <button class="btn btn-pdf" onclick="generatePDF()">PDF İndir</button>
+</div>
+
+<div id="cropModal" class="modal">
+    <div class="modal-header">
+        <button class="btn-icon" onclick="closeCropModal()">İptal</button>
+        <span>Kırpma Ekranı</span>
+        <button class="btn-icon" style="background:#27ae60; color:white;" onclick="saveCrop()">KAYDET</button>
     </div>
+    <div class="modal-body">
+        <img id="image-to-crop" src="">
+    </div>
+</div>
 
-    <div id="photo-list">
-        </div>
+<div id="previewModal" class="modal">
+    <div class="modal-header">
+        <button class="btn-icon" onclick="closePreviewModal()">Kapat</button>
+        <span>PDF Önizleme</span>
+        <button class="btn-icon" style="background:#27ae60; color:white;" onclick="generatePDF()">İNDİR</button>
+    </div>
+    <div id="preview-list"></div>
 </div>
 
 <script>
-    const imageInput = document.getElementById('imageInput');
-    const photoList = document.getElementById('photo-list');
-    const generatePdfBtn = document.getElementById('generatePdfBtn');
-    const { jsPDF } = window.jspdf;
+    const gallery = document.getElementById('gallery');
+    const fileInput = document.getElementById('fileInput');
+    let cropper;
+    let currentEditImage = null; // Şu an düzenlenmekte olan resim elementi
 
-    // 1. Sürükle Bırak Özelliğini Aktif Et (SortableJS)
-    new Sortable(photoList, {
+    // 1. Sıralama Özelliği (SortableJS)
+    new Sortable(gallery, {
         animation: 150,
-        ghostClass: 'blue-background-class'
+        ghostClass: 'sortable-ghost',
+        delay: 100, // Mobilde yanlışlıkla sürüklemeyi önlemek için hafif gecikme
+        delayOnTouchOnly: true
     });
 
-    // 2. Fotoğrafları Yükleme ve Önizleme
-    imageInput.addEventListener('change', function(event) {
-        const files = event.target.files;
-        if (files.length > 0) {
-            generatePdfBtn.style.display = 'inline-block'; // PDF butonunu göster
-        }
+    // 2. Fotoğraf Yükleme
+    fileInput.addEventListener('change', function(e) {
+        const files = e.target.files;
+        if (!files.length) return;
 
         Array.from(files).forEach(file => {
-            if (file.type.match('image.*')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const div = document.createElement('div');
-                    div.className = 'photo-item';
-                    
-                    // Görseli oluştur
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    
-                    // Silme butonu oluştur
-                    const btn = document.createElement('button');
-                    btn.className = 'remove-btn';
-                    btn.innerHTML = '×';
-                    btn.onclick = function() { div.remove(); };
-
-                    div.appendChild(img);
-                    div.appendChild(btn);
-                    photoList.appendChild(div);
-                };
-                reader.readAsDataURL(file);
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                addPhotoToGallery(event.target.result);
             }
+            reader.readAsDataURL(file);
         });
-        // Input'u temizle ki aynı dosyayı tekrar seçebilelim
-        imageInput.value = '';
+        fileInput.value = ''; // Reset
     });
 
-    // 3. PDF Oluşturma İşlemi
-    generatePdfBtn.addEventListener('click', async () => {
-        const doc = new jsPDF();
-        const images = photoList.querySelectorAll('img');
+    function addPhotoToGallery(imgSrc) {
+        const div = document.createElement('div');
+        div.className = 'photo-card';
+        div.innerHTML = `
+            <img src="${imgSrc}" class="gallery-img">
+            <div class="card-actions">
+                <button class="btn-icon btn-edit" onclick="openCropModal(this)">✂ Düzenle</button>
+                <button class="btn-icon btn-del" onclick="removePhoto(this)">🗑 Sil</button>
+            </div>
+        `;
+        gallery.appendChild(div);
+    }
+
+    function removePhoto(btn) {
+        if(confirm("Bu fotoğrafı silmek istiyor musun?")) {
+            btn.closest('.photo-card').remove();
+        }
+    }
+
+    // 3. Kırpma / Düzenleme İşlemleri
+    const cropModal = document.getElementById('cropModal');
+    const imageToCrop = document.getElementById('image-to-crop');
+
+    function openCropModal(btn) {
+        const card = btn.closest('.photo-card');
+        currentEditImage = card.querySelector('img');
         
+        imageToCrop.src = currentEditImage.src;
+        cropModal.style.display = 'flex';
+
+        // Cropper'ı başlat
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(imageToCrop, {
+            viewMode: 1,
+            autoCropArea: 1,
+        });
+    }
+
+    function saveCrop() {
+        if (!cropper) return;
+        // Kırpılan görseli al
+        const canvas = cropper.getCroppedCanvas();
+        currentEditImage.src = canvas.toDataURL('image/jpeg');
+        closeCropModal();
+    }
+
+    function closeCropModal() {
+        cropModal.style.display = 'none';
+        if (cropper) cropper.destroy();
+    }
+
+    // 4. PDF Önizleme İşlemleri
+    const previewModal = document.getElementById('previewModal');
+    const previewList = document.getElementById('preview-list');
+
+    function openPreview() {
+        const images = document.querySelectorAll('.gallery-img');
+        if (images.length === 0) { alert("Lütfen önce fotoğraf ekleyin."); return; }
+
+        previewList.innerHTML = '';
+        
+        // Mevcut DOM sırasına göre resimleri alıp önizlemeye koyuyoruz
+        images.forEach((img, index) => {
+            const pageDiv = document.createElement('div');
+            pageDiv.className = 'preview-page';
+            
+            // Sayfa numarası ve resim
+            pageDiv.innerHTML = `
+                <div style="text-align:center; width:100%">
+                    <img src="${img.src}" style="max-height:800px; width:auto; box-shadow:0 0 5px #ccc;">
+                    <p style="margin-top:10px; font-weight:bold;">Sayfa ${index + 1}</p>
+                </div>
+            `;
+            previewList.appendChild(pageDiv);
+        });
+
+        previewModal.style.display = 'flex';
+    }
+
+    function closePreviewModal() {
+        previewModal.style.display = 'none';
+    }
+
+    // 5. PDF Oluşturma (Kesin Sıralama ile)
+    async function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // ÖNEMLİ: getElementsByClassName yerine querySelectorAll kullanıyoruz.
+        // Bu, HTML'deki anlık görünüm sırasını garanti eder.
+        const images = document.querySelectorAll('.gallery-img');
+
         if (images.length === 0) {
-            alert("Lütfen önce fotoğraf ekleyin!");
+            alert("Listede fotoğraf yok!");
             return;
         }
 
-        let width = doc.internal.pageSize.getWidth();
-        let height = doc.internal.pageSize.getHeight();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
 
-        // Her bir görseli sırayla PDF'e ekle
         for (let i = 0; i < images.length; i++) {
+            if (i > 0) doc.addPage();
+
             const imgData = images[i].src;
             
-            // Eğer ilk sayfa değilse yeni sayfa ekle
-            if (i > 0) {
-                doc.addPage();
+            // Görsel boyutlarını PDF sayfasına sığacak şekilde ayarla
+            const imgProps = doc.getImageProperties(imgData);
+            const margin = 10;
+            const availableWidth = pageWidth - (margin * 2);
+            const availableHeight = pageHeight - (margin * 2);
+            
+            let finalWidth = availableWidth;
+            let finalHeight = (imgProps.height * availableWidth) / imgProps.width;
+
+            // Eğer yükseklik sayfadan taşarsa, yüksekliğe göre oranla
+            if (finalHeight > availableHeight) {
+                finalHeight = availableHeight;
+                finalWidth = (imgProps.width * availableHeight) / imgProps.height;
             }
 
-            // Resmi sayfaya ortalayarak ve sığdırarak ekle (Basit A4 ölçekleme)
-            const imgProps = doc.getImageProperties(imgData);
-            const pdfWidth = width - 20; // 10px kenar boşluğu
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            // Sayfaya ortala
+            const x = (pageWidth - finalWidth) / 2;
+            const y = (pageHeight - finalHeight) / 2;
 
-            doc.addImage(imgData, 'JPEG', 10, 10, pdfWidth, pdfHeight);
-            
-            // Sayfa numarası ekle (İsteğe bağlı)
-            doc.text(`Sayfa ${i + 1}`, width / 2, height - 10, { align: 'center' });
+            doc.addImage(imgData, 'JPEG', x, y, finalWidth, finalHeight);
         }
 
-        doc.save('fotograf-albumum.pdf');
-    });
+        doc.save(`fotograf_album_${new Date().toISOString().slice(0,10)}.pdf`);
+        closePreviewModal();
+    }
 </script>
 
 </body>
