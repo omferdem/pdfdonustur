@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fotoğraf Sırala ve PDF Yap</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; text-align: center; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        /* Buton ve Input Stilleri */
+        .controls { margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        input[type="file"] { display: none; }
+        .btn { padding: 10px 20px; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .btn-select { background-color: #3498db; }
+        .btn-pdf { background-color: #27ae60; display: none; } /* Başlangıçta gizli */
+        .btn:hover { opacity: 0.8; }
+
+        /* Fotoğraf Listesi Stilleri */
+        #photo-list { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+            gap: 15px; 
+            margin-top: 20px; 
+            padding: 10px;
+            border: 2px dashed #ccc;
+            min-height: 200px;
+        }
+        .photo-item { position: relative; cursor: grab; break-inside: avoid; }
+        .photo-item img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .photo-item:active { cursor: grabbing; }
+        
+        /* Silme butonu */
+        .remove-btn {
+            position: absolute; top: -5px; right: -5px; background: red; color: white;
+            border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;
+        }
+    </style>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h2>📸 Fotoğraf Sırala & PDF Yap</h2>
+    <p>Fotoğrafları seçin, sürükleyerek sıralayın ve PDF olarak indirin.</p>
+
+    <div class="controls">
+        <label class="btn btn-select">
+            📁 Fotoğraf Seç (Çoklu)
+            <input type="file" id="imageInput" multiple accept="image/*">
+        </label>
+        <button class="btn btn-pdf" id="generatePdfBtn">📄 PDF Olarak İndir</button>
+    </div>
+
+    <div id="photo-list">
+        </div>
+</div>
+
+<script>
+    const imageInput = document.getElementById('imageInput');
+    const photoList = document.getElementById('photo-list');
+    const generatePdfBtn = document.getElementById('generatePdfBtn');
+    const { jsPDF } = window.jspdf;
+
+    // 1. Sürükle Bırak Özelliğini Aktif Et (SortableJS)
+    new Sortable(photoList, {
+        animation: 150,
+        ghostClass: 'blue-background-class'
+    });
+
+    // 2. Fotoğrafları Yükleme ve Önizleme
+    imageInput.addEventListener('change', function(event) {
+        const files = event.target.files;
+        if (files.length > 0) {
+            generatePdfBtn.style.display = 'inline-block'; // PDF butonunu göster
+        }
+
+        Array.from(files).forEach(file => {
+            if (file.type.match('image.*')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'photo-item';
+                    
+                    // Görseli oluştur
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    
+                    // Silme butonu oluştur
+                    const btn = document.createElement('button');
+                    btn.className = 'remove-btn';
+                    btn.innerHTML = '×';
+                    btn.onclick = function() { div.remove(); };
+
+                    div.appendChild(img);
+                    div.appendChild(btn);
+                    photoList.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        // Input'u temizle ki aynı dosyayı tekrar seçebilelim
+        imageInput.value = '';
+    });
+
+    // 3. PDF Oluşturma İşlemi
+    generatePdfBtn.addEventListener('click', async () => {
+        const doc = new jsPDF();
+        const images = photoList.querySelectorAll('img');
+        
+        if (images.length === 0) {
+            alert("Lütfen önce fotoğraf ekleyin!");
+            return;
+        }
+
+        let width = doc.internal.pageSize.getWidth();
+        let height = doc.internal.pageSize.getHeight();
+
+        // Her bir görseli sırayla PDF'e ekle
+        for (let i = 0; i < images.length; i++) {
+            const imgData = images[i].src;
+            
+            // Eğer ilk sayfa değilse yeni sayfa ekle
+            if (i > 0) {
+                doc.addPage();
+            }
+
+            // Resmi sayfaya ortalayarak ve sığdırarak ekle (Basit A4 ölçekleme)
+            const imgProps = doc.getImageProperties(imgData);
+            const pdfWidth = width - 20; // 10px kenar boşluğu
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            doc.addImage(imgData, 'JPEG', 10, 10, pdfWidth, pdfHeight);
+            
+            // Sayfa numarası ekle (İsteğe bağlı)
+            doc.text(`Sayfa ${i + 1}`, width / 2, height - 10, { align: 'center' });
+        }
+
+        doc.save('fotograf-albumum.pdf');
+    });
+</script>
+
+</body>
+</html>
