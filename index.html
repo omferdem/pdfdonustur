@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>FotoPDF</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -15,586 +15,680 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0d0d11;--surf:#16161e;--surf2:#1e1e28;--surf3:#252530;
-  --acc:#f5c842;--acc2:#f07840;--green:#4caf82;--red:#e05252;--blue:#5b9cf6;--purple:#a78bfa;
-  --text:#edeae2;--muted:#6a6a7e;--border:#252530;--r:12px;--ease:cubic-bezier(.4,0,.2,1);
+  --acc:#f5c842;--acc2:#f07840;--green:#3db87a;--red:#e05252;
+  --blue:#2563eb;--teal:#059669;--purple:#7c3aed;
+  --text:#edeae2;--muted:#6a6a7e;--border:#252530;
+  --r:12px;--ease:cubic-bezier(.4,0,.2,1);
 }
 html,body{height:100%;overflow:hidden}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100dvh}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);
+  display:flex;flex-direction:column;height:100dvh}
 
-/* HEADER */
-header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surf);border-bottom:1px solid var(--border);gap:10px;z-index:10}
-.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;white-space:nowrap}
-.logo span{color:var(--acc)}
-.tabs{display:flex;gap:4px;background:var(--surf2);border:1px solid var(--border);border-radius:12px;padding:4px}
-.tab-btn{
-  padding:10px 16px;border-radius:9px;border:none;background:transparent;
-  color:var(--muted);font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;
-  cursor:pointer;transition:background .18s,color .18s,transform .1s;white-space:nowrap;
-  touch-action:manipulation;
+/* ─── HEADER ─── */
+header{
+  flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:11px 16px;background:var(--surf);border-bottom:1px solid var(--border);
 }
-.tab-btn.active{background:var(--acc);color:#111;transform:none}
-.tab-btn:not(.active):active{transform:scale(.95)}
-.count-pill{background:var(--surf2);border:1px solid var(--border);padding:5px 13px;border-radius:999px;font-size:.75rem;color:var(--muted);white-space:nowrap;flex-shrink:0}
-.count-pill b{color:var(--acc)}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem}
+.logo span{color:var(--acc)}
+.hpill{background:var(--surf2);border:1px solid var(--border);padding:5px 13px;
+  border-radius:999px;font-size:.76rem;color:var(--muted)}
+.hpill b{color:var(--acc)}
 
-/* SETTINGS */
-.settings-bar{flex-shrink:0;display:flex;gap:8px;padding:8px 14px;background:var(--surf);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
-.settings-bar::-webkit-scrollbar{display:none}
-.setting-chip{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
-.setting-chip label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
-select{background:var(--surf2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:.8rem;font-family:inherit;cursor:pointer;outline:none}
-select:focus{border-color:var(--acc)}
-input[type=range]{accent-color:var(--acc);cursor:pointer;width:90px}
-.quality-val{font-size:.77rem;color:var(--acc);font-weight:700;min-width:32px}
+/* ─── 3 NAV CARDS ─── */
+.nav-cards{
+  flex-shrink:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  padding:10px 12px;background:var(--bg);
+}
+.nc{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;padding:13px 4px;border-radius:14px;border:2.5px solid transparent;
+  cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:.72rem;
+  text-align:center;line-height:1.2;color:#fff;
+  transition:transform .13s,opacity .13s,border-color .13s;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.nc:active{transform:scale(.93)}
+.nc.active{border-color:rgba(255,255,255,.5);box-shadow:0 4px 18px rgba(0,0,0,.45)}
+.nc:not(.active){opacity:.55}
+.nc-icon{font-size:1.45rem;line-height:1}
+.nc.c1{background:linear-gradient(135deg,#1d4ed8,#2563eb)}
+.nc.c2{background:linear-gradient(135deg,#047857,#059669)}
+.nc.c3{background:linear-gradient(135deg,#6d28d9,#7c3aed)}
 
-/* TAB PANELS */
+/* ─── TAB PANELS ─── */
 .tab-panel{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
 .tab-panel.active{display:flex}
-.content-scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:10px 12px}
 
-/* DROP ZONE */
-.drop-zone{border:2px dashed var(--border);border-radius:var(--r);padding:24px 16px;text-align:center;background:var(--surf);cursor:pointer;transition:border .2s,background .2s;margin-bottom:14px;position:relative}
-.drop-zone:hover,.drop-zone.drag-over{border-color:var(--acc);background:rgba(245,200,66,.04)}
-.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.drop-icon{font-size:1.8rem;margin-bottom:5px}
-.drop-zone h3{font-family:'Syne',sans-serif;font-size:.9rem;margin-bottom:3px}
-.drop-zone p{font-size:.74rem;color:var(--muted)}
+/* ─── SETTINGS BAR ─── */
+.settings-bar{
+  flex-shrink:0;display:flex;gap:8px;padding:7px 12px;
+  background:var(--surf);border-bottom:1px solid var(--border);
+  overflow-x:auto;scrollbar-width:none;
+}
+.settings-bar::-webkit-scrollbar{display:none}
+.sc{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.sc label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+select{background:var(--surf2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:5px 9px;font-size:.79rem;font-family:inherit;cursor:pointer;outline:none}
+select:focus{border-color:var(--acc)}
+input[type=range]{accent-color:var(--acc);cursor:pointer;width:86px}
+.qval{font-size:.76rem;color:var(--acc);font-weight:700;min-width:30px}
 
-/* PHOTO GRID */
-#photo-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+/* ─── DROP ZONE ─── */
+.dz{
+  border:2px dashed var(--border);border-radius:var(--r);padding:22px 14px;
+  text-align:center;background:var(--surf);cursor:pointer;
+  transition:border .2s,background .2s;margin-bottom:12px;position:relative;
+}
+.dz:hover,.dz.hover{border-color:var(--acc);background:rgba(245,200,66,.04)}
+.dz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-icon{font-size:1.7rem;margin-bottom:4px}
+.dz h3{font-family:'Syne',sans-serif;font-size:.88rem;margin-bottom:3px}
+.dz p{font-size:.72rem;color:var(--muted)}
 
-/* Kart yapısı: drag-handle üstte, resim ortada, buton şeridi altta */
-.photo-item{
-  position:relative;border-radius:10px;
-  animation:popIn .22s var(--ease);background:var(--surf2);
+/* ─── PHOTO GRID ─── */
+#photo-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px}
+.pi{
+  border-radius:10px;background:var(--surf2);
   display:flex;flex-direction:column;overflow:hidden;
-  /* cursor normal — sadece handle sürükler */
-  cursor:default;
+  animation:popIn .2s var(--ease);cursor:default;
 }
-
-/* Sürükleme tutamacı — sadece buraya dokunulduğunda Sortable devreye girer */
-.drag-handle{
+@keyframes popIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+.pi-handle{
+  height:24px;background:rgba(255,255,255,.04);
   display:flex;align-items:center;justify-content:center;
-  height:26px;background:rgba(255,255,255,.05);
-  cursor:grab;flex-shrink:0;
-  color:var(--muted);font-size:.85rem;letter-spacing:2px;
-  user-select:none;touch-action:none;  /* Sortable bu element üzerinden çalışır */
-  border-bottom:1px solid rgba(255,255,255,.06);
+  cursor:grab;color:var(--muted);font-size:.8rem;letter-spacing:3px;
+  user-select:none;touch-action:none;
+  border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0;
 }
-.drag-handle:active{cursor:grabbing}
+.pi-handle:active{cursor:grabbing}
+.pi img{width:100%;height:115px;object-fit:cover;display:block;pointer-events:none}
+.pi-bar{
+  display:flex;align-items:center;padding:4px 5px;gap:4px;
+  background:rgba(0,0,0,.3);border-top:1px solid rgba(255,255,255,.06);flex-shrink:0;
+}
+.pi-num{font-size:.63rem;font-weight:700;color:var(--muted);flex:1;padding-left:2px}
+.ib{
+  width:36px;height:34px;border-radius:7px;border:none;cursor:pointer;
+  font-size:13px;display:flex;align-items:center;justify-content:center;
+  transition:transform .12s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+.ib:active{transform:scale(.88)}
+.ib.edit{background:rgba(37,99,235,.25);color:#60a5fa}
+.ib.sign{background:rgba(124,58,237,.25);color:#a78bfa}
+.ib.del {background:rgba(224,82,82,.22);color:#f87171}
 
-/* Fotoğraf alanı — tıklamayı alacak şekilde pointer-events açık */
-.photo-item img{
-  width:100%;height:120px;object-fit:cover;display:block;
-  pointer-events:none; /* drag-handle'a karışmasın */
-}
+/* Sortable */
+.sg{opacity:.2;border:2px dashed var(--acc)}
+.sc2{box-shadow:0 6px 24px rgba(0,0,0,.5);z-index:5}
 
-/* Alt buton şeridi — her zaman görünür, hover gerektirmez */
-.photo-actions{
-  display:flex;align-items:center;padding:5px 6px;gap:5px;
-  background:rgba(0,0,0,.35);
-  border-top:1px solid rgba(255,255,255,.07);
-  flex-shrink:0;
+/* ─── ACTION BAR ─── */
+.abar{
+  flex-shrink:0;display:flex;align-items:center;gap:8px;
+  padding:10px 12px;background:var(--surf);border-top:2px solid var(--border);
+  padding-bottom:calc(10px + env(safe-area-inset-bottom));
 }
-.order-num{
-  font-size:.65rem;font-weight:700;color:var(--muted);
-  flex:1;padding-left:2px;
+/* Small icon-only buttons */
+.abar-sm{
+  width:46px;height:46px;border-radius:11px;border:1.5px solid var(--border);
+  background:var(--surf2);color:var(--text);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+  flex-shrink:0;touch-action:manipulation;transition:opacity .15s,transform .12s;
 }
-.action-btn{
-  /* Büyük dokunma alanı — minimum 44x44 px */
-  width:38px;height:36px;
-  border-radius:8px;border:none;cursor:pointer;
-  font-size:14px;display:flex;align-items:center;justify-content:center;
-  transition:transform .15s,opacity .15s;
+.abar-sm:active{transform:scale(.9)}
+.abar-sm:disabled{opacity:.3;cursor:not-allowed}
+.abar-sm.danger{border-color:var(--red);color:var(--red);background:rgba(224,82,82,.1)}
+/* Main CTA */
+.abar-main{
+  flex:1;height:46px;border-radius:11px;border:none;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  touch-action:manipulation;transition:opacity .15s,transform .12s;
   -webkit-tap-highlight-color:transparent;
+}
+.abar-main:active{transform:scale(.97)}
+.abar-main:disabled{opacity:.3;cursor:not-allowed}
+.abar-main.blue  {background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff}
+.abar-main.teal  {background:linear-gradient(135deg,#047857,#10b981);color:#fff}
+.abar-main.purple{background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff}
+
+/* ─── MERGE LIST ─── */
+.merge-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.mi{
+  display:flex;align-items:center;gap:9px;
+  background:var(--surf);border:1px solid var(--border);border-radius:10px;
+  padding:10px 12px;cursor:grab;animation:popIn .2s var(--ease);
+}
+.mi:active{cursor:grabbing}
+.mi-drag{color:var(--muted);font-size:.95rem;flex-shrink:0;user-select:none}
+.mi-info{flex:1;min-width:0}
+.mi-name{font-size:.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mi-pages{font-size:.7rem;color:var(--muted);margin-top:1px}
+.mi-del{background:transparent;border:1px solid var(--border);color:var(--red);
+  border-radius:7px;width:32px;height:32px;cursor:pointer;font-size:13px;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.mi-del:hover{background:rgba(224,82,82,.12)}
+
+/* ─── SIGN TAB ─── */
+.sign-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex:1;gap:14px;color:var(--muted);font-size:.88rem;text-align:center;padding:24px;
+}
+.sign-empty .big{font-size:3.2rem;opacity:.3}
+.sign-empty-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.open-btn{
+  padding:11px 18px;border-radius:11px;border:1.5px solid var(--border);
+  background:var(--surf2);color:var(--text);font-family:'Syne',sans-serif;
+  font-weight:700;font-size:.84rem;cursor:pointer;
+  display:flex;align-items:center;gap:7px;position:relative;overflow:hidden;
   touch-action:manipulation;
 }
-.action-btn:active{transform:scale(.9);opacity:.75}
-.action-btn.edit{background:rgba(91,156,246,.22);color:var(--blue)}
-.action-btn.sign{background:rgba(167,139,250,.22);color:var(--purple)}
-.action-btn.del {background:rgba(224,82,82,.22);color:var(--red)}
-
-.sortable-ghost{opacity:.2;border:2px dashed var(--acc)}
-.sortable-chosen{box-shadow:0 8px 28px rgba(0,0,0,.5);z-index:5;opacity:.85}
-.sortable-drag{opacity:1!important}
-@keyframes popIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
-
-/* MERGE LIST */
-.merge-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.merge-item{display:flex;align-items:center;gap:10px;background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:grab;animation:popIn .22s var(--ease)}
-.merge-item:active{cursor:grabbing}
-.merge-drag{color:var(--muted);font-size:1rem;flex-shrink:0;user-select:none}
-.merge-info{flex:1;min-width:0}
-.merge-name{font-size:.83rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.merge-pages{font-size:.7rem;color:var(--muted);margin-top:2px}
-.merge-del{background:transparent;border:1px solid var(--border);color:var(--red);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s}
-.merge-del:hover{background:rgba(224,82,82,.12)}
-
-/* SIGN TAB */
+.open-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.sign-loaded{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
+.sign-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 13px;background:var(--surf);border-bottom:1px solid var(--border);
+  flex-shrink:0;gap:8px;
+}
+.sign-fname{font-size:.78rem;color:var(--muted);min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;flex:1}
+.sign-fname b{color:var(--acc)}
+.sign-change-btns{display:flex;gap:5px;flex-shrink:0}
+.chbtn{
+  padding:5px 9px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surf2);color:var(--muted);font-size:.71rem;cursor:pointer;
+  position:relative;overflow:hidden;font-family:'DM Sans',sans-serif;
+  touch-action:manipulation;
+}
+.chbtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .sign-layout{display:flex;flex:1;overflow:hidden;min-height:0}
-.sign-thumbs{flex-shrink:0;width:86px;overflow-y:auto;overflow-x:hidden;background:var(--surf);border-right:1px solid var(--border);padding:8px;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;scrollbar-color:var(--surf3) transparent}
-.thumb-wrap{position:relative;cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid transparent;transition:border-color .18s;flex-shrink:0}
-.thumb-wrap.active{border-color:var(--acc)}
-.thumb-wrap canvas{width:100%;display:block}
-.thumb-num{position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,.7);color:#fff;font-size:.56rem;font-weight:700;padding:1px 5px;border-radius:999px}
-.sign-preview-area{flex:1;overflow:auto;background:#111;display:flex;align-items:flex-start;justify-content:center;padding:20px}
-.page-preview-wrap{position:relative;display:inline-block;line-height:0;flex-shrink:0}
-.page-preview-wrap canvas{border-radius:4px;box-shadow:0 8px 32px rgba(0,0,0,.6);display:block}
-.sig-overlay{position:absolute;cursor:move;user-select:none;touch-action:none;border:1.5px dashed rgba(245,200,66,.7);border-radius:3px}
-.sig-overlay img{width:100%;height:100%;display:block;pointer-events:none}
-.sig-del{position:absolute;top:-11px;right:-11px;background:var(--red);color:#fff;border:2px solid var(--bg);border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;z-index:3;line-height:1}
-.sig-resize{position:absolute;bottom:-9px;right:-9px;width:18px;height:18px;background:var(--acc);border-radius:3px;cursor:se-resize;z-index:3;display:flex;align-items:center;justify-content:center;font-size:10px;color:#111}
-.sign-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:var(--muted);font-size:.88rem;text-align:center;padding:24px}
-.sign-empty .big-icon{font-size:3rem;opacity:.35}
+.sign-thumbs{
+  flex-shrink:0;width:82px;overflow-y:auto;overflow-x:hidden;
+  background:var(--surf);border-right:1px solid var(--border);
+  padding:7px;display:flex;flex-direction:column;gap:6px;
+  scrollbar-width:thin;scrollbar-color:var(--surf3) transparent;
+}
+.tw{position:relative;cursor:pointer;border-radius:6px;overflow:hidden;
+  border:2px solid transparent;transition:border-color .18s;flex-shrink:0}
+.tw.active{border-color:var(--acc)}
+.tw canvas{width:100%;display:block}
+.tn{position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,.7);
+  color:#fff;font-size:.55rem;font-weight:700;padding:1px 5px;border-radius:999px}
+.sign-preview{
+  flex:1;overflow:auto;background:#0a0a0e;
+  display:flex;align-items:flex-start;justify-content:center;padding:18px;
+}
+.ppw{position:relative;display:inline-block;line-height:0;flex-shrink:0}
+.ppw canvas{border-radius:4px;box-shadow:0 8px 32px rgba(0,0,0,.7);display:block}
+/* Sig overlay */
+.sov{
+  position:absolute;cursor:move;user-select:none;touch-action:none;
+  border:1.5px dashed rgba(245,200,66,.8);border-radius:3px;
+}
+.sov img{width:100%;height:100%;display:block;pointer-events:none}
+.sov-del{
+  position:absolute;top:-11px;right:-11px;background:var(--red);color:#fff;
+  border:2px solid var(--bg);border-radius:50%;width:24px;height:24px;
+  cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;z-index:3;
+}
+.sov-rz{
+  position:absolute;bottom:-9px;right:-9px;width:20px;height:20px;
+  background:var(--acc);border-radius:3px;cursor:se-resize;z-index:3;
+  display:flex;align-items:center;justify-content:center;font-size:11px;color:#111;
+}
 
-/* ACTION BAR */
-.action-bar{
-  flex-shrink:0;display:flex;gap:8px;
-  padding:12px 14px;
-  background:var(--surf);border-top:2px solid var(--border);
-  padding-bottom:calc(12px + env(safe-area-inset-bottom));
+/* ─── MODALS ─── */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);
+  backdrop-filter:blur(8px);z-index:400;flex-direction:column}
+.modal.open{display:flex}
+.mh{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 15px;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0}
+.mh h2{font-family:'Syne',sans-serif;font-size:.95rem}
+.mh span{font-size:.74rem;color:var(--muted)}
+.mtb{
+  display:flex;gap:5px;padding:8px 11px;background:var(--surf2);
+  flex-shrink:0;overflow-x:auto;scrollbar-width:none;align-items:center;
 }
-.btn{
-  padding:14px 18px;border:none;border-radius:12px;
-  font-family:'Syne',sans-serif;font-weight:700;font-size:.92rem;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;
-  transition:opacity .18s,transform .15s var(--ease);white-space:nowrap;
-  min-height:50px;touch-action:manipulation;
-  -webkit-tap-highlight-color:transparent;
+.mtb::-webkit-scrollbar{display:none}
+.tb{
+  padding:6px 11px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surf);color:var(--text);font-family:'DM Sans',sans-serif;
+  font-size:.77rem;cursor:pointer;white-space:nowrap;flex-shrink:0;
+  display:flex;align-items:center;gap:4px;transition:background .15s,border-color .15s;
 }
-.btn:hover:not(:disabled){opacity:.85;transform:translateY(-1px)}
-.btn:active:not(:disabled){transform:scale(.96)}
-.btn:disabled{opacity:.3;cursor:not-allowed}
-.btn-ghost{background:var(--surf2);color:var(--text);border:1.5px solid var(--border);position:relative;overflow:hidden}
-.btn-ghost input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
-.btn-danger{background:rgba(224,82,82,.15);color:var(--red);border:1.5px solid var(--red)}
-.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#111;flex:1;font-size:.95rem}
-.btn-green{background:linear-gradient(135deg,var(--green),#3a9e6a);color:#fff}
-.btn-purple{background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;flex:1}
+.tb:hover{background:var(--surf3);border-color:var(--acc)}
+.tb.active{background:var(--acc);color:#111;border-color:var(--acc);font-weight:600}
+.mc{flex:1;overflow:hidden;position:relative;background:#0a0a0e;
+  display:flex;align-items:center;justify-content:center}
+.mc img{max-width:100%;max-height:100%;display:block}
+.mf{
+  display:flex;gap:8px;padding:10px 13px;background:var(--surf);
+  border-top:1px solid var(--border);flex-shrink:0;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom));
+}
+.mf-btn{
+  padding:12px 16px;border-radius:10px;border:none;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:.86rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  touch-action:manipulation;transition:opacity .15s;
+}
+.mf-btn:active{opacity:.75}
+.mf-cancel{background:var(--surf2);color:var(--text);border:1px solid var(--border);flex:1}
+.mf-reset {background:var(--surf2);color:var(--muted);border:1px solid var(--border)}
+.mf-apply {background:linear-gradient(135deg,var(--green),#27a065);color:#fff;flex:2}
+.divv{width:1px;background:var(--border);margin:0 2px;align-self:stretch;flex-shrink:0}
 
-/* MODALS */
-.modal-back{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:400;flex-direction:column}
-.modal-back.open{display:flex}
-.modal-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0}
-.modal-header h2{font-family:'Syne',sans-serif;font-size:.95rem}
-.modal-header span{font-size:.74rem;color:var(--muted)}
-.modal-toolbar{display:flex;gap:5px;padding:8px 12px;background:var(--surf2);flex-shrink:0;overflow-x:auto;scrollbar-width:none;align-items:center}
-.modal-toolbar::-webkit-scrollbar{display:none}
-.tool-btn{padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:var(--surf);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.77rem;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s;display:flex;align-items:center;gap:4px;flex-shrink:0}
-.tool-btn:hover{background:var(--surf3);border-color:var(--acc)}
-.tool-btn.active{background:var(--acc);color:#111;border-color:var(--acc);font-weight:600}
-.modal-canvas{flex:1;overflow:hidden;position:relative;background:#0a0a0e;display:flex;align-items:center;justify-content:center}
-.modal-canvas img{max-width:100%;max-height:100%;display:block}
-.modal-footer{display:flex;gap:8px;padding:10px 14px;background:var(--surf);border-top:1px solid var(--border);flex-shrink:0;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
-.divider{width:1px;background:var(--border);margin:0 2px;align-self:stretch;flex-shrink:0}
-
-/* Signature draw */
-.color-dot{width:26px;height:26px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .15s,transform .15s;flex-shrink:0;touch-action:manipulation}
-.color-dot.active{border-color:#fff;transform:scale(1.18)}
-.sig-canvas-wrap{
-  flex:1;display:flex;align-items:stretch;justify-content:stretch;
-  background:#f5f5ec;position:relative;overflow:hidden;
-}
-#sigCanvas{
-  display:block;cursor:crosshair;touch-action:none;
-  width:100%!important;height:100%!important; /* fill full area */
-}
+/* ─── SIG CANVAS MODAL ─── */
+.sig-wrap{flex:1;display:flex;position:relative;background:#f4f4ec;overflow:hidden}
+#sigCanvas{display:block;cursor:crosshair;touch-action:none;width:100%;height:100%}
 .sig-hint{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  font-size:.85rem;color:#ccc;pointer-events:none;white-space:nowrap;
-  transition:opacity .3s;
+  font-size:.95rem;color:#bbb;pointer-events:none;transition:opacity .25s;
 }
-.sig-hint.hidden{opacity:0}
+.sig-hint.gone{opacity:0}
+.cdot{
+  width:26px;height:26px;border-radius:50%;cursor:pointer;
+  border:3px solid transparent;transition:border-color .15s,transform .15s;flex-shrink:0;
+}
+.cdot.active{border-color:#fff;transform:scale(1.15)}
 
-/* Progress */
-.progress-back{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:600;align-items:center;justify-content:center}
-.progress-back.open{display:flex}
-.progress-card{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:26px 30px;text-align:center;min-width:230px}
-.progress-card h3{font-family:'Syne',sans-serif;margin-bottom:14px;font-size:.94rem}
-.progress-track{width:100%;height:7px;background:var(--surf2);border-radius:999px;overflow:hidden;margin-bottom:9px}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:999px;transition:width .2s var(--ease);width:0%}
-.progress-note{font-size:.77rem;color:var(--muted)}
+/* ─── PROGRESS ─── */
+.prog-back{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);
+  backdrop-filter:blur(6px);z-index:600;align-items:center;justify-content:center;
+}
+.prog-back.open{display:flex}
+.prog-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:16px;
+  padding:26px 30px;text-align:center;min-width:230px;
+}
+.prog-card h3{font-family:'Syne',sans-serif;margin-bottom:14px;font-size:.94rem}
+.prog-track{width:100%;height:7px;background:var(--surf2);border-radius:999px;overflow:hidden;margin-bottom:9px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));
+  border-radius:999px;transition:width .2s var(--ease);width:0%}
+.prog-note{font-size:.78rem;color:var(--muted)}
 
-.toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-6px);background:var(--surf2);border:1px solid var(--border);color:var(--text);padding:8px 18px;border-radius:10px;font-size:.81rem;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:700;white-space:nowrap}
+/* ─── TOAST ─── */
+.toast{
+  position:fixed;top:62px;left:50%;
+  transform:translateX(-50%) translateY(-8px);
+  background:var(--surf2);border:1px solid var(--border);
+  color:var(--text);padding:8px 18px;border-radius:10px;
+  font-size:.81rem;opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;z-index:700;white-space:nowrap;
+}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.empty-state{grid-column:1/-1;text-align:center;padding:26px;color:var(--muted);font-size:.81rem;line-height:1.8}
+.empty{grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-size:.8rem;line-height:1.9}
 
-@media(max-width:480px){
-  .tabs .tab-btn{padding:5px 8px;font-size:.7rem}
-  .sign-thumbs{width:68px}
-  .photo-overlay{opacity:1;background:rgba(0,0,0,.25)}
+@media(max-width:380px){
+  .nc{padding:11px 2px;font-size:.67rem}
+  .nc-icon{font-size:1.25rem}
 }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
+<!-- ═══ HEADER ═══ -->
 <header>
   <div class="logo">Foto<span>PDF</span></div>
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="photo">📷 Fotoğraf</button>
-    <button class="tab-btn" data-tab="merge">🔗 Birleştir</button>
-    <button class="tab-btn" data-tab="sign">✍️ İmzala</button>
-  </div>
-  <div class="count-pill" id="countPill">Foto: <b>0</b></div>
+  <div class="hpill" id="countPill">Foto: <b>0</b></div>
 </header>
 
-<!-- ═══════ TAB: PHOTO ═══════ -->
-<div class="tab-panel active" id="tab-photo">
-  <div class="settings-bar">
-    <div class="setting-chip">
-      <label>Sayfa</label>
-      <select id="pageSize"><option value="a4">A4</option><option value="a5">A5</option><option value="letter">Letter</option><option value="square">Kare</option></select>
-    </div>
-    <div class="setting-chip">
-      <label>Yön</label>
-      <select id="orientation"><option value="auto">Otomatik</option><option value="portrait">Dikey</option><option value="landscape">Yatay</option></select>
-    </div>
-    <div class="setting-chip">
-      <label>Kenar</label>
-      <select id="margin"><option value="8">8mm</option><option value="0">Kenarsız</option><option value="15">15mm</option></select>
-    </div>
-    <div class="setting-chip">
-      <label>Kalite: <span id="qualityVal" class="quality-val">85%</span></label>
-      <input type="range" id="qualityRange" min="40" max="100" value="85">
-    </div>
+<!-- ═══ 3 NAV CARDS ═══ -->
+<div class="nav-cards">
+  <div class="nc c1 active" data-tab="photo">
+    <div class="nc-icon">📷</div>
+    <div>Foto → PDF</div>
   </div>
-  <div class="content-scroll">
-    <div class="drop-zone" id="photoDropZone">
-      <input type="file" id="photoFileInput" multiple accept="image/*">
-      <div class="drop-icon">📷</div>
-      <h3>Fotoğraf Ekle</h3>
-      <p>Tıkla veya sürükleyip bırak · JPG, PNG, WebP</p>
-    </div>
-    <div id="photo-list">
-      <div class="empty-state" id="photoEmpty">📂 Henüz fotoğraf eklenmedi.</div>
-    </div>
+  <div class="nc c2" data-tab="merge">
+    <div class="nc-icon">🔗</div>
+    <div>PDF Birleştir</div>
   </div>
-  <div class="action-bar">
-    <button class="btn btn-ghost">＋ Fotoğraf Ekle<input type="file" id="photoFileInput2" multiple accept="image/*"></button>
-    <button class="btn btn-danger" id="photoClearBtn" disabled>🗑 Temizle</button>
-    <button class="btn btn-primary" id="photoPdfBtn" disabled>📄 PDF Oluştur</button>
+  <div class="nc c3" data-tab="sign">
+    <div class="nc-icon">✍️</div>
+    <div>İmzala</div>
   </div>
 </div>
 
-<!-- ═══════ TAB: MERGE ═══════ -->
+<!-- ═══ TAB: PHOTO ═══ -->
+<div class="tab-panel active" id="tab-photo">
+  <div class="settings-bar">
+    <div class="sc">
+      <label>Sayfa</label>
+      <select id="pageSize">
+        <option value="a4">A4</option><option value="a5">A5</option>
+        <option value="letter">Letter</option><option value="square">Kare</option>
+      </select>
+    </div>
+    <div class="sc">
+      <label>Yön</label>
+      <select id="orientation">
+        <option value="auto">Otomatik</option>
+        <option value="portrait">Dikey</option><option value="landscape">Yatay</option>
+      </select>
+    </div>
+    <div class="sc">
+      <label>Kenar</label>
+      <select id="margin">
+        <option value="8">8mm</option><option value="0">Kenarsız</option><option value="15">15mm</option>
+      </select>
+    </div>
+    <div class="sc">
+      <label>Kalite: <span class="qval" id="qval">85%</span></label>
+      <input type="range" id="qrange" min="40" max="100" value="85">
+    </div>
+  </div>
+
+  <div class="scroll">
+    <div class="dz" id="photoDZ">
+      <input type="file" id="photoIn" multiple accept="image/*">
+      <div class="dz-icon">📷</div>
+      <h3>Fotoğraf Ekle</h3>
+      <p>Tıkla veya buraya sürükleyip bırak · JPG, PNG, WebP</p>
+    </div>
+    <div id="photo-list">
+      <div class="empty" id="photoEmpty">📂 Henüz fotoğraf eklenmedi.</div>
+    </div>
+  </div>
+
+  <div class="abar">
+    <button class="abar-sm" id="photoAddBtn" title="Fotoğraf Ekle" style="position:relative;overflow:hidden">
+      ＋<input type="file" id="photoIn2" multiple accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer">
+    </button>
+    <button class="abar-sm danger" id="photoClearBtn" disabled title="Hepsini Sil">🗑</button>
+    <button class="abar-main blue" id="photoPdfBtn" disabled>📄 PDF Oluştur</button>
+  </div>
+</div>
+
+<!-- ═══ TAB: MERGE ═══ -->
 <div class="tab-panel" id="tab-merge">
-  <div class="content-scroll">
-    <div class="drop-zone" id="mergeDropZone">
-      <input type="file" id="mergeFileInput" multiple accept="application/pdf">
-      <div class="drop-icon">📄</div>
+  <div class="scroll">
+    <div class="dz" id="mergeDZ">
+      <input type="file" id="mergeIn" multiple accept="application/pdf">
+      <div class="dz-icon">📄</div>
       <h3>PDF Dosyaları Ekle</h3>
       <p>Birleştirmek istediğin PDF'leri seç · Sürükle sırala</p>
     </div>
     <div class="merge-list" id="mergeList">
-      <div class="empty-state" id="mergeEmpty">📂 Henüz PDF eklenmedi.</div>
+      <div class="empty" id="mergeEmpty">📂 Henüz PDF eklenmedi.</div>
     </div>
   </div>
-  <div class="action-bar">
-    <button class="btn btn-ghost">＋ PDF Ekle<input type="file" id="mergeFileInput2" multiple accept="application/pdf"></button>
-    <button class="btn btn-danger" id="mergeClearBtn" disabled>🗑 Temizle</button>
-    <button class="btn btn-primary" id="mergePdfBtn" disabled>🔗 Birleştir ve İndir</button>
+  <div class="abar">
+    <button class="abar-sm" style="position:relative;overflow:hidden" title="PDF Ekle">
+      ＋<input type="file" id="mergeIn2" multiple accept="application/pdf" style="position:absolute;inset:0;opacity:0;cursor:pointer">
+    </button>
+    <button class="abar-sm danger" id="mergeClearBtn" disabled title="Hepsini Sil">🗑</button>
+    <button class="abar-main teal" id="mergePdfBtn" disabled>🔗 Birleştir ve İndir</button>
   </div>
 </div>
 
-<!-- ═══════ TAB: SIGN ═══════ -->
+<!-- ═══ TAB: SIGN ═══ -->
 <div class="tab-panel" id="tab-sign">
+  <!-- boş durum -->
   <div class="sign-empty" id="signEmpty">
-    <div class="big-icon">✍️</div>
-    <div style="font-size:.95rem;font-weight:500;margin-bottom:4px">İmzalamak istediğin dosyayı seç</div>
-    <div style="font-size:.78rem;color:var(--muted);margin-bottom:16px">PDF veya fotoğraf dosyası desteklenir</div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-      <label class="btn btn-ghost" style="cursor:pointer">📄 PDF Aç<input type="file" id="signFileInput" accept="application/pdf"></label>
-      <label class="btn btn-ghost" style="cursor:pointer">🖼️ Fotoğraf Aç<input type="file" id="signImageInput" accept="image/*"></label>
+    <div class="big">✍️</div>
+    <div style="font-weight:500;font-size:.92rem;color:var(--text)">İmzalamak istediğin dosyayı seç</div>
+    <div style="font-size:.77rem">PDF veya fotoğraf desteklenir</div>
+    <div class="sign-empty-btns">
+      <label class="open-btn">📄 PDF Aç<input type="file" id="signPdfIn" accept="application/pdf"></label>
+      <label class="open-btn">🖼️ Fotoğraf Aç<input type="file" id="signImgIn" accept="image/*"></label>
     </div>
   </div>
-  <div id="signLoaded" style="display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0;gap:10px">
-      <div style="font-size:.79rem;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-        <b style="color:var(--acc)" id="signFileName">-</b> · <span id="signPageCount">0</span> <span id="signPageLabel">sayfa</span>
-      </div>
-      <div style="display:flex;gap:6px;flex-shrink:0">
-        <label class="btn btn-ghost" style="padding:6px 10px;font-size:.73rem;cursor:pointer">PDF<input type="file" id="signFileInput2" accept="application/pdf"></label>
-        <label class="btn btn-ghost" style="padding:6px 10px;font-size:.73rem;cursor:pointer">Foto<input type="file" id="signImageInput2" accept="image/*"></label>
+
+  <!-- yüklü durum -->
+  <div class="sign-loaded" id="signLoaded">
+    <div class="sign-topbar">
+      <div class="sign-fname"><b id="signFname">-</b> &nbsp;·&nbsp; <span id="signPcount">0</span> <span id="signPlabel">sayfa</span></div>
+      <div class="sign-change-btns">
+        <label class="chbtn">PDF<input type="file" id="signPdfIn2" accept="application/pdf"></label>
+        <label class="chbtn">Foto<input type="file" id="signImgIn2" accept="image/*"></label>
       </div>
     </div>
     <div class="sign-layout">
       <div class="sign-thumbs" id="signThumbs"></div>
-      <div class="sign-preview-area" id="signPreviewArea">
-        <div class="page-preview-wrap" id="pagePreviewWrap">
-          <canvas id="mainPageCanvas"></canvas>
+      <div class="sign-preview" id="signPreview">
+        <div class="ppw" id="ppw">
+          <canvas id="mainCanvas"></canvas>
         </div>
       </div>
     </div>
   </div>
-  <div class="action-bar" id="signActionBar" style="display:none">
-    <button class="btn btn-purple" id="drawSigBtn">✍️ İmza Çiz</button>
-    <button class="btn btn-danger" id="clearSigsBtn">🗑 Temizle</button>
-    <button class="btn btn-primary" id="downloadSignedBtn">📄 İmzalı İndir</button>
+
+  <div class="abar" id="signAbar" style="display:none">
+    <button class="abar-sm danger" id="clearSigsBtn" title="İmzaları Temizle">🗑</button>
+    <button class="abar-main purple" id="drawSigBtn">✍️ İmza Çiz</button>
+    <button class="abar-main blue" id="dlSignedBtn">📄 İndir</button>
   </div>
 </div>
 
-<!-- ═══════ CROP MODAL ═══════ -->
-<div class="modal-back" id="cropModal">
-  <div class="modal-header"><h2>✂️ Düzenle / Kırp</h2><span id="cropIndex"></span></div>
-  <div class="modal-toolbar">
+<!-- ═══ CROP MODAL ═══ -->
+<div class="modal" id="cropModal">
+  <div class="mh"><h2>✂️ Düzenle / Kırp</h2><span id="cropIdx"></span></div>
+  <div class="mtb">
     <span style="font-size:.66rem;color:var(--muted)">Oran:</span>
-    <button class="tool-btn active" data-ratio="free">Serbest</button>
-    <button class="tool-btn" data-ratio="1">1:1</button>
-    <button class="tool-btn" data-ratio="1.333">4:3</button>
-    <button class="tool-btn" data-ratio="1.778">16:9</button>
-    <button class="tool-btn" data-ratio="0.707">A4</button>
-    <div class="divider"></div>
-    <button class="tool-btn" id="rotL">↺ Sol</button>
-    <button class="tool-btn" id="rotR">↻ Sağ</button>
-    <button class="tool-btn" id="flipH">⇄</button>
-    <button class="tool-btn" id="flipV">⇅</button>
-    <button class="tool-btn" id="zoomIn">🔍+</button>
-    <button class="tool-btn" id="zoomOut">🔍−</button>
+    <button class="tb active" data-ratio="free">Serbest</button>
+    <button class="tb" data-ratio="1">1:1</button>
+    <button class="tb" data-ratio="1.333">4:3</button>
+    <button class="tb" data-ratio="1.778">16:9</button>
+    <button class="tb" data-ratio="0.707">A4</button>
+    <div class="divv"></div>
+    <button class="tb" id="rotL">↺</button>
+    <button class="tb" id="rotR">↻</button>
+    <button class="tb" id="flipH">⇄</button>
+    <button class="tb" id="flipV">⇅</button>
+    <button class="tb" id="zIn">🔍+</button>
+    <button class="tb" id="zOut">🔍−</button>
   </div>
-  <div class="modal-canvas"><img id="cropImage" src="" alt=""></div>
-  <div class="modal-footer">
-    <button class="btn btn-ghost" id="cancelCrop" style="flex:1">İptal</button>
-    <button class="btn btn-ghost" id="resetCrop">Sıfırla</button>
-    <button class="btn btn-green" id="applyCrop" style="flex:2">✓ Uygula</button>
+  <div class="mc"><img id="cropImg" src="" alt=""></div>
+  <div class="mf">
+    <button class="mf-btn mf-cancel" id="cancelCrop">İptal</button>
+    <button class="mf-btn mf-reset" id="resetCrop">Sıfırla</button>
+    <button class="mf-btn mf-apply" id="applyCrop">✓ Uygula</button>
   </div>
 </div>
 
-<!-- ═══════ SIGNATURE DRAW MODAL ═══════ -->
-<div class="modal-back" id="sigDrawModal">
-  <div class="modal-header"><h2>✍️ İmzanı Çiz</h2><span>Parmak veya mouse ile</span></div>
-  <div class="modal-toolbar" id="sigToolbar">
+<!-- ═══ SIGNATURE DRAW MODAL ═══ -->
+<div class="modal" id="sigModal">
+  <div class="mh"><h2>✍️ İmzanı Çiz</h2><span>Parmak veya mouse ile</span></div>
+  <div class="mtb">
     <span style="font-size:.66rem;color:var(--muted)">Renk:</span>
-    <div class="color-dot active" data-color="#111111" style="background:#111111"></div>
-    <div class="color-dot" data-color="#1a3a8a" style="background:#1a3a8a"></div>
-    <div class="color-dot" data-color="#8a1a1a" style="background:#8a1a1a"></div>
-    <div class="divider"></div>
+    <div class="cdot active" data-c="#111" style="background:#111"></div>
+    <div class="cdot" data-c="#1a3580" style="background:#1a3580"></div>
+    <div class="cdot" data-c="#8a1414" style="background:#8a1414"></div>
+    <div class="divv"></div>
     <span style="font-size:.66rem;color:var(--muted)">Kalınlık:</span>
-    <button class="tool-btn" data-width="2">İnce</button>
-    <button class="tool-btn active" data-width="3">Orta</button>
-    <button class="tool-btn" data-width="5">Kalın</button>
-    <div class="divider"></div>
-    <button class="tool-btn" id="clearSigCanvas">🗑 Temizle</button>
+    <button class="tb" data-w="2">İnce</button>
+    <button class="tb active" data-w="3">Orta</button>
+    <button class="tb" data-w="5">Kalın</button>
+    <div class="divv"></div>
+    <button class="tb" id="clearSigCvs">🗑 Temizle</button>
   </div>
-  <div class="sig-canvas-wrap">
+  <div class="sig-wrap">
     <canvas id="sigCanvas"></canvas>
-    <div class="sig-hint" id="sig-hint">✍️ Buraya imzanı çiz</div>
+    <div class="sig-hint" id="sigHint">✍️ Buraya imzanı çiz</div>
   </div>
-  <div class="modal-footer">
-    <button class="btn btn-ghost" id="cancelSig" style="flex:1">İptal</button>
-    <button class="btn btn-green" id="applySig" style="flex:2">✓ İmzayı Yerleştir</button>
+  <div class="mf">
+    <button class="mf-btn mf-cancel" id="cancelSig">İptal</button>
+    <button class="mf-btn mf-apply" id="applySig">✓ İmzayı Yerleştir</button>
   </div>
 </div>
 
-<!-- PROGRESS -->
-<div class="progress-back" id="progressBack">
-  <div class="progress-card">
-    <h3 id="progressTitle">İşleniyor…</h3>
-    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="progress-note" id="progressNote">Lütfen bekleyin</div>
+<!-- ═══ PROGRESS ═══ -->
+<div class="prog-back" id="progBack">
+  <div class="prog-card">
+    <h3 id="progTitle">İşleniyor…</h3>
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-note" id="progNote">Lütfen bekleyin</div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
-/* ════ GLOBALS ════ */
+/* ═══════════════════════════════════════════
+   GLOBALS
+═══════════════════════════════════════════ */
 const {jsPDF} = window.jspdf;
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-/* ════ HELPERS ════ */
-let toastTimer;
+/* ─── helpers ─── */
+let _toastT;
 function toast(msg,ms=2800){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove('show'),ms);
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(_toastT);_toastT=setTimeout(()=>el.classList.remove('show'),ms);
 }
-function showProgress(title){
-  document.getElementById('progressTitle').textContent=title||'İşleniyor…';
-  document.getElementById('progressFill').style.width='0%';
-  document.getElementById('progressNote').textContent='Hazırlanıyor…';
-  document.getElementById('progressBack').classList.add('open');
+function showProg(t){
+  document.getElementById('progTitle').textContent=t||'İşleniyor…';
+  document.getElementById('progFill').style.width='0%';
+  document.getElementById('progNote').textContent='Hazırlanıyor…';
+  document.getElementById('progBack').classList.add('open');
 }
-function setProgress(pct,note){
-  document.getElementById('progressFill').style.width=pct+'%';
-  if(note)document.getElementById('progressNote').textContent=note;
+function setProg(p,n){
+  document.getElementById('progFill').style.width=p+'%';
+  if(n)document.getElementById('progNote').textContent=n;
 }
-function hideProgress(){document.getElementById('progressBack').classList.remove('open')}
-function dlBytes(bytes,name){
-  const b=new Blob([bytes],{type:'application/pdf'});
-  const u=URL.createObjectURL(b);const a=document.createElement('a');
-  a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),5000);
+function hideProg(){document.getElementById('progBack').classList.remove('open')}
+function dlBytes(b,n){
+  const u=URL.createObjectURL(new Blob([b],{type:'application/pdf'}));
+  const a=document.createElement('a');a.href=u;a.download=n;a.click();
+  setTimeout(()=>URL.revokeObjectURL(u),5000);
 }
-
-/* ════ HISTORY / BACK BUTTON ════
-   Her modal açılışında ve tab değişiminde history'ye push yapıyoruz.
-   Android geri tuşu (popstate) en üstteki modalı kapatır, yoksa önceki taba döner.
-*/
-const modalIds = ['cropModal','sigDrawModal'];
-let activeTab = 'photo';
-
-function pushState(kind, val){
-  history.pushState({kind, val}, '');
+function dlDataUrl(dataUrl, name){
+  const a=document.createElement('a');a.href=dataUrl;a.download=name;a.click();
 }
 
-window.addEventListener('popstate', e=>{
-  const s = e.state;
-  // Açık modal varsa kapat
-  for(const id of modalIds){
-    const m = document.getElementById(id);
-    if(m && m.classList.contains('open')){
-      if(id==='cropModal') closeCrop();
-      else if(id==='sigDrawModal') document.getElementById('sigDrawModal').classList.remove('open');
+/* ═══════════════════════════════════════════
+   NAVIGATION  +  Android Back Button
+═══════════════════════════════════════════ */
+const MODALS = ['cropModal','sigModal'];
+let curTab = 'photo';
+
+history.replaceState({k:'tab',v:'photo'},'');
+
+function pushHist(k,v){ history.pushState({k,v},''); }
+
+function switchTab(id, push=true){
+  curTab=id;
+  if(push) pushHist('tab',id);
+  document.querySelectorAll('.nc').forEach(n=>n.classList.toggle('active',n.dataset.tab===id));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+id));
+  // count pill only shows on photo tab
+  document.getElementById('countPill').style.display = id==='photo'?'':'none';
+}
+
+function openModal(id){ pushHist('modal',id); document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+window.addEventListener('popstate',e=>{
+  const s=e.state;
+  // close topmost open modal
+  for(const id of MODALS){
+    const m=document.getElementById(id);
+    if(m.classList.contains('open')){
+      if(id==='cropModal') _closeCrop(false);
+      else closeModal(id);
       return;
     }
   }
-  // Modal yoksa önceki taba dön
-  if(s && s.kind==='tab'){
-    switchTab(s.val, false);
-  } else {
-    switchTab('photo', false);
-  }
+  if(s&&s.k==='tab') switchTab(s.v,false);
+  else switchTab('photo',false);
 });
 
-function switchTab(tabId, pushHist=true){
-  if(pushHist) pushState('tab', tabId);
-  activeTab = tabId;
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tabId));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='tab-'+tabId));
-}
-
-// İlk yükleme state'i
-history.replaceState({kind:'tab', val:'photo'}, '');
-
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-  btn.addEventListener('click',()=> switchTab(btn.dataset.tab));
+document.querySelectorAll('.nc').forEach(n=>{
+  n.addEventListener('click',()=>switchTab(n.dataset.tab));
 });
 
-/* ══════════════════════════════════════
+/* ═══════════════════════════════════════════
    TAB 1 – PHOTO → PDF
-══════════════════════════════════════ */
+═══════════════════════════════════════════ */
 const photoList=document.getElementById('photo-list');
 const photoEmpty=document.getElementById('photoEmpty');
 const photoPdfBtn=document.getElementById('photoPdfBtn');
 const photoClearBtn=document.getElementById('photoClearBtn');
 const countPill=document.getElementById('countPill');
 
-document.getElementById('qualityRange').addEventListener('input',function(){
-  document.getElementById('qualityVal').textContent=this.value+'%';
+document.getElementById('qrange').addEventListener('input',function(){
+  document.getElementById('qval').textContent=this.value+'%';
 });
 
-[document.getElementById('photoFileInput'),document.getElementById('photoFileInput2')]
-  .forEach(i=>i.addEventListener('change',e=>{loadPhotoFiles(e.target.files);e.target.value=''}));
+// file inputs
+[document.getElementById('photoIn'),document.getElementById('photoIn2')]
+  .forEach(i=>i.addEventListener('change',e=>{loadPhotos(e.target.files);e.target.value=''}));
 
-const photoDZ=document.getElementById('photoDropZone');
-photoDZ.addEventListener('dragover',e=>{e.preventDefault();photoDZ.classList.add('drag-over')});
-photoDZ.addEventListener('dragleave',()=>photoDZ.classList.remove('drag-over'));
-photoDZ.addEventListener('drop',e=>{e.preventDefault();photoDZ.classList.remove('drag-over');loadPhotoFiles(e.dataTransfer.files)});
+// drag-drop on dz
+const photoDZ=document.getElementById('photoDZ');
+photoDZ.addEventListener('dragover',e=>{e.preventDefault();photoDZ.classList.add('hover')});
+photoDZ.addEventListener('dragleave',()=>photoDZ.classList.remove('hover'));
+photoDZ.addEventListener('drop',e=>{e.preventDefault();photoDZ.classList.remove('hover');loadPhotos(e.dataTransfer.files)});
 
+// sortable — handle only
 new Sortable(photoList,{
-  animation:200,
-  handle:'.drag-handle',
-  ghostClass:'sortable-ghost',
-  chosenClass:'sortable-chosen',
-  dragClass:'sortable-drag',
-  filter:'.empty-state',
-  delay:0,
-  touchStartThreshold:3,
-  forceFallback:false,
-  onEnd:refreshBadges
+  animation:180,handle:'.pi-handle',
+  ghostClass:'sg',chosenClass:'sc2',
+  filter:'.empty',touchStartThreshold:4,
+  onEnd:()=>photoList.querySelectorAll('.pi .pi-num').forEach((b,i)=>b.textContent=i+1)
 });
 
-function loadPhotoFiles(files){
+function loadPhotos(files){
   Array.from(files).filter(f=>f.type.startsWith('image/')).forEach(f=>{
-    const r=new FileReader();r.onload=e=>createPhotoItem(e.target.result);r.readAsDataURL(f);
+    const r=new FileReader();r.onload=e=>addPhotoCard(e.target.result);r.readAsDataURL(f);
   });
 }
-function createPhotoItem(src){
+
+function addPhotoCard(src){
   photoEmpty.style.display='none';
+  const d=document.createElement('div');d.className='pi';
 
-  const div=document.createElement('div');
-  div.className='photo-item';
+  const handle=document.createElement('div');handle.className='pi-handle';handle.textContent='⠿ ⠿ ⠿';
+  const img=document.createElement('img');img.src=src;img.draggable=false;
 
-  // ── Üst: sürükleme tutamacı ──
-  const handle=document.createElement('div');
-  handle.className='drag-handle';
-  handle.innerHTML='⠿ ⠿ ⠿';
-  handle.title='Sırala';
+  const bar=document.createElement('div');bar.className='pi-bar';
+  const num=document.createElement('span');num.className='pi-num';
 
-  // ── Orta: fotoğraf ──
-  const img=document.createElement('img');
-  img.src=src;
-  img.draggable=false;
+  const editB=document.createElement('button');editB.className='ib edit';editB.textContent='✏️';editB.title='Düzenle';
+  editB.addEventListener('click',e=>{e.stopPropagation();openCrop(d)});
 
-  // ── Alt: her zaman görünür butonlar ──
-  const actions=document.createElement('div');
-  actions.className='photo-actions';
+  const signB=document.createElement('button');signB.className='ib sign';signB.textContent='✍️';signB.title='İmza Ekle';
+  signB.addEventListener('click',e=>{e.stopPropagation();openPhotoSignFlow(d)});
 
-  const num=document.createElement('span');
-  num.className='order-num';
-
-  const editBtn=document.createElement('button');
-  editBtn.className='action-btn edit';
-  editBtn.innerHTML='✏️';
-  editBtn.title='Düzenle / Kırp';
-  // mousedown + touchend ikisi birden → her cihazda çalışır
-  editBtn.addEventListener('click', e=>{
-    e.stopPropagation();
-    e.preventDefault();
-    openCrop(div);
+  const delB=document.createElement('button');delB.className='ib del';delB.textContent='🗑';delB.title='Sil';
+  delB.addEventListener('click',e=>{
+    e.stopPropagation();d.remove();
+    photoList.querySelectorAll('.pi .pi-num').forEach((b,i)=>b.textContent=i+1);
+    updatePhotoState();
   });
 
-  const delBtn=document.createElement('button');
-  delBtn.className='action-btn del';
-  delBtn.innerHTML='🗑';
-  delBtn.title='Sil';
-  delBtn.addEventListener('click', e=>{
-    e.stopPropagation();
-    e.preventDefault();
-    div.remove();
-    refreshBadges();
-    photoState();
-  });
-
-  const signBtn=document.createElement('button');
-  signBtn.className='action-btn sign';
-  signBtn.innerHTML='✍️';
-  signBtn.title='İmza Ekle';
-  signBtn.addEventListener('click', e=>{
-    e.stopPropagation();
-    e.preventDefault();
-    openPhotoSign(div);
-  });
-
-  actions.append(num, editBtn, signBtn, delBtn);
-  div.append(handle, img, actions);
-  photoList.appendChild(div);
-  refreshBadges();
-  photoState();
+  bar.append(num,editB,signB,delB);
+  d.append(handle,img,bar);
+  photoList.appendChild(d);
+  photoList.querySelectorAll('.pi .pi-num').forEach((b,i)=>b.textContent=i+1);
+  updatePhotoState();
 }
-function refreshBadges(){
-  photoList.querySelectorAll('.photo-item .order-num').forEach((b,i)=>b.textContent=i+1);
-}
-function photoState(){
-  const n=photoList.querySelectorAll('.photo-item').length;
+
+function updatePhotoState(){
+  const n=photoList.querySelectorAll('.pi').length;
   countPill.innerHTML=`Foto: <b>${n}</b>`;
   photoPdfBtn.disabled=n===0;photoClearBtn.disabled=n===0;
   if(n===0)photoEmpty.style.display='';
 }
+
 photoClearBtn.addEventListener('click',()=>{
   if(!confirm('Tüm fotoğraflar silinsin mi?'))return;
-  photoList.querySelectorAll('.photo-item').forEach(el=>el.remove());photoState();
+  photoList.querySelectorAll('.pi').forEach(el=>el.remove());updatePhotoState();
 });
 
 const PAGE_SIZES={a4:[210,297],a5:[148,210],letter:[215.9,279.4],square:[150,150]};
 photoPdfBtn.addEventListener('click',async()=>{
-  const items=Array.from(photoList.querySelectorAll('.photo-item'));if(!items.length)return;
+  const items=Array.from(photoList.querySelectorAll('.pi'));if(!items.length)return;
   const [pw0,ph0]=PAGE_SIZES[document.getElementById('pageSize').value];
   const ori0=document.getElementById('orientation').value;
   const marg=parseInt(document.getElementById('margin').value);
-  const qual=parseInt(document.getElementById('qualityRange').value)/100;
-  showProgress('PDF Oluşturuluyor…');photoPdfBtn.disabled=true;
+  const qual=parseInt(document.getElementById('qrange').value)/100;
+  showProg('PDF Oluşturuluyor…');photoPdfBtn.disabled=true;
   let doc=null;
   for(let i=0;i<items.length;i++){
     const img=items[i].querySelector('img');
@@ -602,426 +696,417 @@ photoPdfBtn.addEventListener('click',async()=>{
     if(ori0==='landscape')ori='landscape';
     else if(ori0==='auto'&&img.naturalWidth>img.naturalHeight)ori='landscape';
     const pw=ori==='landscape'?ph0:pw0,ph=ori==='landscape'?pw0:ph0;
-    if(i===0)doc=new jsPDF({orientation:ori,unit:'mm',format:[pw,ph]});
+    if(!doc)doc=new jsPDF({orientation:ori,unit:'mm',format:[pw,ph]});
     else doc.addPage([pw,ph],ori);
-    const avW=pw-marg*2,avH=ph-marg*2,ratio=img.naturalWidth/img.naturalHeight;
-    let dw=avW,dh=dw/ratio;if(dh>avH){dh=avH;dw=dh*ratio}
+    const avW=pw-marg*2,avH=ph-marg*2,rat=img.naturalWidth/img.naturalHeight;
+    let dw=avW,dh=dw/rat;if(dh>avH){dh=avH;dw=dh*rat}
     const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;
     c.getContext('2d').drawImage(img,0,0);
     doc.addImage(c.toDataURL('image/jpeg',qual),'JPEG',(pw-dw)/2,(ph-dh)/2,dw,dh);
-    setProgress(Math.round((i+1)/items.length*100),`${i+1} / ${items.length} fotoğraf`);
-    await new Promise(r=>setTimeout(r,15));
+    setProg(Math.round((i+1)/items.length*100),`${i+1} / ${items.length} fotoğraf`);
+    await new Promise(r=>setTimeout(r,12));
   }
   doc.save(`fotopdf-${Date.now()}.pdf`);
-  hideProgress();photoPdfBtn.disabled=false;toast('✅ PDF indirildi!');
+  hideProg();photoPdfBtn.disabled=false;toast('✅ PDF oluşturuldu ve indirildi!');
 });
 
-/* ══════════════════════════════════════
+/* ═══════════════════════════════════════════
    CROP MODAL
-══════════════════════════════════════ */
-let cropper=null,editItem=null,origSrc=null,sx=1,sy=1;
+═══════════════════════════════════════════ */
+let _cropper=null,_cropItem=null,_origSrc=null,_sx=1,_sy=1;
+
 function openCrop(item){
-  editItem=item;sx=1;sy=1;
-  const img=item.querySelector('img');origSrc=img.src;
-  const ci=document.getElementById('cropImage');ci.src=img.src;
-  document.getElementById('cropIndex').textContent=
-    'Fotoğraf #'+(Array.from(photoList.querySelectorAll('.photo-item')).indexOf(item)+1);
+  _cropItem=item;_sx=1;_sy=1;
+  const img=item.querySelector('img');_origSrc=img.src;
+  const ci=document.getElementById('cropImg');ci.src=img.src;
+  const idx=Array.from(photoList.querySelectorAll('.pi')).indexOf(item);
+  document.getElementById('cropIdx').textContent='#'+(idx+1);
   document.querySelectorAll('[data-ratio]').forEach(b=>b.classList.remove('active'));
   document.querySelector('[data-ratio="free"]').classList.add('active');
-  pushState('modal','cropModal');
-  document.getElementById('cropModal').classList.add('open');
+  openModal('cropModal');
   ci.onload=()=>{
-    if(cropper){cropper.destroy();cropper=null}
-    cropper=new Cropper(ci,{viewMode:1,autoCropArea:.88,movable:true,scalable:true,zoomable:true,background:true,responsive:true});
+    if(_cropper){_cropper.destroy();_cropper=null}
+    _cropper=new Cropper(ci,{viewMode:1,autoCropArea:.88,movable:true,scalable:true,zoomable:true,background:true,responsive:true});
   };
   if(ci.complete)ci.onload();
 }
-
-/* ── Fotoğrafa imza ekleme ── */
-let photoSignTarget=null; // imza eklenecek photo-item
-
-function openPhotoSign(item){
-  photoSignTarget=item;
-  sigCtx.clearRect(0,0,sigCvs.width,sigCvs.height);
-  document.getElementById('sig-hint').classList.remove('hidden');
-  pushState('modal','sigDrawModal');
-  document.getElementById('sigDrawModal').classList.add('open');
-  setTimeout(resizeSigCanvas, 60);
+function _closeCrop(goBack=true){
+  if(_cropper){_cropper.destroy();_cropper=null}
+  closeModal('cropModal');_cropItem=null;
+  if(goBack)history.back();
 }
-function closeCrop(){
-  if(cropper){cropper.destroy();cropper=null}
-  document.getElementById('cropModal').classList.remove('open');editItem=null;
-}
-document.querySelectorAll('[data-ratio]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('[data-ratio]').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    cropper?.setAspectRatio(btn.dataset.ratio==='free'?NaN:parseFloat(btn.dataset.ratio));
-  });
-});
-document.getElementById('rotL').addEventListener('click',()=>cropper?.rotate(-90));
-document.getElementById('rotR').addEventListener('click',()=>cropper?.rotate(90));
-document.getElementById('flipH').addEventListener('click',()=>{sx*=-1;cropper?.scaleX(sx)});
-document.getElementById('flipV').addEventListener('click',()=>{sy*=-1;cropper?.scaleY(sy)});
-document.getElementById('zoomIn').addEventListener('click',()=>cropper?.zoom(.1));
-document.getElementById('zoomOut').addEventListener('click',()=>cropper?.zoom(-.1));
-document.getElementById('cancelCrop').addEventListener('click',closeCrop);
+document.getElementById('cancelCrop').addEventListener('click',()=>_closeCrop());
 document.getElementById('resetCrop').addEventListener('click',()=>{
-  sx=1;sy=1;const ci=document.getElementById('cropImage');ci.src=origSrc;
-  ci.onload=()=>{if(cropper){cropper.destroy();cropper=null}
-    cropper=new Cropper(ci,{viewMode:1,autoCropArea:.88,movable:true,scalable:true,zoomable:true,background:true,responsive:true});
+  _sx=1;_sy=1;const ci=document.getElementById('cropImg');ci.src=_origSrc;
+  ci.onload=()=>{if(_cropper){_cropper.destroy();_cropper=null}
+    _cropper=new Cropper(ci,{viewMode:1,autoCropArea:.88,movable:true,scalable:true,zoomable:true,background:true,responsive:true});
   };if(ci.complete)ci.onload();
 });
 document.getElementById('applyCrop').addEventListener('click',()=>{
-  if(!cropper||!editItem)return;
-  const c=cropper.getCroppedCanvas({maxWidth:2400,maxHeight:2400,imageSmoothingQuality:'high'});
+  if(!_cropper||!_cropItem)return;
+  const c=_cropper.getCroppedCanvas({maxWidth:2400,maxHeight:2400,imageSmoothingQuality:'high'});
   if(!c)return;
-  editItem.querySelector('img').src=c.toDataURL('image/jpeg',.94);
-  closeCrop();toast('✅ Düzenleme uygulandı');
+  _cropItem.querySelector('img').src=c.toDataURL('image/jpeg',.94);
+  _closeCrop();toast('✅ Düzenleme uygulandı');
 });
+document.querySelectorAll('[data-ratio]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-ratio]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  _cropper?.setAspectRatio(b.dataset.ratio==='free'?NaN:parseFloat(b.dataset.ratio));
+}));
+document.getElementById('rotL').addEventListener('click',()=>_cropper?.rotate(-90));
+document.getElementById('rotR').addEventListener('click',()=>_cropper?.rotate(90));
+document.getElementById('flipH').addEventListener('click',()=>{_sx*=-1;_cropper?.scaleX(_sx)});
+document.getElementById('flipV').addEventListener('click',()=>{_sy*=-1;_cropper?.scaleY(_sy)});
+document.getElementById('zIn').addEventListener('click',()=>_cropper?.zoom(.1));
+document.getElementById('zOut').addEventListener('click',()=>_cropper?.zoom(-.1));
 
-/* ══════════════════════════════════════
+/* ═══════════════════════════════════════════
    TAB 2 – PDF MERGE
-══════════════════════════════════════ */
+═══════════════════════════════════════════ */
 const mergeListEl=document.getElementById('mergeList');
 const mergeEmpty=document.getElementById('mergeEmpty');
 const mergePdfBtn=document.getElementById('mergePdfBtn');
 const mergeClearBtn=document.getElementById('mergeClearBtn');
 let mergeFiles=[];
 
-new Sortable(mergeListEl,{animation:200,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',filter:'.empty-state'});
+new Sortable(mergeListEl,{animation:180,ghostClass:'sg',chosenClass:'sc2',filter:'.empty'});
 
-[document.getElementById('mergeFileInput'),document.getElementById('mergeFileInput2')]
-  .forEach(i=>i.addEventListener('change',e=>{loadMergeFiles(e.target.files);e.target.value=''}));
+[document.getElementById('mergeIn'),document.getElementById('mergeIn2')]
+  .forEach(i=>i.addEventListener('change',e=>{loadMerge(e.target.files);e.target.value=''}));
 
-const mergeDZ=document.getElementById('mergeDropZone');
-mergeDZ.addEventListener('dragover',e=>{e.preventDefault();mergeDZ.classList.add('drag-over')});
-mergeDZ.addEventListener('dragleave',()=>mergeDZ.classList.remove('drag-over'));
-mergeDZ.addEventListener('drop',e=>{e.preventDefault();mergeDZ.classList.remove('drag-over');loadMergeFiles(e.dataTransfer.files)});
+const mergeDZ=document.getElementById('mergeDZ');
+mergeDZ.addEventListener('dragover',e=>{e.preventDefault();mergeDZ.classList.add('hover')});
+mergeDZ.addEventListener('dragleave',()=>mergeDZ.classList.remove('hover'));
+mergeDZ.addEventListener('drop',e=>{e.preventDefault();mergeDZ.classList.remove('hover');loadMerge(e.dataTransfer.files)});
 
-async function loadMergeFiles(files){
-  const pdfs=Array.from(files).filter(f=>f.type==='application/pdf'||f.name.endsWith('.pdf'));
-  for(const f of pdfs){
+async function loadMerge(files){
+  for(const f of Array.from(files).filter(f=>f.name.endsWith('.pdf')||f.type==='application/pdf')){
     try{
       const ab=await f.arrayBuffer();
       const pdf=await PDFLib.PDFDocument.load(ab,{ignoreEncryption:true});
-      const data={name:f.name,pages:pdf.getPageCount(),arrayBuffer:ab};
+      const data={name:f.name,pages:pdf.getPageCount(),ab};
       mergeFiles.push(data);addMergeItem(data);
     }catch(e){toast('❌ '+f.name+' okunamadı')}
   }
-  mergeState();
+  updateMergeState();
 }
 function addMergeItem(data){
   mergeEmpty.style.display='none';
-  const div=document.createElement('div');div.className='merge-item';
-  div.innerHTML=`<span class="merge-drag">⠿</span>
-    <div class="merge-info"><div class="merge-name" title="${data.name}">${data.name}</div>
-    <div class="merge-pages">${data.pages} sayfa</div></div>
-    <button class="merge-del">✕</button>`;
-  div.querySelector('.merge-del').addEventListener('click',()=>{
+  const d=document.createElement('div');d.className='mi';
+  d.innerHTML=`<span class="mi-drag">⠿</span>
+    <div class="mi-info">
+      <div class="mi-name" title="${data.name}">${data.name}</div>
+      <div class="mi-pages">${data.pages} sayfa</div>
+    </div>
+    <button class="mi-del">✕</button>`;
+  d.querySelector('.mi-del').addEventListener('click',()=>{
     const i=mergeFiles.indexOf(data);if(i>-1)mergeFiles.splice(i,1);
-    div.remove();mergeState();
+    d.remove();updateMergeState();
   });
-  mergeListEl.appendChild(div);
+  mergeListEl.appendChild(d);
 }
-function mergeState(){
+function updateMergeState(){
   const n=mergeFiles.length;
   mergePdfBtn.disabled=n<2;mergeClearBtn.disabled=n===0;
   if(n===0)mergeEmpty.style.display='';
 }
 mergeClearBtn.addEventListener('click',()=>{
   if(!confirm('Liste temizlensin mi?'))return;
-  mergeFiles=[];mergeListEl.querySelectorAll('.merge-item').forEach(el=>el.remove());mergeState();
+  mergeFiles=[];mergeListEl.querySelectorAll('.mi').forEach(el=>el.remove());updateMergeState();
 });
 mergePdfBtn.addEventListener('click',async()=>{
   if(mergeFiles.length<2)return;
-  showProgress('PDF\'ler Birleştiriliyor…');mergePdfBtn.disabled=true;
+  showProg('Birleştiriliyor…');mergePdfBtn.disabled=true;
   try{
     const merged=await PDFLib.PDFDocument.create();
-    // Respect DOM order for dragged items
-    const domNames=Array.from(mergeListEl.querySelectorAll('.merge-name')).map(el=>el.title);
-    const ordered=domNames.map(name=>mergeFiles.find(f=>f.name===name)).filter(Boolean);
+    const domOrder=Array.from(mergeListEl.querySelectorAll('.mi-name')).map(el=>el.title);
+    const ordered=domOrder.map(n=>mergeFiles.find(f=>f.name===n)).filter(Boolean);
     const src=ordered.length===mergeFiles.length?ordered:mergeFiles;
     for(let i=0;i<src.length;i++){
-      const pdf=await PDFLib.PDFDocument.load(src[i].arrayBuffer,{ignoreEncryption:true});
+      const pdf=await PDFLib.PDFDocument.load(src[i].ab,{ignoreEncryption:true});
       const pages=await merged.copyPages(pdf,pdf.getPageIndices());
       pages.forEach(p=>merged.addPage(p));
-      setProgress(Math.round((i+1)/src.length*100),`${i+1} / ${src.length} dosya`);
-      await new Promise(r=>setTimeout(r,10));
+      setProg(Math.round((i+1)/src.length*100),`${i+1} / ${src.length} dosya`);
+      await new Promise(r=>setTimeout(r,8));
     }
     dlBytes(await merged.save(),`birlesik-${Date.now()}.pdf`);
     toast('✅ PDF birleştirildi!');
   }catch(e){console.error(e);toast('❌ Hata: '+e.message)}
-  hideProgress();mergePdfBtn.disabled=false;
+  hideProg();mergePdfBtn.disabled=false;
 });
 
-/* ══════════════════════════════════════
-   TAB 3 – SIGN PDF
-══════════════════════════════════════ */
-let signDoc=null,signRawBytes=null,signCurrentPage=1,signPageCount=0;
-let signaturePng=null,placedSigs=[],pageScale=1;
-let signImageSrc=null; // görsel imzalama modu için
+/* ═══════════════════════════════════════════
+   TAB 3 – SIGN
+═══════════════════════════════════════════ */
+let signDoc=null,signBytes=null,signPage=1,signPageCount=0,signPageScale=1;
+let placedSigs=[],isImageMode=false,signImgNaturalW=0,signImgNaturalH=0;
+let photoSignTarget=null; // photo card being signed
 
-[document.getElementById('signFileInput'),document.getElementById('signFileInput2')]
-  .forEach(i=>i.addEventListener('change',e=>{if(e.target.files[0])loadSignPDF(e.target.files[0]);e.target.value=''}));
+[document.getElementById('signPdfIn'),document.getElementById('signPdfIn2')]
+  .forEach(i=>i.addEventListener('change',e=>{if(e.target.files[0])loadSignPdf(e.target.files[0]);e.target.value=''}));
+[document.getElementById('signImgIn'),document.getElementById('signImgIn2')]
+  .forEach(i=>i.addEventListener('change',e=>{if(e.target.files[0])loadSignImg(e.target.files[0]);e.target.value=''}));
 
-// Fotoğraf imzalama — imaj dosyasını canvas'a yükle
-[document.getElementById('signImageInput'),document.getElementById('signImageInput2')]
-  .forEach(i=>i.addEventListener('change',e=>{if(e.target.files[0])loadSignImage(e.target.files[0]);e.target.value=''}));
-
-async function loadSignImage(file){
-  showProgress('Fotoğraf Yükleniyor…');
-  try{
-    const url=URL.createObjectURL(file);
-    const img=new Image();
-    img.onload=async()=>{
-      // Reset
-      signRawBytes=null;signDoc=null;placedSigs=[];signCurrentPage=1;signPageCount=1;
-      document.getElementById('signFileName').textContent=
-        file.name.length>30?file.name.slice(0,28)+'…':file.name;
-      document.getElementById('signPageCount').textContent='1';
-      document.getElementById('signPageLabel').textContent='görsel';
-      document.getElementById('signEmpty').style.display='none';
-      const loaded=document.getElementById('signLoaded');
-      loaded.style.display='flex';
-      document.getElementById('signActionBar').style.display='flex';
-      // Render image to main canvas
-      const area=document.getElementById('signPreviewArea');
-      const maxW=Math.max(area.clientWidth-40,200);
-      const scale=Math.min(maxW/img.width,1.6);
-      const c=document.getElementById('mainPageCanvas');
-      c.width=Math.round(img.width*scale);
-      c.height=Math.round(img.height*scale);
-      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-      pageScale=scale;
-      // Thumbnail
-      const thumbCt=document.getElementById('signThumbs');thumbCt.innerHTML='';
-      const wrap=document.createElement('div');wrap.className='thumb-wrap active';
-      const tc=document.createElement('canvas');
-      const ts=0.26;tc.width=Math.round(img.width*ts);tc.height=Math.round(img.height*ts);
-      tc.getContext('2d').drawImage(img,0,0,tc.width,tc.height);
-      const tn=document.createElement('div');tn.className='thumb-num';tn.textContent='1';
-      wrap.append(tc,tn);thumbCt.appendChild(wrap);
-      // Store image for download
-      signImageSrc=c.toDataURL('image/png');
-      URL.revokeObjectURL(url);
-      hideProgress();
-    };
-    img.onerror=()=>{toast('❌ Görsel yüklenemedi');hideProgress()};
-    img.src=url;
-  }catch(e){console.error(e);toast('❌ Hata: '+e.message);hideProgress()}
-}
-
-async function loadSignPDF(file){
-  showProgress('PDF Yükleniyor…');
+async function loadSignPdf(file){
+  showProg('PDF Yükleniyor…');
   try{
     const ab=await file.arrayBuffer();
-    signRawBytes=ab;
+    signBytes=ab;isImageMode=false;
     signDoc=await pdfjsLib.getDocument({data:ab.slice(0)}).promise;
     signPageCount=signDoc.numPages;
-    document.getElementById('signFileName').textContent=
-      file.name.length>30?file.name.slice(0,28)+'…':file.name;
-    document.getElementById('signPageCount').textContent=signPageCount;
-    placedSigs=[];signCurrentPage=1;
-    document.getElementById('signEmpty').style.display='none';
-    const loaded=document.getElementById('signLoaded');
-    loaded.style.display='flex';
-    document.getElementById('signActionBar').style.display='flex';
-    await renderThumbs();
-    await renderPage(1);
+    placedSigs=[];signPage=1;
+    document.getElementById('signFname').textContent=file.name.slice(0,32);
+    document.getElementById('signPcount').textContent=signPageCount;
+    document.getElementById('signPlabel').textContent='sayfa';
+    showSignLoaded();
+    await buildThumbs();
+    await renderSignPage(1);
   }catch(e){console.error(e);toast('❌ PDF yüklenemedi')}
-  hideProgress();
+  hideProg();
 }
 
-async function renderThumbs(){
+async function loadSignImg(file, fromPhotoCard=false){
+  showProg('Görsel Yükleniyor…');
+  try{
+    const url=URL.createObjectURL(file);
+    await new Promise((res,rej)=>{
+      const img=new Image();
+      img.onload=()=>{
+        isImageMode=true;signDoc=null;signBytes=null;
+        signPageCount=1;placedSigs=[];signPage=1;
+        signImgNaturalW=img.width;signImgNaturalH=img.height;
+        document.getElementById('signFname').textContent=file.name.slice(0,32);
+        document.getElementById('signPcount').textContent='1';
+        document.getElementById('signPlabel').textContent='görsel';
+        showSignLoaded();
+        // build thumbs
+        const thumbs=document.getElementById('signThumbs');thumbs.innerHTML='';
+        const tw=document.createElement('div');tw.className='tw active';
+        const tc=document.createElement('canvas');
+        const ts=Math.min(68/img.width,1);
+        tc.width=Math.round(img.width*ts);tc.height=Math.round(img.height*ts);
+        tc.getContext('2d').drawImage(img,0,0,tc.width,tc.height);
+        const tn=document.createElement('div');tn.className='tn';tn.textContent='1';
+        tw.append(tc,tn);thumbs.appendChild(tw);
+        // render main canvas
+        const area=document.getElementById('signPreview');
+        const maxW=Math.max(area.clientWidth-36,180);
+        const scale=Math.min(maxW/img.width,1.8);
+        signPageScale=scale;
+        const c=document.getElementById('mainCanvas');
+        c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        URL.revokeObjectURL(url);
+        res();
+      };
+      img.onerror=rej;
+      img.src=url;
+    });
+  }catch(e){console.error(e);toast('❌ Görsel yüklenemedi')}
+  hideProg();
+}
+
+function showSignLoaded(){
+  document.getElementById('signEmpty').style.display='none';
+  document.getElementById('signLoaded').style.display='flex';
+  document.getElementById('signAbar').style.display='flex';
+}
+
+async function buildThumbs(){
   const ct=document.getElementById('signThumbs');ct.innerHTML='';
   for(let p=1;p<=signPageCount;p++){
-    const wrap=document.createElement('div');wrap.className='thumb-wrap';wrap.dataset.page=p;
+    const tw=document.createElement('div');tw.className='tw';tw.dataset.p=p;
     const c=document.createElement('canvas');
-    const num=document.createElement('div');num.className='thumb-num';num.textContent=p;
-    wrap.append(c,num);
-    wrap.addEventListener('click',()=>renderPage(p));
-    ct.appendChild(wrap);
+    const tn=document.createElement('div');tn.className='tn';tn.textContent=p;
+    tw.append(c,tn);
+    tw.addEventListener('click',()=>renderSignPage(p));
+    ct.appendChild(tw);
     const pg=await signDoc.getPage(p);
-    const vp=pg.getViewport({scale:.28});
+    const vp=pg.getViewport({scale:.26});
     c.width=vp.width;c.height=vp.height;
     await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
   }
   updateThumbActive();
 }
+
 function updateThumbActive(){
-  document.querySelectorAll('.thumb-wrap').forEach(w=>
-    w.classList.toggle('active',parseInt(w.dataset.page)===signCurrentPage));
+  document.querySelectorAll('.tw').forEach(w=>w.classList.toggle('active',parseInt(w.dataset.p||1)===signPage));
 }
 
-async function renderPage(pageNum){
-  signCurrentPage=pageNum;updateThumbActive();
-  document.querySelectorAll('.sig-overlay').forEach(el=>el.remove());
-  const pg=await signDoc.getPage(pageNum);
-  const area=document.getElementById('signPreviewArea');
-  const maxW=Math.max(area.clientWidth-40,200);
+async function renderSignPage(p){
+  signPage=p;updateThumbActive();
+  document.querySelectorAll('.sov').forEach(el=>el.remove());
+  const pg=await signDoc.getPage(p);
+  const area=document.getElementById('signPreview');
+  const maxW=Math.max(area.clientWidth-36,180);
   const vp0=pg.getViewport({scale:1});
-  const scale=Math.min(maxW/vp0.width,1.9);
-  pageScale=scale;
+  const scale=Math.min(maxW/vp0.width,1.8);
+  signPageScale=scale;
   const vp=pg.getViewport({scale});
-  const c=document.getElementById('mainPageCanvas');
+  const c=document.getElementById('mainCanvas');
   c.width=vp.width;c.height=vp.height;
   await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
-  // Restore sigs for this page
-  placedSigs.filter(s=>s.pageNum===pageNum).forEach(s=>buildSigOverlay(s));
+  placedSigs.filter(s=>s.page===p).forEach(s=>buildSigOverlay(s));
 }
 
-/* Signature overlays */
-function addSigToPage(dataUrl){
-  const c=document.getElementById('mainPageCanvas');
-  const sigW=Math.round(c.width*.38),sigH=Math.round(sigW*.32);
-  const sigData={pageNum:signCurrentPage,x:Math.round((c.width-sigW)/2),y:Math.round((c.height-sigH)/2),w:sigW,h:sigH,dataUrl};
-  placedSigs.push(sigData);buildSigOverlay(sigData);
+/* ─── Sig overlays ─── */
+function placeSig(dataUrl){
+  const c=document.getElementById('mainCanvas');
+  const w=Math.round(c.width*.4),h=Math.round(w*.3);
+  const s={page:signPage,x:Math.round((c.width-w)/2),y:Math.round((c.height-h)/2),w,h,dataUrl};
+  placedSigs.push(s);buildSigOverlay(s);
 }
-function buildSigOverlay(sigData){
-  const wrap=document.getElementById('pagePreviewWrap');
-  const el=document.createElement('div');el.className='sig-overlay';
-  el.style.cssText=`left:${sigData.x}px;top:${sigData.y}px;width:${sigData.w}px;height:${sigData.h}px`;
-  const img=document.createElement('img');img.src=sigData.dataUrl;
-  const del=document.createElement('button');del.className='sig-del';del.innerHTML='✕';
+
+function buildSigOverlay(s){
+  const wrap=document.getElementById('ppw');
+  const el=document.createElement('div');el.className='sov';
+  el.style.cssText=`left:${s.x}px;top:${s.y}px;width:${s.w}px;height:${s.h}px`;
+  const img=document.createElement('img');img.src=s.dataUrl;
+  const del=document.createElement('button');del.className='sov-del';del.textContent='✕';
   del.addEventListener('click',e=>{
     e.stopPropagation();el.remove();
-    const i=placedSigs.indexOf(sigData);if(i>-1)placedSigs.splice(i,1);
+    const i=placedSigs.indexOf(s);if(i>-1)placedSigs.splice(i,1);
   });
-  const rz=document.createElement('div');rz.className='sig-resize';rz.textContent='⇲';
+  const rz=document.createElement('div');rz.className='sov-rz';rz.textContent='⇲';
   el.append(img,del,rz);wrap.appendChild(el);
-  makeDraggable(el,sigData);makeResizable(el,rz,sigData);
+  dragEl(el,s);resizeEl(el,rz,s);
 }
-function makeDraggable(el,d){
-  let startX,startY,ox,oy;
-  const move=e=>{
-    e.preventDefault();
-    const t=e.touches?e.touches[0]:e;
-    const c=document.getElementById('mainPageCanvas');
-    d.x=Math.max(0,Math.min(ox+(t.clientX-startX),c.width-d.w));
-    d.y=Math.max(0,Math.min(oy+(t.clientY-startY),c.height-d.h));
+
+function dragEl(el,d){
+  let sx,sy,ox,oy;
+  const mv=e=>{
+    e.preventDefault();const t=e.touches?e.touches[0]:e;
+    const c=document.getElementById('mainCanvas');
+    d.x=Math.max(0,Math.min(ox+(t.clientX-sx),c.width-d.w));
+    d.y=Math.max(0,Math.min(oy+(t.clientY-sy),c.height-d.h));
     el.style.left=d.x+'px';el.style.top=d.y+'px';
   };
   const up=()=>{
-    document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
-    document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);
+    document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);
+    document.removeEventListener('touchmove',mv);document.removeEventListener('touchend',up);
   };
-  const down=e=>{
-    if(e.target.classList.contains('sig-del')||e.target.classList.contains('sig-resize'))return;
+  const dn=e=>{
+    if(e.target===del||e.target===rz)return; // let the vars resolve
+    const del_=el.querySelector('.sov-del'),rz_=el.querySelector('.sov-rz');
+    if(e.target===del_||e.target===rz_)return;
     e.preventDefault();const t=e.touches?e.touches[0]:e;
-    startX=t.clientX;startY=t.clientY;ox=d.x;oy=d.y;
-    document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
-    document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);
+    sx=t.clientX;sy=t.clientY;ox=d.x;oy=d.y;
+    document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+    document.addEventListener('touchmove',mv,{passive:false});document.addEventListener('touchend',up);
   };
-  el.addEventListener('mousedown',down);
-  el.addEventListener('touchstart',down,{passive:false});
+  el.addEventListener('mousedown',dn);el.addEventListener('touchstart',dn,{passive:false});
 }
-function makeResizable(el,handle,d){
-  let startX,startY,ow,oh;
-  const move=e=>{
+
+function resizeEl(el,handle,d){
+  let sx,sy,ow,oh;
+  const mv=e=>{
     e.preventDefault();const t=e.touches?e.touches[0]:e;
-    d.w=Math.max(40,ow+(t.clientX-startX));d.h=Math.max(20,oh+(t.clientY-startY));
+    d.w=Math.max(40,ow+(t.clientX-sx));d.h=Math.max(18,oh+(t.clientY-sy));
     el.style.width=d.w+'px';el.style.height=d.h+'px';
   };
   const up=()=>{
-    document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
-    document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);
+    document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);
+    document.removeEventListener('touchmove',mv);document.removeEventListener('touchend',up);
   };
   handle.addEventListener('mousedown',e=>{
-    e.stopPropagation();e.preventDefault();startX=e.clientX;startY=e.clientY;ow=d.w;oh=d.h;
-    document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
+    e.stopPropagation();e.preventDefault();sx=e.clientX;sy=e.clientY;ow=d.w;oh=d.h;
+    document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
   });
   handle.addEventListener('touchstart',e=>{
-    e.stopPropagation();e.preventDefault();const t=e.touches[0];startX=t.clientX;startY=t.clientY;ow=d.w;oh=d.h;
-    document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);
+    e.stopPropagation();e.preventDefault();const t=e.touches[0];sx=t.clientX;sy=t.clientY;ow=d.w;oh=d.h;
+    document.addEventListener('touchmove',mv,{passive:false});document.addEventListener('touchend',up);
   },{passive:false});
 }
 
 document.getElementById('clearSigsBtn').addEventListener('click',()=>{
-  placedSigs=placedSigs.filter(s=>s.pageNum!==signCurrentPage);
-  document.querySelectorAll('.sig-overlay').forEach(el=>el.remove());
+  placedSigs=placedSigs.filter(s=>s.page!==signPage);
+  document.querySelectorAll('.sov').forEach(el=>el.remove());
   toast('İmzalar temizlendi');
 });
 
-document.getElementById('downloadSignedBtn').addEventListener('click',async()=>{
+/* ─── Download signed ─── */
+document.getElementById('dlSignedBtn').addEventListener('click',async()=>{
   if(!placedSigs.length){toast('⚠️ Henüz imza eklemedin');return}
 
-  // ── Görsel modu: imzalı PNG indir ──
-  if(!signRawBytes && signImageSrc){
-    showProgress('İmzalı Görsel Oluşturuluyor…');
-    const base=new Image();
-    base.onload=async()=>{
-      const canvas=document.createElement('canvas');
-      canvas.width=base.width;canvas.height=base.height;
-      const ctx=canvas.getContext('2d');
-      ctx.drawImage(base,0,0);
-      // Tüm imzaları üste çiz (koordinatları ölçeklendirerek)
-      const c=document.getElementById('mainPageCanvas');
-      for(const s of placedSigs){
-        const sImg=new Image();
-        await new Promise(res=>{sImg.onload=res;sImg.src=s.dataUrl});
-        const sx=(s.x/c.width)*base.width;
-        const sy=(s.y/c.height)*base.height;
-        const sw=(s.w/c.width)*base.width;
-        const sh=(s.h/c.height)*base.height;
-        ctx.drawImage(sImg,sx,sy,sw,sh);
-        setProgress(100,'Hazırlandı');
-      }
-      canvas.toBlob(blob=>{
-        const u=URL.createObjectURL(blob);
-        const a=document.createElement('a');a.href=u;a.download=`imzali-${Date.now()}.png`;a.click();
-        setTimeout(()=>URL.revokeObjectURL(u),5000);
-        hideProgress();toast('✅ İmzalı görsel indirildi!');
-      },'image/png');
-    };
-    base.src=signImageSrc;
+  if(isImageMode){
+    // Render flat image with all sigs at natural resolution
+    showProg('İmzalı Görsel Hazırlanıyor…');
+    const c2=document.getElementById('mainCanvas');
+    const out=document.createElement('canvas');
+    out.width=signImgNaturalW;out.height=signImgNaturalH;
+    const ctx=out.getContext('2d');
+    // draw base from screen canvas scaled up
+    ctx.drawImage(c2,0,0,signImgNaturalW,signImgNaturalH);
+    // draw sigs
+    for(const s of placedSigs){
+      const si=new Image();
+      await new Promise(res=>{si.onload=res;si.src=s.dataUrl});
+      const fx=signImgNaturalW/c2.width,fy=signImgNaturalH/c2.height;
+      ctx.globalAlpha=1;
+      ctx.drawImage(si,s.x*fx,s.y*fy,s.w*fx,s.h*fy);
+    }
+    dlDataUrl(out.toDataURL('image/png'),`imzali-${Date.now()}.png`);
+    hideProg();toast('✅ İmzalı görsel indirildi!');
     return;
   }
 
-  // ── PDF modu ──
-  if(!signRawBytes)return;
-  showProgress('İmzalı PDF Oluşturuluyor…');
+  if(!signBytes)return;
+  showProg('İmzalı PDF Hazırlanıyor…');
   try{
-    const pdfDoc=await PDFLib.PDFDocument.load(signRawBytes.slice(0),{ignoreEncryption:true});
+    const pdfDoc=await PDFLib.PDFDocument.load(signBytes.slice(0),{ignoreEncryption:true});
     for(let i=0;i<placedSigs.length;i++){
       const s=placedSigs[i];
-      const page=pdfDoc.getPage(s.pageNum-1);
-      const {width:pW,height:pH}=page.getSize();
-      const pjsPage=await signDoc.getPage(s.pageNum);
-      const vp=pjsPage.getViewport({scale:pageScale});
-      const rendW=vp.width,rendH=vp.height;
-      const pdfX=(s.x/rendW)*pW;
-      const pdfY=pH-((s.y+s.h)/rendH)*pH;
-      const pdfW=(s.w/rendW)*pW;
-      const pdfH=(s.h/rendH)*pH;
+      const pg=pdfDoc.getPage(s.page-1);
+      const {width:pW,height:pH}=pg.getSize();
+      const pjsPg=await signDoc.getPage(s.page);
+      const vp=pjsPg.getViewport({scale:signPageScale});
+      const pdfX=(s.x/vp.width)*pW;
+      const pdfY=pH-((s.y+s.h)/vp.height)*pH;
+      const pdfW=(s.w/vp.width)*pW;
+      const pdfH=(s.h/vp.height)*pH;
       const b64=s.dataUrl.split(',')[1];
-      const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-      const pngImg=await pdfDoc.embedPng(bytes);
-      page.drawImage(pngImg,{x:pdfX,y:pdfY,width:pdfW,height:Math.abs(pdfH)});
-      setProgress(Math.round((i+1)/placedSigs.length*100),`${i+1} / ${placedSigs.length} imza`);
+      const byt=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+      const pngImg=await pdfDoc.embedPng(byt);
+      pg.drawImage(pngImg,{x:pdfX,y:pdfY,width:pdfW,height:Math.abs(pdfH)});
+      setProg(Math.round((i+1)/placedSigs.length*100),`${i+1} / ${placedSigs.length} imza`);
     }
     dlBytes(await pdfDoc.save(),`imzali-${Date.now()}.pdf`);
     toast('✅ İmzalı PDF indirildi!');
   }catch(e){console.error(e);toast('❌ Hata: '+e.message)}
-  hideProgress();
+  hideProg();
 });
 
-/* ══════════════════════════════════════
+/* ═══════════════════════════════════════════
+   PHOTO CARD → SIGN FLOW
+   Fotoğraf kartındaki ✍️ butonu: fotoğrafı imzala sekmesine yükler
+═══════════════════════════════════════════ */
+function openPhotoSignFlow(card){
+  photoSignTarget=card;
+  // Kartın img src'sini blob'a çevir
+  const imgEl=card.querySelector('img');
+  fetch(imgEl.src).then(r=>r.blob()).then(blob=>{
+    const file=new File([blob],'photo.jpg',{type:'image/jpeg'});
+    switchTab('sign');
+    loadSignImg(file,true);
+    toast('Fotoğraf yüklendi — imzanı çiz ve konumlandır');
+  });
+}
+
+/* ═══════════════════════════════════════════
    SIGNATURE DRAW
-══════════════════════════════════════ */
-let drawing=false,sigColor='#111111',sigLineWidth=3;
+═══════════════════════════════════════════ */
+let _drawing=false,_sigColor='#111',_sigW=3;
 const sigCvs=document.getElementById('sigCanvas');
 const sigCtx=sigCvs.getContext('2d');
 
-function resizeSigCanvas(){
-  const wrap=sigCvs.parentElement;
-  const r=wrap.getBoundingClientRect();
-  // Save current drawing
+function resizeSigCvs(){
+  const r=sigCvs.parentElement.getBoundingClientRect();
   const tmp=document.createElement('canvas');
   tmp.width=sigCvs.width;tmp.height=sigCvs.height;
   tmp.getContext('2d').drawImage(sigCvs,0,0);
-  sigCvs.width=Math.floor(r.width)||700;
-  sigCvs.height=Math.floor(r.height)||320;
+  sigCvs.width=Math.max(Math.floor(r.width),100);
+  sigCvs.height=Math.max(Math.floor(r.height),100);
   sigCtx.lineCap='round';sigCtx.lineJoin='round';
   sigCtx.drawImage(tmp,0,0);
 }
@@ -1029,112 +1114,79 @@ function resizeSigCanvas(){
 function getSigPt(e){
   const r=sigCvs.getBoundingClientRect();
   const t=e.touches?e.touches[0]:e;
-  return{x:(t.clientX-r.left),y:(t.clientY-r.top)};
+  return{x:t.clientX-r.left,y:t.clientY-r.top};
 }
 
 sigCvs.addEventListener('pointerdown',e=>{
-  drawing=true;const p=getSigPt(e);
+  _drawing=true;sigCvs.setPointerCapture(e.pointerId);
+  const p=getSigPt(e);
   sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);
-  sigCtx.strokeStyle=sigColor;sigCtx.lineWidth=sigLineWidth;
-  document.getElementById('sig-hint').classList.add('hidden');
-  sigCvs.setPointerCapture(e.pointerId);
+  sigCtx.strokeStyle=_sigColor;sigCtx.lineWidth=_sigW;
+  document.getElementById('sigHint').classList.add('gone');
 });
 sigCvs.addEventListener('pointermove',e=>{
-  if(!drawing)return;const p=getSigPt(e);
+  if(!_drawing)return;
+  const p=getSigPt(e);
   sigCtx.lineTo(p.x,p.y);sigCtx.stroke();sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);
 });
-sigCvs.addEventListener('pointerup',()=>drawing=false);
-sigCvs.addEventListener('pointercancel',()=>drawing=false);
+sigCvs.addEventListener('pointerup',()=>_drawing=false);
+sigCvs.addEventListener('pointercancel',()=>_drawing=false);
 
-document.getElementById('clearSigCanvas').addEventListener('click',()=>{
+document.getElementById('clearSigCvs').addEventListener('click',()=>{
   sigCtx.clearRect(0,0,sigCvs.width,sigCvs.height);
-  document.getElementById('sig-hint').classList.remove('hidden');
+  document.getElementById('sigHint').classList.remove('gone');
 });
 
-document.querySelectorAll('.color-dot').forEach(dot=>{
-  dot.addEventListener('click',()=>{
-    document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('active'));
-    dot.classList.add('active');sigColor=dot.dataset.color;
+document.querySelectorAll('.cdot').forEach(d=>{
+  d.addEventListener('click',()=>{
+    document.querySelectorAll('.cdot').forEach(x=>x.classList.remove('active'));
+    d.classList.add('active');_sigColor=d.dataset.c;
   });
 });
-document.querySelectorAll('[data-width]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('[data-width]').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');sigLineWidth=parseInt(btn.dataset.width);
+document.querySelectorAll('[data-w]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('[data-w]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');_sigW=parseInt(b.dataset.w);
   });
 });
 
 document.getElementById('drawSigBtn').addEventListener('click',()=>{
-  photoSignTarget=null; // PDF imzalama modu
   sigCtx.clearRect(0,0,sigCvs.width,sigCvs.height);
-  document.getElementById('sig-hint').classList.remove('hidden');
-  pushState('modal','sigDrawModal');
-  document.getElementById('sigDrawModal').classList.add('open');
-  setTimeout(resizeSigCanvas, 60);
+  document.getElementById('sigHint').classList.remove('gone');
+  openModal('sigModal');
+  setTimeout(resizeSigCvs,60);
 });
 
 document.getElementById('cancelSig').addEventListener('click',()=>{
-  document.getElementById('sigDrawModal').classList.remove('open');
-  photoSignTarget=null;
-  history.back();
+  closeModal('sigModal');history.back();
 });
 
 document.getElementById('applySig').addEventListener('click',()=>{
   const d=sigCtx.getImageData(0,0,sigCvs.width,sigCvs.height);
-  const drawn=d.data.some((_,i)=>i%4===3&&d.data[i]>0);
-  if(!drawn){toast('⚠️ Önce imzanı çiz!');return}
-  const cropped=cropSigCanvas();
-  const signaturePng=cropped.toDataURL('image/png');
-  document.getElementById('sigDrawModal').classList.remove('open');
-
-  if(photoSignTarget){
-    // ── Fotoğrafa imza uygula ──
-    applySignatureToPhoto(photoSignTarget, signaturePng);
-    photoSignTarget=null;
-    toast('✅ İmza fotoğrafa eklendi!');
-  } else {
-    // ── PDF imzalama ──
-    addSigToPage(signaturePng);
-    toast('✅ İmza yerleştirildi — sürükle & köşeden boyutlandır');
-  }
+  const hasPixels=d.data.some((_,i)=>i%4===3&&d.data[i]>10);
+  if(!hasPixels){toast('⚠️ Önce imzanı çiz!');return}
+  const cropped=cropSigCvs();
+  const dataUrl=cropped.toDataURL('image/png');
+  closeModal('sigModal');
   history.back();
+  placeSig(dataUrl);
+  toast('✅ İmza eklendi — sürükle & köşeden boyutlandır');
 });
 
-/* Fotoğrafa imzayı doğrudan uygula (canvas üzerinden flatten) */
-function applySignatureToPhoto(item, sigPng){
-  const img=item.querySelector('img');
-  const canvas=document.createElement('canvas');
-  canvas.width=img.naturalWidth||img.width;
-  canvas.height=img.naturalHeight||img.height;
-  const ctx=canvas.getContext('2d');
-  ctx.drawImage(img,0,0,canvas.width,canvas.height);
-  // İmzayı sağ alt köşeye, genişliğin %35'i kadar ekle
-  const sigImg=new Image();
-  sigImg.onload=()=>{
-    const sw=canvas.width*0.35;
-    const sh=sw*(sigImg.height/sigImg.width);
-    const sx=canvas.width-sw-canvas.width*0.04;
-    const sy=canvas.height-sh-canvas.height*0.04;
-    ctx.drawImage(sigImg,sx,sy,sw,sh);
-    img.src=canvas.toDataURL('image/jpeg',0.95);
-  };
-  sigImg.src=sigPng;
-}
-
-function cropSigCanvas(){
+function cropSigCvs(){
   const d=sigCtx.getImageData(0,0,sigCvs.width,sigCvs.height);
-  let mnX=sigCvs.width,mnY=sigCvs.height,mxX=0,mxY=0;
+  let x0=sigCvs.width,y0=sigCvs.height,x1=0,y1=0;
   for(let y=0;y<sigCvs.height;y++)for(let x=0;x<sigCvs.width;x++){
-    if(d.data[(y*sigCvs.width+x)*4+3]>0){
-      if(x<mnX)mnX=x;if(x>mxX)mxX=x;if(y<mnY)mnY=y;if(y>mxY)mxY=y;
+    if(d.data[(y*sigCvs.width+x)*4+3]>8){
+      if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;
     }
   }
   const pad=14;
-  mnX=Math.max(0,mnX-pad);mnY=Math.max(0,mnY-pad);
-  mxX=Math.min(sigCvs.width,mxX+pad);mxY=Math.min(sigCvs.height,mxY+pad);
-  const w=mxX-mnX||sigCvs.width,h=mxY-mnY||sigCvs.height;
+  x0=Math.max(0,x0-pad);y0=Math.max(0,y0-pad);
+  x1=Math.min(sigCvs.width,x1+pad);y1=Math.min(sigCvs.height,y1+pad);
+  const w=x1-x0||sigCvs.width,h=y1-y0||sigCvs.height;
   const out=document.createElement('canvas');out.width=w;out.height=h;
-  out.getContext('2d').putImageData(sigCtx.getImageData(mnX,mnY,w,h),0,0);
+  out.getContext('2d').putImageData(sigCtx.getImageData(x0,y0,w,h),0,0);
   return out;
 }
 </script>
