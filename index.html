@@ -55,19 +55,61 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:90px}
 .drop-zone p{font-size:.74rem;color:var(--muted)}
 
 /* PHOTO GRID */
-#photo-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
-.photo-item{position:relative;border-radius:10px;cursor:grab;animation:popIn .22s var(--ease);background:var(--surf2)}
-.photo-item:active{cursor:grabbing}
-.photo-item img{width:100%;height:118px;object-fit:cover;border-radius:10px;display:block;pointer-events:none}
-.order-badge{position:absolute;bottom:5px;left:5px;background:rgba(0,0,0,.68);color:#fff;font-size:.63rem;font-weight:700;padding:2px 6px;border-radius:999px;pointer-events:none;backdrop-filter:blur(3px)}
-.photo-overlay{position:absolute;inset:0;border-radius:10px;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;gap:6px;opacity:0;transition:opacity .18s}
-.photo-item:hover .photo-overlay,.photo-item:focus-within .photo-overlay{opacity:1}
-.overlay-btn{width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:transform .15s}
-.overlay-btn:hover{transform:scale(1.12)}
-.overlay-btn.edit{background:var(--blue);color:#fff}
-.overlay-btn.del{background:var(--red);color:#fff}
-.sortable-ghost{opacity:.22}
-.sortable-chosen{transform:scale(1.04);box-shadow:0 8px 28px rgba(0,0,0,.5);z-index:5}
+#photo-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+
+/* Kart yapısı: drag-handle üstte, resim ortada, buton şeridi altta */
+.photo-item{
+  position:relative;border-radius:10px;
+  animation:popIn .22s var(--ease);background:var(--surf2);
+  display:flex;flex-direction:column;overflow:hidden;
+  /* cursor normal — sadece handle sürükler */
+  cursor:default;
+}
+
+/* Sürükleme tutamacı — sadece buraya dokunulduğunda Sortable devreye girer */
+.drag-handle{
+  display:flex;align-items:center;justify-content:center;
+  height:26px;background:rgba(255,255,255,.05);
+  cursor:grab;flex-shrink:0;
+  color:var(--muted);font-size:.85rem;letter-spacing:2px;
+  user-select:none;touch-action:none;  /* Sortable bu element üzerinden çalışır */
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.drag-handle:active{cursor:grabbing}
+
+/* Fotoğraf alanı — tıklamayı alacak şekilde pointer-events açık */
+.photo-item img{
+  width:100%;height:120px;object-fit:cover;display:block;
+  pointer-events:none; /* drag-handle'a karışmasın */
+}
+
+/* Alt buton şeridi — her zaman görünür, hover gerektirmez */
+.photo-actions{
+  display:flex;align-items:center;padding:5px 6px;gap:5px;
+  background:rgba(0,0,0,.35);
+  border-top:1px solid rgba(255,255,255,.07);
+  flex-shrink:0;
+}
+.order-num{
+  font-size:.65rem;font-weight:700;color:var(--muted);
+  flex:1;padding-left:2px;
+}
+.action-btn{
+  /* Büyük dokunma alanı — minimum 44x44 px */
+  width:40px;height:36px;
+  border-radius:8px;border:none;cursor:pointer;
+  font-size:15px;display:flex;align-items:center;justify-content:center;
+  transition:transform .15s,opacity .15s;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation; /* çift-tık zoom'u engelle */
+}
+.action-btn:active{transform:scale(.9);opacity:.75}
+.action-btn.edit{background:rgba(91,156,246,.22);color:var(--blue)}
+.action-btn.del {background:rgba(224,82,82,.22);color:var(--red)}
+
+.sortable-ghost{opacity:.2;border:2px dashed var(--acc)}
+.sortable-chosen{box-shadow:0 8px 28px rgba(0,0,0,.5);z-index:5;opacity:.85}
+.sortable-drag{opacity:1!important}
 @keyframes popIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
 
 /* MERGE LIST */
@@ -379,7 +421,18 @@ photoDZ.addEventListener('dragover',e=>{e.preventDefault();photoDZ.classList.add
 photoDZ.addEventListener('dragleave',()=>photoDZ.classList.remove('drag-over'));
 photoDZ.addEventListener('drop',e=>{e.preventDefault();photoDZ.classList.remove('drag-over');loadPhotoFiles(e.dataTransfer.files)});
 
-new Sortable(photoList,{animation:200,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',filter:'.empty-state',onEnd:refreshBadges});
+new Sortable(photoList,{
+  animation:200,
+  handle:'.drag-handle',
+  ghostClass:'sortable-ghost',
+  chosenClass:'sortable-chosen',
+  dragClass:'sortable-drag',
+  filter:'.empty-state',
+  delay:0,
+  touchStartThreshold:3,
+  forceFallback:false,
+  onEnd:refreshBadges
+});
 
 function loadPhotoFiles(files){
   Array.from(files).filter(f=>f.type.startsWith('image/')).forEach(f=>{
@@ -388,19 +441,59 @@ function loadPhotoFiles(files){
 }
 function createPhotoItem(src){
   photoEmpty.style.display='none';
-  const div=document.createElement('div');div.className='photo-item';
-  const img=document.createElement('img');img.src=src;img.draggable=false;
-  const badge=document.createElement('div');badge.className='order-badge';
-  const ov=document.createElement('div');ov.className='photo-overlay';
-  const eb=document.createElement('button');eb.className='overlay-btn edit';eb.innerHTML='✏️';eb.title='Düzenle/Kırp';
-  eb.onclick=e=>{e.stopPropagation();openCrop(div)};
-  const db=document.createElement('button');db.className='overlay-btn del';db.innerHTML='✕';db.title='Sil';
-  db.onclick=e=>{e.stopPropagation();div.remove();refreshBadges();photoState()};
-  ov.append(eb,db);div.append(img,badge,ov);photoList.appendChild(div);
-  refreshBadges();photoState();
+
+  const div=document.createElement('div');
+  div.className='photo-item';
+
+  // ── Üst: sürükleme tutamacı ──
+  const handle=document.createElement('div');
+  handle.className='drag-handle';
+  handle.innerHTML='⠿ ⠿ ⠿';
+  handle.title='Sırala';
+
+  // ── Orta: fotoğraf ──
+  const img=document.createElement('img');
+  img.src=src;
+  img.draggable=false;
+
+  // ── Alt: her zaman görünür butonlar ──
+  const actions=document.createElement('div');
+  actions.className='photo-actions';
+
+  const num=document.createElement('span');
+  num.className='order-num';
+
+  const editBtn=document.createElement('button');
+  editBtn.className='action-btn edit';
+  editBtn.innerHTML='✏️';
+  editBtn.title='Düzenle / Kırp';
+  // mousedown + touchend ikisi birden → her cihazda çalışır
+  editBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    e.preventDefault();
+    openCrop(div);
+  });
+
+  const delBtn=document.createElement('button');
+  delBtn.className='action-btn del';
+  delBtn.innerHTML='🗑';
+  delBtn.title='Sil';
+  delBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    e.preventDefault();
+    div.remove();
+    refreshBadges();
+    photoState();
+  });
+
+  actions.append(num, editBtn, delBtn);
+  div.append(handle, img, actions);
+  photoList.appendChild(div);
+  refreshBadges();
+  photoState();
 }
 function refreshBadges(){
-  photoList.querySelectorAll('.photo-item .order-badge').forEach((b,i)=>b.textContent=i+1);
+  photoList.querySelectorAll('.photo-item .order-num').forEach((b,i)=>b.textContent=i+1);
 }
 function photoState(){
   const n=photoList.querySelectorAll('.photo-item').length;
@@ -451,7 +544,7 @@ function openCrop(item){
   const img=item.querySelector('img');origSrc=img.src;
   const ci=document.getElementById('cropImage');ci.src=img.src;
   document.getElementById('cropIndex').textContent=
-    '#'+(Array.from(photoList.querySelectorAll('.photo-item')).indexOf(item)+1);
+    'Fotoğraf #'+(Array.from(photoList.querySelectorAll('.photo-item')).indexOf(item)+1);
   document.querySelectorAll('[data-ratio]').forEach(b=>b.classList.remove('active'));
   document.querySelector('[data-ratio="free"]').classList.add('active');
   document.getElementById('cropModal').classList.add('open');
