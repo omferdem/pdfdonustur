@@ -773,7 +773,7 @@ function loadPhotos(files){
   });
 }
 
-function addPhotoCard(src){
+function addPhotoCard(src, skipSave=false){
   document.getElementById('photoEmpty').style.display='none';
   const d=document.createElement('div');d.className='pi';
   const hnd=document.createElement('div');hnd.className='pi-hnd';hnd.textContent='⠿ ⠿ ⠿';
@@ -790,12 +790,14 @@ function addPhotoCard(src){
     e.stopPropagation();d.remove();
     photoList.querySelectorAll('.pi .pi-num').forEach((b,i)=>b.textContent=i+1);
     updatePhotoState();
+    savePhotos();
   });
   bar.append(num,eb,sb,db);
   d.append(hnd,img,bar);
   photoList.appendChild(d);
   photoList.querySelectorAll('.pi .pi-num').forEach((b,i)=>b.textContent=i+1);
   updatePhotoState();
+  if(!skipSave) savePhotos();
 }
 
 function updatePhotoState(){
@@ -807,7 +809,9 @@ function updatePhotoState(){
 
 phClearBtn.addEventListener('click',()=>{
   if(!confirm(tx('t_confirm_ph')))return;
-  photoList.querySelectorAll('.pi').forEach(el=>el.remove());updatePhotoState();
+  photoList.querySelectorAll('.pi').forEach(el=>el.remove());
+  updatePhotoState();
+  savePhotos(); // saves empty array → clears DB
 });
 
 const PAGE_SIZES={a4:[210,297],a5:[148,210],letter:[215.9,279.4],square:[150,150]};
@@ -877,7 +881,7 @@ document.getElementById('applyCrop').addEventListener('click',()=>{
   const c=_cr.getCroppedCanvas({maxWidth:2400,maxHeight:2400,imageSmoothingQuality:'high'});
   if(!c)return;
   _crItem.querySelector('img').src=c.toDataURL('image/jpeg',.94);
-  _closeCrop();toast(tx('t_crop_ok'));
+  _closeCrop();toast(tx('t_crop_ok'));savePhotos();
 });
 document.querySelectorAll('[data-ratio]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('[data-ratio]').forEach(x=>x.classList.remove('active'));
@@ -1086,16 +1090,12 @@ function placeSig(dataUrl){
   buildOverlay(s);
 }
 
-/* ─── Build draggable/resizable overlay (GPU-accelerated via transform) ─── */
+/* ─── Build draggable/resizable overlay ─── */
 function buildOverlay(s){
   const wrap=document.getElementById('ppw');
   const el=document.createElement('div');
   el.className='sov';
-  // size via style, position via transform
-  el.style.width=s.w+'px';
-  el.style.height=s.h+'px';
-  el.style.transform=`translate3d(${s.x}px,${s.y}px,0)`;
-  el.style.cursor='move';
+  el.style.cssText=`width:${s.w}px;height:${s.h}px;transform:translate3d(${s.x}px,${s.y}px,0);cursor:move;touch-action:none`;
 
   const imgEl=document.createElement('img');imgEl.src=s.dataUrl;
 
@@ -1109,48 +1109,46 @@ function buildOverlay(s){
 
   const rzHnd=document.createElement('div');
   rzHnd.className='sov-rz';rzHnd.textContent='⇲';
+  rzHnd.style.touchAction='none';
 
   el.append(imgEl,delBtn,rzHnd);
   wrap.appendChild(el);
 
-  /* ── DRAG — translate3d, offset computed once at pointerdown ── */
-  let dragOn=false,offX=0,offY=0;
-  // pendingRAF avoids redundant rAF calls
-  let rafDrag=null,pendX=s.x,pendY=s.y;
+  /* ── DRAG
+     KEY: cache getBoundingClientRect + canvas size at pointerdown.
+     NEVER call getBCR inside pointermove — it forces layout reflow = lag.
+     Direct DOM write (no rAF) is faster on mobile for pointer events.
+  ── */
+  let dragOn=false,wrL=0,wrT=0,maxX=0,maxY=0,offX=0,offY=0;
 
   el.addEventListener('pointerdown',e=>{
     if(e.target===delBtn||e.target===rzHnd)return;
     e.preventDefault();e.stopPropagation();
     el.setPointerCapture(e.pointerId);
     dragOn=true;
+    // cache everything that forces layout — only at start, not during move
     const wr=wrap.getBoundingClientRect();
-    // offset = pointer inside element (element pos is s.x, s.y relative to wrap)
-    offX=e.clientX-wr.left-s.x;
-    offY=e.clientY-wr.top-s.y;
+    const mc=document.getElementById('mainCvs');
+    wrL=wr.left; wrT=wr.top;
+    maxX=mc.width-s.w;  maxY=mc.height-s.h;
+    offX=e.clientX-wrL-s.x;
+    offY=e.clientY-wrT-s.y;
   });
 
   el.addEventListener('pointermove',e=>{
     if(!dragOn)return;
     e.preventDefault();
-    const mc=document.getElementById('mainCvs');
-    const wr=wrap.getBoundingClientRect();
-    pendX=Math.max(0,Math.min(e.clientX-wr.left-offX, mc.width-s.w));
-    pendY=Math.max(0,Math.min(e.clientY-wr.top-offY,  mc.height-s.h));
-    if(!rafDrag){
-      rafDrag=requestAnimationFrame(()=>{
-        s.x=pendX;s.y=pendY;
-        el.style.transform=`translate3d(${s.x}px,${s.y}px,0)`;
-        rafDrag=null;
-      });
-    }
+    // pure arithmetic — zero layout queries
+    s.x=e.clientX-wrL-offX; if(s.x<0)s.x=0; else if(s.x>maxX)s.x=maxX;
+    s.y=e.clientY-wrT-offY; if(s.y<0)s.y=0; else if(s.y>maxY)s.y=maxY;
+    el.style.transform=`translate3d(${s.x}px,${s.y}px,0)`;
   });
 
-  el.addEventListener('pointerup',  ()=>{ dragOn=false; if(rafDrag){cancelAnimationFrame(rafDrag);rafDrag=null;} });
-  el.addEventListener('pointercancel',()=>{ dragOn=false; if(rafDrag){cancelAnimationFrame(rafDrag);rafDrag=null;} });
+  el.addEventListener('pointerup',   ()=>dragOn=false);
+  el.addEventListener('pointercancel',()=>dragOn=false);
 
-  /* ── RESIZE — also via transform + size ── */
+  /* ── RESIZE — same principle: cache at pointerdown ── */
   let rzOn=false,rzSX=0,rzSY=0,rzW0=0,rzH0=0;
-  let rafRz=null,pendW=s.w,pendH=s.h;
 
   rzHnd.addEventListener('pointerdown',e=>{
     e.preventDefault();e.stopPropagation();
@@ -1160,19 +1158,16 @@ function buildOverlay(s){
   rzHnd.addEventListener('pointermove',e=>{
     if(!rzOn)return;
     e.preventDefault();
-    pendW=Math.max(40,rzW0+(e.clientX-rzSX));
-    pendH=Math.max(16,rzH0+(e.clientY-rzSY));
-    if(!rafRz){
-      rafRz=requestAnimationFrame(()=>{
-        s.w=pendW;s.h=pendH;
-        el.style.width=s.w+'px';
-        el.style.height=s.h+'px';
-        rafRz=null;
-      });
-    }
+    s.w=rzW0+(e.clientX-rzSX); if(s.w<44)s.w=44;
+    s.h=rzH0+(e.clientY-rzSY); if(s.h<18)s.h=18;
+    el.style.width=s.w+'px';
+    el.style.height=s.h+'px';
+    // update maxX/maxY so drag bounds stay correct after resize
+    maxX=document.getElementById('mainCvs').width-s.w;
+    maxY=document.getElementById('mainCvs').height-s.h;
   });
-  rzHnd.addEventListener('pointerup',  ()=>{ rzOn=false; if(rafRz){cancelAnimationFrame(rafRz);rafRz=null;} });
-  rzHnd.addEventListener('pointercancel',()=>{ rzOn=false; if(rafRz){cancelAnimationFrame(rafRz);rafRz=null;} });
+  rzHnd.addEventListener('pointerup',   ()=>rzOn=false);
+  rzHnd.addEventListener('pointercancel',()=>rzOn=false);
 }
 
 document.getElementById('clrSigsBtn').addEventListener('click',()=>{
@@ -1338,10 +1333,56 @@ function cropSig(){
 }
 
 /* ══════════════════════════════════════════
+   PHOTO PERSISTENCE — IndexedDB
+   Photos are saved after every add/delete/crop so they survive
+   back-navigation, app switching, or accidental exit.
+══════════════════════════════════════════ */
+let _db=null;
+
+function openDB(){
+  return new Promise((res,rej)=>{
+    if(_db){res(_db);return}
+    const req=indexedDB.open('photopdf',1);
+    req.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains('photos'))
+        db.createObjectStore('photos',{keyPath:'id',autoIncrement:true});
+    };
+    req.onsuccess=e=>{_db=e.target.result;res(_db)};
+    req.onerror=()=>rej(req.error);
+  });
+}
+
+async function savePhotos(){
+  try{
+    const db=await openDB();
+    const srcs=Array.from(photoList.querySelectorAll('.pi img')).map(i=>i.src);
+    const tx2=db.transaction('photos','readwrite');
+    const store=tx2.objectStore('photos');
+    store.clear();
+    srcs.forEach((src,i)=>store.add({id:i+1,src}));
+  }catch(e){/* silently ignore — persistence is best-effort */}
+}
+
+async function restorePhotos(){
+  try{
+    const db=await openDB();
+    const tx2=db.transaction('photos','readonly');
+    const store=tx2.objectStore('photos');
+    const req=store.getAll();
+    req.onsuccess=()=>{
+      const rows=req.result||[];
+      rows.forEach(row=>addPhotoCard(row.src,true));
+    };
+  }catch(e){}
+}
+
+/* ══════════════════════════════════════════
    INIT
 ══════════════════════════════════════════ */
 lang=localStorage.getItem('lang')||'tr';
 applyLang();
+restorePhotos();
 </script>
 </body>
 </html>
