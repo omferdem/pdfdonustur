@@ -18,276 +18,387 @@
   --acc:#f5c842;--acc2:#f07840;--green:#3db87a;--red:#e05252;
   --blue:#2563eb;--teal:#059669;--purple:#7c3aed;
   --text:#edeae2;--muted:#6a6a7e;--border:#252530;
-  --r:12px;--ease:cubic-bezier(.4,0,.2,1);
+  --ease:cubic-bezier(.4,0,.2,1);
 }
 html,body{height:100%;overflow:hidden}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100dvh}
+body{
+  font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);
+  display:flex;flex-direction:column;height:100dvh;max-width:100vw;overflow-x:hidden;
+}
 
-/* ═══ HEADER ═══ */
+/* ─── HEADER ─── */
 header{
-  flex-shrink:0;display:flex;align-items:center;
-  height:54px;overflow:hidden;
-  background:var(--surf);border-bottom:1px solid var(--border);
+  flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px;background:var(--surf);border-bottom:1px solid var(--border);
+  gap:8px;min-height:56px;
 }
-.h-logo{
-  font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;
-  white-space:nowrap;padding:0 12px;flex-shrink:0;letter-spacing:-.2px;
+.h-brand{
+  display:flex;flex-direction:column;align-items:flex-start;gap:0;flex-shrink:0;
 }
-.h-logo span{color:var(--acc)}
-/* glowing center signature band */
-.h-center{
-  flex:1;height:100%;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(90deg,
-    transparent 0%,
-    rgba(245,200,66,.05) 20%,
-    rgba(245,200,66,.12) 50%,
-    rgba(245,200,66,.05) 80%,
-    transparent 100%);
-  position:relative;overflow:hidden;
+.h-title{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;
+  color:var(--text);letter-spacing:-.2px;line-height:1.1;
 }
-.h-center::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(245,200,66,.08),transparent);
-  pointer-events:none;
-}
-.zaphyros{
-  font-family:'Dancing Script',cursive;
-  font-size:1.65rem;font-weight:700;
-  background:linear-gradient(135deg,#f5c842 0%,#f0b820 40%,#e8860a 100%);
+.h-title span{color:var(--acc)}
+.h-sig{
+  font-family:'Dancing Script',cursive;font-weight:600;font-size:.88rem;
+  background:linear-gradient(120deg,#f5c842,#e8920a);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 0 10px rgba(245,200,66,.5)) drop-shadow(0 0 3px rgba(245,200,66,.3));
-  letter-spacing:1.5px;user-select:none;position:relative;z-index:1;
+  filter:drop-shadow(0 0 6px rgba(245,200,66,.4));
+  letter-spacing:.5px;line-height:1.2;margin-top:-1px;
 }
-.h-right{display:flex;align-items:center;gap:7px;padding:0 10px;flex-shrink:0}
+.h-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .lang-btn{
   background:var(--surf2);border:1px solid var(--border);
-  color:var(--muted);font-family:'Syne',sans-serif;font-weight:700;font-size:.68rem;
-  padding:4px 8px;border-radius:7px;cursor:pointer;letter-spacing:.05em;
-  touch-action:manipulation;transition:all .15s;
+  color:var(--muted);font-family:'Syne',sans-serif;font-weight:700;font-size:.66rem;
+  padding:4px 7px;border-radius:7px;cursor:pointer;
+  touch-action:manipulation;transition:all .15s;flex-shrink:0;
 }
-.lang-btn:hover,.lang-btn.active{background:var(--acc);border-color:var(--acc);color:#111}
+.lang-btn.active{background:var(--acc);border-color:var(--acc);color:#111}
 .hpill{
   background:var(--surf2);border:1px solid var(--border);
-  padding:4px 11px;border-radius:999px;font-size:.73rem;color:var(--muted);white-space:nowrap;
+  padding:4px 10px;border-radius:999px;font-size:.7rem;color:var(--muted);white-space:nowrap;
 }
 .hpill b{color:var(--acc)}
 
-/* ═══ NAV CARDS ═══ */
+/* ─── NAV CARDS ─── */
 .nav-cards{
-  flex-shrink:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
-  padding:10px 12px;background:var(--bg);
+  flex-shrink:0;display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
+  padding:9px 10px;
 }
 .nc{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:4px;padding:13px 4px;border-radius:14px;border:2.5px solid transparent;
-  cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:.72rem;
+  gap:3px;padding:11px 3px;border-radius:12px;border:2px solid transparent;
+  cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:.69rem;
   text-align:center;line-height:1.2;color:#fff;
-  transition:transform .13s,opacity .13s,border-color .13s,box-shadow .13s;
+  transition:opacity .13s,border-color .13s,transform .1s;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;
 }
 .nc:active{transform:scale(.93)}
-.nc.active{border-color:rgba(255,255,255,.5);box-shadow:0 4px 18px rgba(0,0,0,.45)}
-.nc:not(.active){opacity:.52}
-.nc-icon{font-size:1.4rem;line-height:1}
+.nc.active{border-color:rgba(255,255,255,.5);box-shadow:0 3px 14px rgba(0,0,0,.4)}
+.nc:not(.active){opacity:.5}
+.nc-icon{font-size:1.3rem;line-height:1}
 .nc.c1{background:linear-gradient(135deg,#1d4ed8,#2563eb)}
 .nc.c2{background:linear-gradient(135deg,#047857,#059669)}
 .nc.c3{background:linear-gradient(135deg,#6d28d9,#7c3aed)}
 
-/* ═══ PANELS ═══ */
-.tab-panel{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
+/* ─── TAB PANELS ─── */
+.tab-panel{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0;min-width:0}
 .tab-panel.active{display:flex}
-.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:10px 12px}
+.scroll{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;padding:10px;
+}
 
-/* ═══ SETTINGS BAR ═══ */
-.settings-bar{
-  flex-shrink:0;display:flex;gap:8px;padding:7px 12px;
+/* ─── SETTINGS BAR ─── */
+.sbar{
+  flex-shrink:0;display:flex;gap:8px;padding:7px 10px;
   background:var(--surf);border-bottom:1px solid var(--border);
   overflow-x:auto;scrollbar-width:none;
 }
-.settings-bar::-webkit-scrollbar{display:none}
+.sbar::-webkit-scrollbar{display:none}
 .sc{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
-.sc label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
-select{background:var(--surf2);border:1px solid var(--border);color:var(--text);
-  border-radius:8px;padding:5px 9px;font-size:.79rem;font-family:inherit;cursor:pointer;outline:none}
-select:focus{border-color:var(--acc)}
-input[type=range]{accent-color:var(--acc);cursor:pointer;width:86px}
-.qval{font-size:.76rem;color:var(--acc);font-weight:700;min-width:30px}
-
-/* ═══ DROP ZONE ═══ */
-.dz{
-  border:2px dashed var(--border);border-radius:var(--r);padding:22px 14px;
-  text-align:center;background:var(--surf);cursor:pointer;
-  transition:border .2s,background .2s;margin-bottom:12px;position:relative;
+.sc label{font-size:.59rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+select{
+  background:var(--surf2);border:1px solid var(--border);color:var(--text);
+  border-radius:7px;padding:5px 8px;font-size:.78rem;font-family:inherit;cursor:pointer;outline:none;
 }
-.dz:hover,.dz.hover{border-color:var(--acc);background:rgba(245,200,66,.04)}
+input[type=range]{accent-color:var(--acc);cursor:pointer;width:80px}
+.qval{font-size:.75rem;color:var(--acc);font-weight:700;min-width:28px}
+
+/* ─── DROP ZONE ─── */
+.dz{
+  border:2px dashed var(--border);border-radius:11px;padding:20px 12px;
+  text-align:center;background:var(--surf);cursor:pointer;
+  transition:border .2s,background .2s;margin-bottom:10px;
+  position:relative;
+}
+.dz:hover,.dz.over{border-color:var(--acc);background:rgba(245,200,66,.04)}
 .dz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.dz-icon{font-size:1.7rem;margin-bottom:4px}
-.dz h3{font-family:'Syne',sans-serif;font-size:.88rem;margin-bottom:3px}
-.dz p{font-size:.72rem;color:var(--muted)}
+.dz-icon{font-size:1.6rem;margin-bottom:3px}
+.dz h3{font-family:'Syne',sans-serif;font-size:.86rem;margin-bottom:2px}
+.dz p{font-size:.71rem;color:var(--muted)}
 
-/* ═══ PHOTO GRID ═══ */
-#photo-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px}
-.pi{border-radius:10px;background:var(--surf2);display:flex;flex-direction:column;overflow:hidden;animation:popIn .2s var(--ease);cursor:default;}
-@keyframes popIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
-.pi-handle{height:24px;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;cursor:grab;color:var(--muted);font-size:.8rem;letter-spacing:3px;user-select:none;touch-action:none;border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0;}
-.pi-handle:active{cursor:grabbing}
-.pi img{width:100%;height:115px;object-fit:cover;display:block;pointer-events:none}
-.pi-bar{display:flex;align-items:center;padding:4px 5px;gap:4px;background:rgba(0,0,0,.3);border-top:1px solid rgba(255,255,255,.06);flex-shrink:0;}
-.pi-num{font-size:.63rem;font-weight:700;color:var(--muted);flex:1;padding-left:2px}
-.ib{width:36px;height:34px;border-radius:7px;border:none;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:transform .12s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
-.ib:active{transform:scale(.88)}
-.ib.edit{background:rgba(37,99,235,.25);color:#60a5fa}
-.ib.sign{background:rgba(124,58,237,.25);color:#a78bfa}
-.ib.del{background:rgba(224,82,82,.22);color:#f87171}
-.sg{opacity:.2;border:2px dashed var(--acc)}
-.sc2{box-shadow:0 6px 24px rgba(0,0,0,.5);z-index:5}
+/* ─── PHOTO GRID ─── */
+#photo-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:8px}
+.pi{
+  border-radius:10px;background:var(--surf2);
+  display:flex;flex-direction:column;overflow:hidden;
+  animation:pop .2s var(--ease);cursor:default;
+}
+@keyframes pop{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+.pi-hnd{
+  height:22px;background:rgba(255,255,255,.04);
+  display:flex;align-items:center;justify-content:center;
+  cursor:grab;color:var(--muted);font-size:.78rem;letter-spacing:3px;
+  user-select:none;touch-action:none;
+  border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0;
+}
+.pi img{width:100%;height:110px;object-fit:cover;display:block;pointer-events:none}
+.pi-bar{
+  display:flex;align-items:center;padding:4px 5px;gap:3px;
+  background:rgba(0,0,0,.3);border-top:1px solid rgba(255,255,255,.05);flex-shrink:0;
+}
+.pi-num{font-size:.62rem;font-weight:700;color:var(--muted);flex:1;padding-left:1px}
+.ib{
+  width:34px;height:32px;border-radius:7px;border:none;cursor:pointer;
+  font-size:12px;display:flex;align-items:center;justify-content:center;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:opacity .12s;
+}
+.ib:active{opacity:.65}
+.ib.ed{background:rgba(37,99,235,.25);color:#60a5fa}
+.ib.sg{background:rgba(124,58,237,.25);color:#a78bfa}
+.ib.dl{background:rgba(224,82,82,.22);color:#f87171}
+.ghost{opacity:.2;border:2px dashed var(--acc)}
+.chosen{box-shadow:0 6px 24px rgba(0,0,0,.5);z-index:5}
 
-/* ═══ ACTION BAR ═══ */
-.abar{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surf);border-top:2px solid var(--border);padding-bottom:calc(10px + env(safe-area-inset-bottom));}
-.abar-sm{width:46px;height:46px;border-radius:11px;border:1.5px solid var(--border);background:var(--surf2);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;touch-action:manipulation;transition:opacity .15s,transform .12s;position:relative;overflow:hidden;}
-.abar-sm:active{transform:scale(.9)}
-.abar-sm:disabled{opacity:.3;cursor:not-allowed}
-.abar-sm.danger{border-color:var(--red);color:var(--red);background:rgba(224,82,82,.1)}
-.abar-main{flex:1;height:46px;border-radius:11px;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;touch-action:manipulation;transition:opacity .15s,transform .12s;-webkit-tap-highlight-color:transparent;}
-.abar-main:active{transform:scale(.97)}
-.abar-main:disabled{opacity:.3;cursor:not-allowed}
-.abar-main.blue{background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff}
-.abar-main.teal{background:linear-gradient(135deg,#047857,#10b981);color:#fff}
-.abar-main.purple{background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff}
+/* ─── ACTION BAR ─── */
+.abar{
+  flex-shrink:0;display:flex;align-items:center;gap:7px;
+  padding:9px 10px;background:var(--surf);border-top:2px solid var(--border);
+  padding-bottom:calc(9px + env(safe-area-inset-bottom));
+}
+.abtn-sm{
+  width:44px;height:44px;flex-shrink:0;
+  border-radius:10px;border:1.5px solid var(--border);
+  background:var(--surf2);color:var(--text);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:1rem;touch-action:manipulation;transition:opacity .12s;
+  position:relative;overflow:hidden;
+}
+.abtn-sm:disabled{opacity:.3;cursor:not-allowed}
+.abtn-sm.red{border-color:var(--red);color:var(--red);background:rgba(224,82,82,.1)}
+.abtn-main{
+  flex:1;height:44px;min-width:0;
+  border-radius:10px;border:none;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;
+  touch-action:manipulation;transition:opacity .12s;
+  -webkit-tap-highlight-color:transparent;white-space:nowrap;overflow:hidden;
+}
+.abtn-main:disabled{opacity:.3;cursor:not-allowed}
+.abtn-main:active{opacity:.8}
+.abtn-blue  {background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff}
+.abtn-teal  {background:linear-gradient(135deg,#047857,#10b981);color:#fff}
+.abtn-purple{background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff}
 
-/* ═══ MERGE LIST ═══ */
-.merge-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
-.mi{display:flex;align-items:center;gap:9px;background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:grab;animation:popIn .2s var(--ease);}
-.mi:active{cursor:grabbing}
-.mi-drag{color:var(--muted);font-size:.95rem;flex-shrink:0;user-select:none}
+/* ─── MERGE LIST ─── */
+.mlist{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.mi{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:10px;padding:10px 11px;cursor:grab;animation:pop .2s var(--ease);
+}
+.mi-drag{color:var(--muted);font-size:.9rem;flex-shrink:0;user-select:none}
 .mi-info{flex:1;min-width:0}
-.mi-name{font-size:.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mi-name{font-size:.81rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mi-pages{font-size:.7rem;color:var(--muted);margin-top:1px}
-.mi-del{background:transparent;border:1px solid var(--border);color:var(--red);border-radius:7px;width:32px;height:32px;cursor:pointer;font-size:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s}
-.mi-del:hover{background:rgba(224,82,82,.12)}
+.mi-del{
+  background:transparent;border:1px solid var(--border);color:var(--red);
+  border-radius:7px;width:30px;height:30px;cursor:pointer;font-size:13px;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+}
 
-/* ═══ SIGN TAB ═══ */
-.sign-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:14px;color:var(--muted);font-size:.88rem;text-align:center;padding:24px;}
-.sign-empty .big{font-size:3.2rem;opacity:.3}
-.sign-empty-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.open-btn{padding:11px 18px;border-radius:11px;border:1.5px solid var(--border);background:var(--surf2);color:var(--text);font-family:'Syne',sans-serif;font-weight:700;font-size:.84rem;cursor:pointer;display:flex;align-items:center;gap:7px;position:relative;overflow:hidden;touch-action:manipulation;}
+/* ─── SIGN TAB ─── */
+.sign-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex:1;gap:14px;color:var(--muted);text-align:center;padding:24px;
+}
+.sign-empty .big{font-size:3rem;opacity:.3}
+.sign-empty-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.open-btn{
+  padding:10px 16px;border-radius:10px;border:1.5px solid var(--border);
+  background:var(--surf2);color:var(--text);font-family:'Syne',sans-serif;
+  font-weight:700;font-size:.82rem;cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  position:relative;overflow:hidden;touch-action:manipulation;
+}
 .open-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .sign-loaded{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
-.sign-topbar{display:flex;align-items:center;justify-content:space-between;padding:7px 13px;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0;gap:8px;}
-.sign-fname{font-size:.78rem;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
-.sign-fname b{color:var(--acc)}
-.sign-change-btns{display:flex;gap:5px;flex-shrink:0}
-.chbtn{padding:5px 9px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:.71rem;cursor:pointer;position:relative;overflow:hidden;font-family:'DM Sans',sans-serif;touch-action:manipulation;}
-.chbtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.sign-topbar{
+  flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:6px 12px;background:var(--surf);border-bottom:1px solid var(--border);gap:8px;
+}
+.sfname{font-size:.76rem;color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sfname b{color:var(--acc)}
+.schange{display:flex;gap:5px;flex-shrink:0}
+.sch{
+  padding:4px 8px;border-radius:7px;border:1px solid var(--border);
+  background:var(--surf2);color:var(--muted);font-size:.7rem;cursor:pointer;
+  position:relative;overflow:hidden;
+}
+.sch input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .sign-layout{display:flex;flex:1;overflow:hidden;min-height:0}
-.sign-thumbs{flex-shrink:0;width:82px;overflow-y:auto;overflow-x:hidden;background:var(--surf);border-right:1px solid var(--border);padding:7px;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;scrollbar-color:var(--surf3) transparent;}
-.tw{position:relative;cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid transparent;transition:border-color .18s;flex-shrink:0}
+.sign-thumbs{
+  flex-shrink:0;width:78px;overflow-y:auto;overflow-x:hidden;
+  background:var(--surf);border-right:1px solid var(--border);
+  padding:6px;display:flex;flex-direction:column;gap:5px;
+  scrollbar-width:thin;
+}
+.tw{
+  position:relative;cursor:pointer;border-radius:5px;overflow:hidden;
+  border:2px solid transparent;transition:border-color .15s;flex-shrink:0;
+}
 .tw.active{border-color:var(--acc)}
 .tw canvas{width:100%;display:block}
-.tn{position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,.7);color:#fff;font-size:.55rem;font-weight:700;padding:1px 5px;border-radius:999px}
-.sign-preview{flex:1;overflow:auto;background:#0a0a0e;display:flex;align-items:flex-start;justify-content:center;padding:18px;}
-/* page preview wrap — position:relative for overlays */
-.ppw{position:relative;display:inline-block;line-height:0;flex-shrink:0}
-.ppw canvas{border-radius:4px;box-shadow:0 8px 32px rgba(0,0,0,.7);display:block}
+.tn{
+  position:absolute;bottom:2px;left:3px;
+  background:rgba(0,0,0,.7);color:#fff;font-size:.55rem;font-weight:700;
+  padding:1px 4px;border-radius:999px;
+}
+/* The key: sign-preview is the scroll container, ppw is relative-positioned */
+.sign-preview{
+  flex:1;overflow:auto;background:#0a0a0e;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:16px;
+}
+.ppw{
+  position:relative; /* overlay anchor */
+  display:inline-block;line-height:0;flex-shrink:0;
+}
+.ppw canvas{display:block;border-radius:3px;box-shadow:0 6px 28px rgba(0,0,0,.7)}
 
-/* ═══ SIGNATURE OVERLAY ═══ */
+/* ─── SIGNATURE OVERLAY ─── */
 .sov{
   position:absolute;
-  border:1.5px dashed rgba(245,200,66,.85);
+  border:1.5px dashed rgba(245,200,66,.9);
   border-radius:3px;
-  /* NO pointer-events on this container — handled manually */
-  touch-action:none;
+  /* cursor:move set by JS */
 }
-/* image inside: pointer-events none so touches reach the container */
-.sov img{width:100%;height:100%;display:block;pointer-events:none;user-select:none}
+.sov img{
+  display:block;width:100%;height:100%;
+  pointer-events:none;user-select:none;
+}
 .sov-del{
   position:absolute;top:-12px;right:-12px;
   background:var(--red);color:#fff;border:2px solid #0d0d11;
   border-radius:50%;width:24px;height:24px;
-  cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;
-  z-index:10;touch-action:manipulation;line-height:1;
-  pointer-events:auto; /* explicitly clickable */
+  cursor:pointer;font-size:12px;
+  display:flex;align-items:center;justify-content:center;
+  z-index:3;line-height:1;touch-action:manipulation;
 }
 .sov-rz{
   position:absolute;bottom:-10px;right:-10px;
-  width:22px;height:22px;background:var(--acc);border-radius:4px;
-  cursor:se-resize;z-index:10;display:flex;align-items:center;justify-content:center;
-  font-size:12px;color:#111;
-  pointer-events:auto; /* explicitly resizable */
-  touch-action:none;
+  width:22px;height:22px;background:var(--acc);
+  border-radius:4px;cursor:se-resize;z-index:3;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:#111;touch-action:none;
 }
 
-/* ═══ MODALS ═══ */
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);z-index:400;flex-direction:column}
+/* ─── MODALS ─── */
+.modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.9);backdrop-filter:blur(8px);
+  z-index:400;flex-direction:column;max-width:100vw;overflow:hidden;
+}
 .modal.open{display:flex}
-.mh{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0}
-.mh h2{font-family:'Syne',sans-serif;font-size:.95rem}
-.mh span{font-size:.74rem;color:var(--muted)}
-.mtb{display:flex;gap:5px;padding:8px 11px;background:var(--surf2);flex-shrink:0;overflow-x:auto;scrollbar-width:none;align-items:center;}
+.mhdr{
+  flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:11px 14px;background:var(--surf);border-bottom:1px solid var(--border);
+}
+.mhdr h2{font-family:'Syne',sans-serif;font-size:.92rem}
+.mhdr span{font-size:.72rem;color:var(--muted)}
+.mtb{
+  flex-shrink:0;display:flex;gap:5px;padding:7px 10px;
+  background:var(--surf2);overflow-x:auto;scrollbar-width:none;align-items:center;
+}
 .mtb::-webkit-scrollbar{display:none}
-.tb{padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:var(--surf);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.77rem;cursor:pointer;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:4px;transition:background .15s,border-color .15s;}
-.tb:hover{background:var(--surf3);border-color:var(--acc)}
+.tb{
+  padding:5px 10px;border-radius:7px;border:1px solid var(--border);
+  background:var(--surf);color:var(--text);font-size:.75rem;cursor:pointer;
+  white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:3px;
+  touch-action:manipulation;
+}
 .tb.active{background:var(--acc);color:#111;border-color:var(--acc);font-weight:600}
-.mc{flex:1;overflow:hidden;position:relative;background:#0a0a0e;display:flex;align-items:center;justify-content:center}
-.mc img{max-width:100%;max-height:100%;display:block}
-.mf{display:flex;gap:8px;padding:10px 13px;background:var(--surf);border-top:1px solid var(--border);flex-shrink:0;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
-.mf-btn{padding:12px 16px;border-radius:10px;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:.86rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;touch-action:manipulation;transition:opacity .15s;}
-.mf-btn:active{opacity:.75}
+.mcvs{
+  flex:1;overflow:hidden;position:relative;background:#0a0a0e;
+  display:flex;align-items:center;justify-content:center;
+}
+.mcvs img{max-width:100%;max-height:100%;display:block}
+.mftr{
+  flex-shrink:0;display:flex;gap:7px;padding:9px 12px;
+  background:var(--surf);border-top:1px solid var(--border);
+  padding-bottom:calc(9px + env(safe-area-inset-bottom));
+}
+.mfbtn{
+  padding:11px 14px;border-radius:10px;border:none;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:.84rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;
+  touch-action:manipulation;transition:opacity .12s;
+}
+.mfbtn:active{opacity:.75}
 .mf-cancel{background:var(--surf2);color:var(--text);border:1px solid var(--border);flex:1}
-.mf-reset{background:var(--surf2);color:var(--muted);border:1px solid var(--border)}
-.mf-apply{background:linear-gradient(135deg,var(--green),#27a065);color:#fff;flex:2}
-.divv{width:1px;background:var(--border);margin:0 2px;align-self:stretch;flex-shrink:0}
+.mf-reset {background:var(--surf2);color:var(--muted);border:1px solid var(--border)}
+.mf-apply {background:linear-gradient(135deg,var(--green),#27a065);color:#fff;flex:2}
+.divv{width:1px;background:var(--border);margin:0 1px;align-self:stretch;flex-shrink:0}
 
-/* ═══ SIG CANVAS ═══ */
+/* ─── SIGNATURE DRAW ─── */
 .sig-wrap{flex:1;display:flex;position:relative;background:#f4f4ec;overflow:hidden}
-#sigCanvas{display:block;touch-action:none;width:100%;height:100%;cursor:crosshair}
-.sig-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.95rem;color:#bbb;pointer-events:none;transition:opacity .25s;}
+#sigCvs{display:block;touch-action:none;width:100%;height:100%}
+.sig-hint{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:.92rem;color:#bbb;pointer-events:none;transition:opacity .2s;
+}
 .sig-hint.gone{opacity:0}
-.cdot{width:26px;height:26px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .15s,transform .15s;flex-shrink:0;touch-action:manipulation;}
+.cdot{
+  width:24px;height:24px;border-radius:50%;cursor:pointer;
+  border:3px solid transparent;transition:border-color .15s,transform .12s;flex-shrink:0;
+  touch-action:manipulation;
+}
 .cdot.active{border-color:#fff;transform:scale(1.15)}
 
-/* ═══ PROGRESS ═══ */
-.prog-back{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);z-index:600;align-items:center;justify-content:center;}
-.prog-back.open{display:flex}
-.prog-card{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:26px 30px;text-align:center;min-width:230px;}
-.prog-card h3{font-family:'Syne',sans-serif;margin-bottom:14px;font-size:.94rem}
-.prog-track{width:100%;height:7px;background:var(--surf2);border-radius:999px;overflow:hidden;margin-bottom:9px}
+/* ─── PROGRESS ─── */
+.prog-bg{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);
+  backdrop-filter:blur(6px);z-index:600;align-items:center;justify-content:center;
+}
+.prog-bg.open{display:flex}
+.prog-card{
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:14px;padding:24px 28px;text-align:center;min-width:220px;max-width:80vw;
+}
+.prog-card h3{font-family:'Syne',sans-serif;margin-bottom:12px;font-size:.92rem}
+.prog-track{width:100%;height:6px;background:var(--surf2);border-radius:999px;overflow:hidden;margin-bottom:8px}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:999px;transition:width .2s var(--ease);width:0%}
-.prog-note{font-size:.78rem;color:var(--muted)}
+.prog-note{font-size:.76rem;color:var(--muted)}
 
-/* ═══ TOAST ═══ */
-.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--surf2);border:1px solid var(--border);color:var(--text);padding:8px 18px;border-radius:10px;font-size:.81rem;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:700;white-space:nowrap;}
+/* ─── TOAST ─── */
+.toast{
+  position:fixed;top:60px;left:50%;max-width:90vw;
+  transform:translateX(-50%) translateY(-8px);
+  background:var(--surf2);border:1px solid var(--border);
+  color:var(--text);padding:7px 16px;border-radius:9px;
+  font-size:.79rem;opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;z-index:700;
+  white-space:normal;text-align:center;
+}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.empty{grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-size:.8rem;line-height:1.9}
-
-@media(max-width:380px){
-  .nc{padding:10px 2px;font-size:.66rem}
-  .nc-icon{font-size:1.2rem}
-  .h-logo{font-size:.82rem;padding:0 8px}
-  .zaphyros{font-size:1.35rem}
+.empty{
+  grid-column:1/-1;text-align:center;padding:22px;
+  color:var(--muted);font-size:.79rem;line-height:1.9;
 }
 </style>
 </head>
 <body>
 
-<!-- ═══ HEADER ═══ -->
+<!-- HEADER -->
 <header>
-  <div class="h-logo">Photo to <span>PDF</span></div>
-  <div class="h-center">
-    <span class="zaphyros">zaphyros</span>
+  <div class="h-brand">
+    <div class="h-title">Photo to <span>PDF</span></div>
+    <div class="h-sig">zaphyros</div>
   </div>
   <div class="h-right">
-    <button class="lang-btn active" id="langTR" onclick="setLang('tr')">TR</button>
-    <button class="lang-btn" id="langEN" onclick="setLang('en')">EN</button>
-    <div class="hpill" id="countPill">Photo: <b>0</b></div>
+    <button class="lang-btn active" id="btnTR" onclick="setLang('tr')">TR</button>
+    <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+    <div class="hpill" id="cPill">Foto: <b>0</b></div>
   </div>
 </header>
 
-<!-- ═══ NAV CARDS ═══ -->
+<!-- NAV CARDS -->
 <div class="nav-cards">
   <div class="nc c1 active" data-tab="photo">
     <div class="nc-icon">📷</div>
-    <div data-i="nav_photo">Foto → PDF</div>
+    <div data-i="nav_photo">Foto→PDF</div>
   </div>
   <div class="nc c2" data-tab="merge">
     <div class="nc-icon">🔗</div>
@@ -299,120 +410,117 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:86px}
   </div>
 </div>
 
-<!-- ═══ TAB: PHOTO ═══ -->
+<!-- ═══ PHOTO TAB ═══ -->
 <div class="tab-panel active" id="tab-photo">
-  <div class="settings-bar">
+  <div class="sbar">
     <div class="sc">
       <label data-i="lbl_page">Sayfa</label>
-      <select id="pageSize">
+      <select id="selPage">
         <option value="a4">A4</option><option value="a5">A5</option>
-        <option value="letter">Letter</option><option value="square" data-i="opt_square">Kare</option>
+        <option value="letter">Letter</option><option value="square" data-i="opt_sq">Kare</option>
       </select>
     </div>
     <div class="sc">
-      <label data-i="lbl_orient">Yön</label>
-      <select id="orientation">
+      <label data-i="lbl_ori">Yön</label>
+      <select id="selOri">
         <option value="auto" data-i="opt_auto">Otomatik</option>
-        <option value="portrait" data-i="opt_portrait">Dikey</option>
-        <option value="landscape" data-i="opt_landscape">Yatay</option>
+        <option value="portrait" data-i="opt_port">Dikey</option>
+        <option value="landscape" data-i="opt_land">Yatay</option>
       </select>
     </div>
     <div class="sc">
-      <label data-i="lbl_margin">Kenar</label>
-      <select id="margin">
-        <option value="8">8mm</option><option value="0" data-i="opt_none">Kenarsız</option><option value="15">15mm</option>
+      <label data-i="lbl_marg">Kenar</label>
+      <select id="selMarg">
+        <option value="8">8mm</option>
+        <option value="0" data-i="opt_none">Kenarsız</option>
+        <option value="15">15mm</option>
       </select>
     </div>
     <div class="sc">
-      <label data-i="lbl_quality">Kalite: <span class="qval" id="qval">85%</span></label>
+      <label data-i="lbl_qual">Kalite: <span class="qval" id="qval">85%</span></label>
       <input type="range" id="qrange" min="40" max="100" value="85">
     </div>
   </div>
-
   <div class="scroll">
     <div class="dz" id="photoDZ">
       <input type="file" id="photoIn" multiple accept="image/*">
       <div class="dz-icon">📷</div>
-      <h3 data-i="dz_photo_h">Fotoğraf Ekle</h3>
-      <p data-i="dz_photo_p">Tıkla veya sürükle · JPG, PNG, WebP</p>
+      <h3 data-i="dz_ph_h">Fotoğraf Ekle</h3>
+      <p data-i="dz_ph_p">Tıkla veya sürükle · JPG, PNG, WebP</p>
     </div>
     <div id="photo-list">
-      <div class="empty" id="photoEmpty" data-i="empty_photo">📂 Henüz fotoğraf eklenmedi.</div>
+      <div class="empty" id="photoEmpty" data-i="empty_ph">📂 Henüz fotoğraf eklenmedi.</div>
     </div>
   </div>
-
   <div class="abar">
-    <button class="abar-sm" title="Add" style="position:relative;overflow:hidden">
+    <button class="abtn-sm" title="Ekle">
       ＋<input type="file" id="photoIn2" multiple accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer">
     </button>
-    <button class="abar-sm danger" id="photoClearBtn" disabled>🗑</button>
-    <button class="abar-main blue" id="photoPdfBtn" disabled data-i="btn_create_pdf">📄 PDF Oluştur</button>
+    <button class="abtn-sm red" id="phClearBtn" disabled>🗑</button>
+    <button class="abtn-main abtn-blue" id="phPdfBtn" disabled data-i="btn_cpdf">📄 PDF Oluştur</button>
   </div>
 </div>
 
-<!-- ═══ TAB: MERGE ═══ -->
+<!-- ═══ MERGE TAB ═══ -->
 <div class="tab-panel" id="tab-merge">
   <div class="scroll">
     <div class="dz" id="mergeDZ">
-      <!-- accept=".pdf" forces file manager on Android, not gallery -->
       <input type="file" id="mergeIn" multiple accept=".pdf">
       <div class="dz-icon">📄</div>
-      <h3 data-i="dz_merge_h">PDF Dosyaları Ekle</h3>
-      <p data-i="dz_merge_p">Birleştirmek istediğin PDF'leri seç · Sırala</p>
+      <h3 data-i="dz_mg_h">PDF Dosyaları Ekle</h3>
+      <p data-i="dz_mg_p">Birleştirmek istediğin PDF'leri seç</p>
     </div>
-    <div class="merge-list" id="mergeList">
-      <div class="empty" id="mergeEmpty" data-i="empty_merge">📂 Henüz PDF eklenmedi.</div>
+    <div class="mlist" id="mergeList">
+      <div class="empty" id="mergeEmpty" data-i="empty_mg">📂 Henüz PDF eklenmedi.</div>
     </div>
   </div>
   <div class="abar">
-    <button class="abar-sm" style="position:relative;overflow:hidden">
+    <button class="abtn-sm">
       ＋<input type="file" id="mergeIn2" multiple accept=".pdf" style="position:absolute;inset:0;opacity:0;cursor:pointer">
     </button>
-    <button class="abar-sm danger" id="mergeClearBtn" disabled>🗑</button>
-    <button class="abar-main teal" id="mergePdfBtn" disabled data-i="btn_merge">🔗 Birleştir ve İndir</button>
+    <button class="abtn-sm red" id="mgClearBtn" disabled>🗑</button>
+    <button class="abtn-main abtn-teal" id="mgBtn" disabled data-i="btn_merge">🔗 Birleştir</button>
   </div>
 </div>
 
-<!-- ═══ TAB: SIGN ═══ -->
+<!-- ═══ SIGN TAB ═══ -->
 <div class="tab-panel" id="tab-sign">
   <div class="sign-empty" id="signEmpty">
     <div class="big">✍️</div>
-    <div style="font-weight:500;font-size:.92rem;color:var(--text)" data-i="sign_pick_title">İmzalamak istediğin dosyayı seç</div>
-    <div style="font-size:.77rem" data-i="sign_pick_sub">PDF veya fotoğraf desteklenir</div>
-    <div class="sign-empty-btns">
-      <label class="open-btn">📄 <span data-i="btn_open_pdf">PDF Aç</span><input type="file" id="signPdfIn" accept=".pdf"></label>
-      <label class="open-btn">🖼️ <span data-i="btn_open_img">Fotoğraf Aç</span><input type="file" id="signImgIn" accept="image/*"></label>
+    <div style="font-weight:500;color:var(--text);font-size:.9rem" data-i="sign_ttl">Dosyayı seç</div>
+    <div style="font-size:.75rem" data-i="sign_sub">PDF veya fotoğraf</div>
+    <div class="sign-empty-row">
+      <label class="open-btn">📄 <span data-i="btn_opdf">PDF Aç</span><input type="file" id="signPdfIn" accept=".pdf"></label>
+      <label class="open-btn">🖼️ <span data-i="btn_oimg">Foto Aç</span><input type="file" id="signImgIn" accept="image/*"></label>
     </div>
   </div>
-
   <div class="sign-loaded" id="signLoaded">
     <div class="sign-topbar">
-      <div class="sign-fname"><b id="signFname">-</b> · <span id="signPcount">0</span> <span id="signPlabel" data-i="lbl_page_count">sayfa</span></div>
-      <div class="sign-change-btns">
-        <label class="chbtn">PDF<input type="file" id="signPdfIn2" accept=".pdf"></label>
-        <label class="chbtn"><span data-i="lbl_photo_short">Foto</span><input type="file" id="signImgIn2" accept="image/*"></label>
+      <div class="sfname"><b id="sFname">-</b> · <span id="sPcount">0</span> <span id="sPlabel" data-i="lbl_pages">sayfa</span></div>
+      <div class="schange">
+        <label class="sch">PDF<input type="file" id="signPdfIn2" accept=".pdf"></label>
+        <label class="sch"><span data-i="btn_oimg">Foto</span><input type="file" id="signImgIn2" accept="image/*"></label>
       </div>
     </div>
     <div class="sign-layout">
       <div class="sign-thumbs" id="signThumbs"></div>
       <div class="sign-preview" id="signPreview">
-        <div class="ppw" id="ppw"><canvas id="mainCanvas"></canvas></div>
+        <div class="ppw" id="ppw"><canvas id="mainCvs"></canvas></div>
       </div>
     </div>
   </div>
-
   <div class="abar" id="signAbar" style="display:none">
-    <button class="abar-sm danger" id="clearSigsBtn" title="Clear">🗑</button>
-    <button class="abar-main purple" id="drawSigBtn" data-i="btn_sign">✍️ İmza Çiz</button>
-    <button class="abar-main blue" id="dlSignedBtn" data-i="btn_dl_signed">📄 İndir</button>
+    <button class="abtn-sm red" id="clrSigsBtn">🗑</button>
+    <button class="abtn-main abtn-purple" id="drawSigBtn" data-i="btn_draw_sig">✍️ İmza Çiz</button>
+    <button class="abtn-main abtn-blue" id="dlSignedBtn" data-i="btn_dl_signed">📄 İndir</button>
   </div>
 </div>
 
 <!-- ═══ CROP MODAL ═══ -->
 <div class="modal" id="cropModal">
-  <div class="mh"><h2>✂️ <span data-i="crop_title">Düzenle / Kırp</span></h2><span id="cropIdx"></span></div>
+  <div class="mhdr"><h2>✂️ <span data-i="crop_ttl">Düzenle</span></h2><span id="cropIdx"></span></div>
   <div class="mtb">
-    <span style="font-size:.66rem;color:var(--muted)" data-i="lbl_ratio">Oran:</span>
+    <span style="font-size:.64rem;color:var(--muted)" data-i="lbl_ratio">Oran:</span>
     <button class="tb active" data-ratio="free" data-i="opt_free">Serbest</button>
     <button class="tb" data-ratio="1">1:1</button>
     <button class="tb" data-ratio="1.333">4:3</button>
@@ -423,208 +531,188 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:86px}
     <button class="tb" id="rotR">↻</button>
     <button class="tb" id="flipH">⇄</button>
     <button class="tb" id="flipV">⇅</button>
-    <button class="tb" id="zIn">🔍+</button>
-    <button class="tb" id="zOut">🔍−</button>
+    <button class="tb" id="zIn">+</button>
+    <button class="tb" id="zOut">−</button>
   </div>
-  <div class="mc"><img id="cropImg" src="" alt=""></div>
-  <div class="mf">
-    <button class="mf-btn mf-cancel" id="cancelCrop" data-i="btn_cancel">İptal</button>
-    <button class="mf-btn mf-reset" id="resetCrop" data-i="btn_reset">Sıfırla</button>
-    <button class="mf-btn mf-apply" id="applyCrop" data-i="btn_apply">✓ Uygula</button>
+  <div class="mcvs"><img id="cropImg" src="" alt=""></div>
+  <div class="mftr">
+    <button class="mfbtn mf-cancel" id="cancelCrop" data-i="btn_cancel">İptal</button>
+    <button class="mfbtn mf-reset" id="resetCrop" data-i="btn_reset">Sıfırla</button>
+    <button class="mfbtn mf-apply" id="applyCrop" data-i="btn_apply">✓ Uygula</button>
   </div>
 </div>
 
-<!-- ═══ SIG DRAW MODAL ═══ -->
+<!-- ═══ SIGNATURE MODAL ═══ -->
 <div class="modal" id="sigModal">
-  <div class="mh">
-    <h2>✍️ <span data-i="sig_draw_title">İmzanı Çiz</span></h2>
-    <span data-i="sig_draw_sub">Parmak veya mouse ile</span>
+  <div class="mhdr">
+    <h2>✍️ <span data-i="sig_ttl">İmzanı Çiz</span></h2>
+    <span data-i="sig_sub">Parmak veya mouse</span>
   </div>
   <div class="mtb">
-    <span style="font-size:.66rem;color:var(--muted)" data-i="lbl_color">Renk:</span>
-    <div class="cdot active" data-c="#111111" style="background:#111111" title="Siyah"></div>
+    <span style="font-size:.64rem;color:var(--muted)" data-i="lbl_clr">Renk:</span>
+    <div class="cdot active" data-c="#111111" style="background:#111111"></div>
     <div class="cdot" data-c="#1a3a8f" style="background:#1a3a8f" title="Lacivert"></div>
     <div class="cdot" data-c="#1565C0" style="background:#1565C0" title="Mürekkep Mavi"></div>
     <div class="cdot" data-c="#8a1414" style="background:#8a1414" title="Kırmızı"></div>
     <div class="divv"></div>
-    <span style="font-size:.66rem;color:var(--muted)" data-i="lbl_thickness">Kalınlık:</span>
+    <span style="font-size:.64rem;color:var(--muted)" data-i="lbl_thk">Kalınlık:</span>
     <button class="tb" data-w="2" data-i="w_thin">İnce</button>
     <button class="tb active" data-w="3" data-i="w_mid">Orta</button>
     <button class="tb" data-w="5" data-i="w_thick">Kalın</button>
     <div class="divv"></div>
-    <button class="tb" id="clearSigCvs" data-i="btn_clear">🗑 Temizle</button>
+    <button class="tb" id="clrSigCvs" data-i="btn_clear">🗑 Temizle</button>
   </div>
   <div class="sig-wrap">
-    <canvas id="sigCanvas"></canvas>
+    <canvas id="sigCvs"></canvas>
     <div class="sig-hint" id="sigHint" data-i="sig_hint">✍️ Buraya imzanı çiz</div>
   </div>
-  <div class="mf">
-    <button class="mf-btn mf-cancel" id="cancelSig" data-i="btn_cancel">İptal</button>
-    <button class="mf-btn mf-apply" id="applySig" data-i="btn_place_sig">✓ İmzayı Yerleştir</button>
+  <div class="mftr">
+    <button class="mfbtn mf-cancel" id="cancelSig" data-i="btn_cancel">İptal</button>
+    <button class="mfbtn mf-apply" id="applySig" data-i="btn_place">✓ Yerleştir</button>
   </div>
 </div>
 
-<!-- ═══ PROGRESS ═══ -->
-<div class="prog-back" id="progBack">
+<!-- PROGRESS -->
+<div class="prog-bg" id="progBg">
   <div class="prog-card">
     <h3 id="progTitle">İşleniyor…</h3>
     <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
-    <div class="prog-note" id="progNote">Lütfen bekleyin</div>
+    <div class="prog-note" id="progNote">…</div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
-/* ═══════════════════════════════════════
+/* ══════════════════════════════════════════
    i18n
-═══════════════════════════════════════ */
-const STRINGS = {
-  tr:{
-    nav_photo:'Foto → PDF', nav_merge:'Birleştir', nav_sign:'İmzala',
-    lbl_page:'Sayfa', lbl_orient:'Yön', lbl_margin:'Kenar',
-    lbl_quality:'Kalite:', lbl_ratio:'Oran:', lbl_color:'Renk:', lbl_thickness:'Kalınlık:',
-    opt_square:'Kare', opt_auto:'Otomatik', opt_portrait:'Dikey', opt_landscape:'Yatay', opt_none:'Kenarsız', opt_free:'Serbest',
-    dz_photo_h:'Fotoğraf Ekle', dz_photo_p:'Tıkla veya sürükle · JPG, PNG, WebP',
-    dz_merge_h:'PDF Dosyaları Ekle', dz_merge_p:'Birleştirmek istediğin PDF\'leri seç · Sırala',
-    empty_photo:'📂 Henüz fotoğraf eklenmedi.', empty_merge:'📂 Henüz PDF eklenmedi.',
-    btn_create_pdf:'📄 PDF Oluştur', btn_merge:'🔗 Birleştir ve İndir',
-    sign_pick_title:'İmzalamak istediğin dosyayı seç', sign_pick_sub:'PDF veya fotoğraf desteklenir',
-    btn_open_pdf:'PDF Aç', btn_open_img:'Fotoğraf Aç', lbl_page_count:'sayfa', lbl_photo_short:'Foto',
-    btn_sign:'✍️ İmza Çiz', btn_dl_signed:'📄 İndir',
-    crop_title:'Düzenle / Kırp', btn_cancel:'İptal', btn_reset:'Sıfırla', btn_apply:'✓ Uygula',
-    sig_draw_title:'İmzanı Çiz', sig_draw_sub:'Parmak veya mouse ile',
-    w_thin:'İnce', w_mid:'Orta', w_thick:'Kalın', btn_clear:'🗑 Temizle',
-    btn_place_sig:'✓ İmzayı Yerleştir', sig_hint:'✍️ Buraya imzanı çiz',
-    pill_photo:'Foto:', prog_creating:'PDF Oluşturuluyor…', prog_merging:'Birleştiriliyor…',
-    prog_loading_pdf:'PDF Yükleniyor…', prog_loading_img:'Görsel Yükleniyor…',
-    prog_signing:'İmzalı PDF Hazırlanıyor…', prog_signing_img:'İmzalı Görsel Hazırlanıyor…',
-    toast_pdf_done:'✅ PDF oluşturuldu!', toast_merge_done:'✅ PDF birleştirildi!',
-    toast_sign_done:'✅ İmzalı PDF indirildi!', toast_sign_img_done:'✅ İmzalı görsel indirildi!',
-    toast_placed:'✅ İmza eklendi — sürükle & köşeden boyutlandır',
-    toast_photo_loaded:'Fotoğraf yüklendi — imzanı çiz',
-    toast_crop_done:'✅ Düzenleme uygulandı',
-    toast_sigs_cleared:'İmzalar temizlendi',
-    toast_no_sig:'⚠️ Önce imzanı çiz!',
-    toast_no_placed:'⚠️ Henüz imza eklemedin',
-    toast_confirm_clear_photos:'Tüm fotoğraflar silinsin mi?',
-    toast_confirm_clear_merge:'Liste temizlensin mi?',
-    toast_pdf_unreadable:'❌ PDF okunamadı',
-    toast_pdf_err:'❌ PDF yüklenemedi',
-    toast_img_err:'❌ Görsel yüklenemedi',
-    toast_err:'❌ Hata: ',
-    sig_image_mode:'görsel',
-  },
-  en:{
-    nav_photo:'Photo→PDF', nav_merge:'Merge', nav_sign:'Sign',
-    lbl_page:'Page', lbl_orient:'Orient', lbl_margin:'Margin',
-    lbl_quality:'Quality:', lbl_ratio:'Ratio:', lbl_color:'Color:', lbl_thickness:'Size:',
-    opt_square:'Square', opt_auto:'Auto', opt_portrait:'Portrait', opt_landscape:'Landscape', opt_none:'Borderless', opt_free:'Free',
-    dz_photo_h:'Add Photos', dz_photo_p:'Tap or drag here · JPG, PNG, WebP',
-    dz_merge_h:'Add PDF Files', dz_merge_p:'Select PDFs to merge · Drag to sort',
-    empty_photo:'📂 No photos added yet.', empty_merge:'📂 No PDFs added yet.',
-    btn_create_pdf:'📄 Create PDF', btn_merge:'🔗 Merge & Download',
-    sign_pick_title:'Select a file to sign', sign_pick_sub:'PDF or photo supported',
-    btn_open_pdf:'Open PDF', btn_open_img:'Open Photo', lbl_page_count:'pages', lbl_photo_short:'Photo',
-    btn_sign:'✍️ Draw Signature', btn_dl_signed:'📄 Download',
-    crop_title:'Edit / Crop', btn_cancel:'Cancel', btn_reset:'Reset', btn_apply:'✓ Apply',
-    sig_draw_title:'Draw Your Signature', sig_draw_sub:'Finger or mouse',
-    w_thin:'Thin', w_mid:'Medium', w_thick:'Thick', btn_clear:'🗑 Clear',
-    btn_place_sig:'✓ Place Signature', sig_hint:'✍️ Draw here',
-    pill_photo:'Photos:', prog_creating:'Creating PDF…', prog_merging:'Merging…',
-    prog_loading_pdf:'Loading PDF…', prog_loading_img:'Loading Image…',
-    prog_signing:'Creating Signed PDF…', prog_signing_img:'Creating Signed Image…',
-    toast_pdf_done:'✅ PDF created!', toast_merge_done:'✅ PDFs merged!',
-    toast_sign_done:'✅ Signed PDF downloaded!', toast_sign_img_done:'✅ Signed image downloaded!',
-    toast_placed:'✅ Signature placed — drag & resize from corner',
-    toast_photo_loaded:'Photo loaded — draw your signature',
-    toast_crop_done:'✅ Edit applied',
-    toast_sigs_cleared:'Signatures cleared',
-    toast_no_sig:'⚠️ Draw your signature first!',
-    toast_no_placed:'⚠️ No signature added yet',
-    toast_confirm_clear_photos:'Delete all photos?',
-    toast_confirm_clear_merge:'Clear the list?',
-    toast_pdf_unreadable:'❌ Could not read PDF',
-    toast_pdf_err:'❌ Could not load PDF',
-    toast_img_err:'❌ Could not load image',
-    toast_err:'❌ Error: ',
-    sig_image_mode:'image',
-  }
-};
+══════════════════════════════════════════ */
+const S={
+tr:{
+  nav_photo:'Foto→PDF',nav_merge:'Birleştir',nav_sign:'İmzala',
+  lbl_page:'Sayfa',lbl_ori:'Yön',lbl_marg:'Kenar',lbl_qual:'Kalite:',
+  lbl_ratio:'Oran:',lbl_clr:'Renk:',lbl_thk:'Kalınlık:',lbl_pages:'sayfa',
+  opt_sq:'Kare',opt_auto:'Otomatik',opt_port:'Dikey',opt_land:'Yatay',opt_none:'Kenarsız',opt_free:'Serbest',
+  dz_ph_h:'Fotoğraf Ekle',dz_ph_p:'Tıkla veya sürükle · JPG, PNG, WebP',
+  dz_mg_h:'PDF Dosyaları Ekle',dz_mg_p:'Birleştirmek istediğin PDF\'leri seç',
+  empty_ph:'📂 Henüz fotoğraf eklenmedi.',empty_mg:'📂 Henüz PDF eklenmedi.',
+  btn_cpdf:'📄 PDF Oluştur',btn_merge:'🔗 Birleştir',
+  sign_ttl:'Dosyayı seç',sign_sub:'PDF veya fotoğraf desteklenir',
+  btn_opdf:'PDF Aç',btn_oimg:'Foto Aç',
+  btn_draw_sig:'✍️ İmza Çiz',btn_dl_signed:'📄 İndir',
+  crop_ttl:'Düzenle / Kırp',btn_cancel:'İptal',btn_reset:'Sıfırla',btn_apply:'✓ Uygula',
+  sig_ttl:'İmzanı Çiz',sig_sub:'Parmak veya mouse',
+  w_thin:'İnce',w_mid:'Orta',w_thick:'Kalın',btn_clear:'🗑 Temizle',btn_place:'✓ Yerleştir',
+  sig_hint:'✍️ Buraya imzanı çiz',
+  pill:'Foto:',img_mode:'görsel',
+  p_creating:'PDF Oluşturuluyor…',p_merging:'Birleştiriliyor…',
+  p_load_pdf:'PDF Yükleniyor…',p_load_img:'Görsel Yükleniyor…',
+  p_signing:'İmzalı PDF Hazırlanıyor…',p_signing_img:'İmzalı Görsel Hazırlanıyor…',
+  t_pdf_ok:'✅ PDF oluşturuldu!',t_merge_ok:'✅ PDF birleştirildi!',
+  t_sign_ok:'✅ İmzalı PDF indirildi!',t_sign_img_ok:'✅ İmzalı görsel indirildi!',
+  t_placed:'✅ İmza eklendi — sürükle, köşeden boyutlandır',
+  t_photo_loaded:'Fotoğraf yüklendi — imzanı çiz',
+  t_crop_ok:'✅ Düzenleme uygulandı',t_sigs_cleared:'İmzalar temizlendi',
+  t_no_sig:'⚠️ Önce imzanı çiz!',t_no_placed:'⚠️ Henüz imza eklemedin',
+  t_confirm_ph:'Tüm fotoğraflar silinsin mi?',t_confirm_mg:'Liste temizlensin mi?',
+  t_pdf_err:'❌ PDF yüklenemedi',t_img_err:'❌ Görsel yüklenemedi',t_err:'❌ Hata: '
+},
+en:{
+  nav_photo:'Photo→PDF',nav_merge:'Merge',nav_sign:'Sign',
+  lbl_page:'Page',lbl_ori:'Orient',lbl_marg:'Margin',lbl_qual:'Quality:',
+  lbl_ratio:'Ratio:',lbl_clr:'Color:',lbl_thk:'Size:',lbl_pages:'pages',
+  opt_sq:'Square',opt_auto:'Auto',opt_port:'Portrait',opt_land:'Landscape',opt_none:'Borderless',opt_free:'Free',
+  dz_ph_h:'Add Photos',dz_ph_p:'Tap or drag · JPG, PNG, WebP',
+  dz_mg_h:'Add PDF Files',dz_mg_p:'Select PDFs to merge',
+  empty_ph:'📂 No photos added.',empty_mg:'📂 No PDFs added.',
+  btn_cpdf:'📄 Create PDF',btn_merge:'🔗 Merge',
+  sign_ttl:'Select a file',sign_sub:'PDF or photo supported',
+  btn_opdf:'Open PDF',btn_oimg:'Open Photo',
+  btn_draw_sig:'✍️ Draw Signature',btn_dl_signed:'📄 Download',
+  crop_ttl:'Edit / Crop',btn_cancel:'Cancel',btn_reset:'Reset',btn_apply:'✓ Apply',
+  sig_ttl:'Draw Signature',sig_sub:'Finger or mouse',
+  w_thin:'Thin',w_mid:'Medium',w_thick:'Thick',btn_clear:'🗑 Clear',btn_place:'✓ Place',
+  sig_hint:'✍️ Draw here',
+  pill:'Photos:',img_mode:'image',
+  p_creating:'Creating PDF…',p_merging:'Merging…',
+  p_load_pdf:'Loading PDF…',p_load_img:'Loading Image…',
+  p_signing:'Creating Signed PDF…',p_signing_img:'Creating Signed Image…',
+  t_pdf_ok:'✅ PDF created!',t_merge_ok:'✅ PDFs merged!',
+  t_sign_ok:'✅ Signed PDF downloaded!',t_sign_img_ok:'✅ Signed image downloaded!',
+  t_placed:'✅ Signature placed — drag & resize from corner',
+  t_photo_loaded:'Photo loaded — draw your signature',
+  t_crop_ok:'✅ Edit applied',t_sigs_cleared:'Signatures cleared',
+  t_no_sig:'⚠️ Draw your signature first!',t_no_placed:'⚠️ No signature yet',
+  t_confirm_ph:'Delete all photos?',t_confirm_mg:'Clear list?',
+  t_pdf_err:'❌ Could not load PDF',t_img_err:'❌ Could not load image',t_err:'❌ Error: '
+}};
 
-let lang = 'tr';
-
-function t(key){ return STRINGS[lang][key] || STRINGS.tr[key] || key; }
-
+let lang='tr';
+function tx(k){return S[lang][k]||S.tr[k]||k}
 function applyLang(){
   document.querySelectorAll('[data-i]').forEach(el=>{
-    const k=el.dataset.i;
-    if(k) el.textContent=t(k);
+    const k=el.dataset.i; if(k)el.textContent=tx(k);
   });
-  document.getElementById('countPill').innerHTML = t('pill_photo')+' <b>'+photoCount()+'</b>';
-  document.getElementById('langTR').classList.toggle('active', lang==='tr');
-  document.getElementById('langEN').classList.toggle('active', lang==='en');
+  document.getElementById('btnTR').classList.toggle('active',lang==='tr');
+  document.getElementById('btnEN').classList.toggle('active',lang==='en');
+  updatePill();
 }
+function setLang(l){lang=l;localStorage.setItem('lang',l);applyLang()}
 
-function setLang(l){
-  lang=l;
-  localStorage.setItem('ptpLang',l);
-  applyLang();
-}
-
-/* ═══════════════════════════════════════
-   GLOBALS & HELPERS
-═══════════════════════════════════════ */
-const {jsPDF} = window.jspdf;
-pdfjsLib.GlobalWorkerOptions.workerSrc =
+/* ══════════════════════════════════════════
+   GLOBALS / HELPERS
+══════════════════════════════════════════ */
+const {jsPDF}=window.jspdf;
+pdfjsLib.GlobalWorkerOptions.workerSrc=
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-let _toastT;
-function toast(msg,ms=2800){
+let _tt;
+function toast(msg,ms=3000){
   const el=document.getElementById('toast');
   el.textContent=msg;el.classList.add('show');
-  clearTimeout(_toastT);_toastT=setTimeout(()=>el.classList.remove('show'),ms);
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),ms);
 }
-function showProg(txt){
-  document.getElementById('progTitle').textContent=txt;
+function showProg(t){
+  document.getElementById('progTitle').textContent=t;
   document.getElementById('progFill').style.width='0%';
   document.getElementById('progNote').textContent='…';
-  document.getElementById('progBack').classList.add('open');
+  document.getElementById('progBg').classList.add('open');
 }
 function setProg(p,n){
   document.getElementById('progFill').style.width=p+'%';
   if(n)document.getElementById('progNote').textContent=n;
 }
-function hideProg(){document.getElementById('progBack').classList.remove('open')}
+function hideProg(){document.getElementById('progBg').classList.remove('open')}
 function dlBytes(b,n){
   const u=URL.createObjectURL(new Blob([b],{type:'application/pdf'}));
   const a=document.createElement('a');a.href=u;a.download=n;a.click();
   setTimeout(()=>URL.revokeObjectURL(u),5000);
 }
 function dlDataUrl(du,n){const a=document.createElement('a');a.href=du;a.download=n;a.click()}
-function photoCount(){return document.querySelectorAll('#photo-list .pi').length}
+function nPhotos(){return document.querySelectorAll('#photo-list .pi').length}
+function updatePill(){
+  document.getElementById('cPill').innerHTML=tx('pill')+' <b>'+nPhotos()+'</b>';
+}
 
-/* ═══════════════════════════════════════
-   NAVIGATION + ANDROID BACK
-═══════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   NAVIGATION + BACK BUTTON
+══════════════════════════════════════════ */
 const MODALS=['cropModal','sigModal'];
-let curTab='photo';
-
 history.replaceState({k:'tab',v:'photo'},'');
-function pushHist(k,v){history.pushState({k,v},'')}
+
+function pushH(k,v){history.pushState({k,v},'')}
+function openModal(id){pushH('modal',id);document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+
 function switchTab(id,push=true){
-  curTab=id;
-  if(push)pushHist('tab',id);
+  if(push)pushH('tab',id);
   document.querySelectorAll('.nc').forEach(n=>n.classList.toggle('active',n.dataset.tab===id));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+id));
 }
-function openModal(id){pushHist('modal',id);document.getElementById(id).classList.add('open')}
-function closeModal(id){document.getElementById(id).classList.remove('open')}
 
 window.addEventListener('popstate',e=>{
   const s=e.state;
   for(const id of MODALS){
-    const m=document.getElementById(id);
-    if(m.classList.contains('open')){
+    if(document.getElementById(id).classList.contains('open')){
       if(id==='cropModal')_closeCrop(false);
       else closeModal(id);
       return;
@@ -634,17 +722,15 @@ window.addEventListener('popstate',e=>{
   else switchTab('photo',false);
 });
 
-document.querySelectorAll('.nc').forEach(n=>{
-  n.addEventListener('click',()=>switchTab(n.dataset.tab));
-});
+document.querySelectorAll('.nc').forEach(n=>
+  n.addEventListener('click',()=>switchTab(n.dataset.tab)));
 
-/* ═══════════════════════════════════════
-   TAB 1 – PHOTO → PDF
-═══════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   TAB 1 — PHOTO → PDF
+══════════════════════════════════════════ */
 const photoList=document.getElementById('photo-list');
-const photoEmpty=document.getElementById('photoEmpty');
-const photoPdfBtn=document.getElementById('photoPdfBtn');
-const photoClearBtn=document.getElementById('photoClearBtn');
+const phPdfBtn=document.getElementById('phPdfBtn');
+const phClearBtn=document.getElementById('phClearBtn');
 
 document.getElementById('qrange').addEventListener('input',function(){
   document.getElementById('qval').textContent=this.value+'%';
@@ -654,12 +740,13 @@ document.getElementById('qrange').addEventListener('input',function(){
   .forEach(i=>i.addEventListener('change',e=>{loadPhotos(e.target.files);e.target.value=''}));
 
 const photoDZ=document.getElementById('photoDZ');
-photoDZ.addEventListener('dragover',e=>{e.preventDefault();photoDZ.classList.add('hover')});
-photoDZ.addEventListener('dragleave',()=>photoDZ.classList.remove('hover'));
-photoDZ.addEventListener('drop',e=>{e.preventDefault();photoDZ.classList.remove('hover');loadPhotos(e.dataTransfer.files)});
+photoDZ.addEventListener('dragover',e=>{e.preventDefault();photoDZ.classList.add('over')});
+photoDZ.addEventListener('dragleave',()=>photoDZ.classList.remove('over'));
+photoDZ.addEventListener('drop',e=>{e.preventDefault();photoDZ.classList.remove('over');loadPhotos(e.dataTransfer.files)});
 
 new Sortable(photoList,{
-  animation:180,handle:'.pi-handle',ghostClass:'sg',chosenClass:'sc2',
+  animation:160,handle:'.pi-hnd',
+  ghostClass:'ghost',chosenClass:'chosen',
   filter:'.empty',touchStartThreshold:4,
   onEnd:()=>photoList.querySelectorAll('.pi .pi-num').forEach((b,i)=>b.textContent=i+1)
 });
@@ -671,53 +758,50 @@ function loadPhotos(files){
 }
 
 function addPhotoCard(src){
-  photoEmpty.style.display='none';
+  document.getElementById('photoEmpty').style.display='none';
   const d=document.createElement('div');d.className='pi';
-  const handle=document.createElement('div');handle.className='pi-handle';handle.textContent='⠿ ⠿ ⠿';
+  const hnd=document.createElement('div');hnd.className='pi-hnd';hnd.textContent='⠿ ⠿ ⠿';
   const img=document.createElement('img');img.src=src;img.draggable=false;
   const bar=document.createElement('div');bar.className='pi-bar';
   const num=document.createElement('span');num.className='pi-num';
 
-  const editB=document.createElement('button');editB.className='ib edit';editB.textContent='✏️';
-  editB.addEventListener('click',e=>{e.stopPropagation();openCrop(d)});
-
-  const signB=document.createElement('button');signB.className='ib sign';signB.textContent='✍️';
-  signB.addEventListener('click',e=>{e.stopPropagation();openPhotoSignFlow(d)});
-
-  const delB=document.createElement('button');delB.className='ib del';delB.textContent='🗑';
-  delB.addEventListener('click',e=>{
+  function mkib(cls,ico){
+    const b=document.createElement('button');b.className='ib '+cls;b.textContent=ico;return b;
+  }
+  const eb=mkib('ed','✏️'); eb.addEventListener('click',e=>{e.stopPropagation();openCrop(d)});
+  const sb=mkib('sg','✍️'); sb.addEventListener('click',e=>{e.stopPropagation();openPhotoSign(d)});
+  const db=mkib('dl','🗑'); db.addEventListener('click',e=>{
     e.stopPropagation();d.remove();
     photoList.querySelectorAll('.pi .pi-num').forEach((b,i)=>b.textContent=i+1);
     updatePhotoState();
   });
-
-  bar.append(num,editB,signB,delB);
-  d.append(handle,img,bar);
+  bar.append(num,eb,sb,db);
+  d.append(hnd,img,bar);
   photoList.appendChild(d);
   photoList.querySelectorAll('.pi .pi-num').forEach((b,i)=>b.textContent=i+1);
   updatePhotoState();
 }
 
 function updatePhotoState(){
-  const n=photoCount();
-  document.getElementById('countPill').innerHTML=t('pill_photo')+' <b>'+n+'</b>';
-  photoPdfBtn.disabled=n===0;photoClearBtn.disabled=n===0;
-  if(n===0)photoEmpty.style.display='';
+  const n=nPhotos();
+  updatePill();
+  phPdfBtn.disabled=n===0;phClearBtn.disabled=n===0;
+  if(n===0)document.getElementById('photoEmpty').style.display='';
 }
 
-photoClearBtn.addEventListener('click',()=>{
-  if(!confirm(t('toast_confirm_clear_photos')))return;
+phClearBtn.addEventListener('click',()=>{
+  if(!confirm(tx('t_confirm_ph')))return;
   photoList.querySelectorAll('.pi').forEach(el=>el.remove());updatePhotoState();
 });
 
 const PAGE_SIZES={a4:[210,297],a5:[148,210],letter:[215.9,279.4],square:[150,150]};
-photoPdfBtn.addEventListener('click',async()=>{
+phPdfBtn.addEventListener('click',async()=>{
   const items=Array.from(photoList.querySelectorAll('.pi'));if(!items.length)return;
-  const [pw0,ph0]=PAGE_SIZES[document.getElementById('pageSize').value];
-  const ori0=document.getElementById('orientation').value;
-  const marg=parseInt(document.getElementById('margin').value);
+  const [pw0,ph0]=PAGE_SIZES[document.getElementById('selPage').value];
+  const ori0=document.getElementById('selOri').value;
+  const marg=parseInt(document.getElementById('selMarg').value);
   const qual=parseInt(document.getElementById('qrange').value)/100;
-  showProg(t('prog_creating'));photoPdfBtn.disabled=true;
+  showProg(tx('p_creating'));phPdfBtn.disabled=true;
   let doc=null;
   for(let i=0;i<items.length;i++){
     const img=items[i].querySelector('img');
@@ -732,79 +816,79 @@ photoPdfBtn.addEventListener('click',async()=>{
     const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;
     c.getContext('2d').drawImage(img,0,0);
     doc.addImage(c.toDataURL('image/jpeg',qual),'JPEG',(pw-dw)/2,(ph-dh)/2,dw,dh);
-    setProg(Math.round((i+1)/items.length*100),`${i+1} / ${items.length}`);
-    await new Promise(r=>setTimeout(r,12));
+    setProg(Math.round((i+1)/items.length*100),`${i+1}/${items.length}`);
+    await new Promise(r=>setTimeout(r,10));
   }
   doc.save(`photo-to-pdf-${Date.now()}.pdf`);
-  hideProg();photoPdfBtn.disabled=false;toast(t('toast_pdf_done'));
+  hideProg();phPdfBtn.disabled=false;toast(tx('t_pdf_ok'));
 });
 
-/* ═══════════════════════════════════════
-   CROP MODAL
-═══════════════════════════════════════ */
-let _cropper=null,_cropItem=null,_origSrc=null,_sx=1,_sy=1;
+/* ══════════════════════════════════════════
+   CROP
+══════════════════════════════════════════ */
+let _cr=null,_crItem=null,_origSrc=null,_sx=1,_sy=1;
 
 function openCrop(item){
-  _cropItem=item;_sx=1;_sy=1;
-  const img=item.querySelector('img');_origSrc=img.src;
-  const ci=document.getElementById('cropImg');ci.src=img.src;
+  _crItem=item;_sx=1;_sy=1;
+  const ci=document.getElementById('cropImg');
+  _origSrc=item.querySelector('img').src;
+  ci.src=_origSrc;
   const idx=Array.from(photoList.querySelectorAll('.pi')).indexOf(item);
   document.getElementById('cropIdx').textContent='#'+(idx+1);
   document.querySelectorAll('[data-ratio]').forEach(b=>b.classList.remove('active'));
   document.querySelector('[data-ratio="free"]').classList.add('active');
   openModal('cropModal');
   ci.onload=()=>{
-    if(_cropper){_cropper.destroy();_cropper=null}
-    _cropper=new Cropper(ci,{viewMode:1,autoCropArea:.88,movable:true,scalable:true,zoomable:true,background:true,responsive:true});
+    if(_cr){_cr.destroy();_cr=null}
+    _cr=new Cropper(ci,{viewMode:1,autoCropArea:.88,movable:true,scalable:true,zoomable:true,background:true,responsive:true});
   };
   if(ci.complete)ci.onload();
 }
-function _closeCrop(goBack=true){
-  if(_cropper){_cropper.destroy();_cropper=null}
-  closeModal('cropModal');_cropItem=null;
-  if(goBack)history.back();
+function _closeCrop(back=true){
+  if(_cr){_cr.destroy();_cr=null}
+  closeModal('cropModal');_crItem=null;
+  if(back)history.back();
 }
 document.getElementById('cancelCrop').addEventListener('click',()=>_closeCrop());
 document.getElementById('resetCrop').addEventListener('click',()=>{
   _sx=1;_sy=1;const ci=document.getElementById('cropImg');ci.src=_origSrc;
-  ci.onload=()=>{if(_cropper){_cropper.destroy();_cropper=null}
-    _cropper=new Cropper(ci,{viewMode:1,autoCropArea:.88,movable:true,scalable:true,zoomable:true,background:true,responsive:true});
+  ci.onload=()=>{if(_cr){_cr.destroy();_cr=null}
+    _cr=new Cropper(ci,{viewMode:1,autoCropArea:.88,movable:true,scalable:true,zoomable:true,background:true,responsive:true});
   };if(ci.complete)ci.onload();
 });
 document.getElementById('applyCrop').addEventListener('click',()=>{
-  if(!_cropper||!_cropItem)return;
-  const c=_cropper.getCroppedCanvas({maxWidth:2400,maxHeight:2400,imageSmoothingQuality:'high'});
+  if(!_cr||!_crItem)return;
+  const c=_cr.getCroppedCanvas({maxWidth:2400,maxHeight:2400,imageSmoothingQuality:'high'});
   if(!c)return;
-  _cropItem.querySelector('img').src=c.toDataURL('image/jpeg',.94);
-  _closeCrop();toast(t('toast_crop_done'));
+  _crItem.querySelector('img').src=c.toDataURL('image/jpeg',.94);
+  _closeCrop();toast(tx('t_crop_ok'));
 });
 document.querySelectorAll('[data-ratio]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('[data-ratio]').forEach(x=>x.classList.remove('active'));
   b.classList.add('active');
-  _cropper?.setAspectRatio(b.dataset.ratio==='free'?NaN:parseFloat(b.dataset.ratio));
+  _cr?.setAspectRatio(b.dataset.ratio==='free'?NaN:parseFloat(b.dataset.ratio));
 }));
-document.getElementById('rotL').addEventListener('click',()=>_cropper?.rotate(-90));
-document.getElementById('rotR').addEventListener('click',()=>_cropper?.rotate(90));
-document.getElementById('flipH').addEventListener('click',()=>{_sx*=-1;_cropper?.scaleX(_sx)});
-document.getElementById('flipV').addEventListener('click',()=>{_sy*=-1;_cropper?.scaleY(_sy)});
-document.getElementById('zIn').addEventListener('click',()=>_cropper?.zoom(.1));
-document.getElementById('zOut').addEventListener('click',()=>_cropper?.zoom(-.1));
+document.getElementById('rotL').addEventListener('click',()=>_cr?.rotate(-90));
+document.getElementById('rotR').addEventListener('click',()=>_cr?.rotate(90));
+document.getElementById('flipH').addEventListener('click',()=>{_sx*=-1;_cr?.scaleX(_sx)});
+document.getElementById('flipV').addEventListener('click',()=>{_sy*=-1;_cr?.scaleY(_sy)});
+document.getElementById('zIn').addEventListener('click',()=>_cr?.zoom(.1));
+document.getElementById('zOut').addEventListener('click',()=>_cr?.zoom(-.1));
 
-/* ═══════════════════════════════════════
-   TAB 2 – MERGE
-═══════════════════════════════════════ */
-const mergeListEl=document.getElementById('mergeList');
-let mergeFiles=[];
-
-new Sortable(mergeListEl,{animation:180,ghostClass:'sg',chosenClass:'sc2',filter:'.empty'});
+/* ══════════════════════════════════════════
+   TAB 2 — MERGE
+══════════════════════════════════════════ */
+let mFiles=[];
+const mList=document.getElementById('mergeList');
+new Sortable(mList,{animation:160,ghostClass:'ghost',chosenClass:'chosen',filter:'.empty'});
 
 [document.getElementById('mergeIn'),document.getElementById('mergeIn2')]
   .forEach(i=>i.addEventListener('change',e=>{loadMerge(e.target.files);e.target.value=''}));
 
 const mergeDZ=document.getElementById('mergeDZ');
-mergeDZ.addEventListener('dragover',e=>{e.preventDefault();mergeDZ.classList.add('hover')});
-mergeDZ.addEventListener('dragleave',()=>mergeDZ.classList.remove('hover'));
-mergeDZ.addEventListener('drop',e=>{e.preventDefault();mergeDZ.classList.remove('hover');loadMerge(e.dataTransfer.files)});
+mergeDZ.addEventListener('dragover',e=>{e.preventDefault();mergeDZ.classList.add('over')});
+mergeDZ.addEventListener('dragleave',()=>mergeDZ.classList.remove('over'));
+mergeDZ.addEventListener('drop',e=>{e.preventDefault();mergeDZ.classList.remove('over');loadMerge(e.dataTransfer.files)});
 
 async function loadMerge(files){
   for(const f of Array.from(files).filter(f=>f.name.toLowerCase().endsWith('.pdf')||f.type==='application/pdf')){
@@ -812,124 +896,125 @@ async function loadMerge(files){
       const ab=await f.arrayBuffer();
       const pdf=await PDFLib.PDFDocument.load(ab,{ignoreEncryption:true});
       const data={name:f.name,pages:pdf.getPageCount(),ab};
-      mergeFiles.push(data);addMergeItem(data);
-    }catch(e){toast(t('toast_pdf_unreadable')+': '+f.name)}
+      mFiles.push(data);addMItem(data);
+    }catch(e){toast(tx('t_pdf_err')+': '+f.name)}
   }
-  updateMergeState();
+  updateMState();
 }
-function addMergeItem(data){
+function addMItem(data){
   document.getElementById('mergeEmpty').style.display='none';
   const d=document.createElement('div');d.className='mi';
   d.innerHTML=`<span class="mi-drag">⠿</span>
     <div class="mi-info">
       <div class="mi-name" title="${data.name}">${data.name}</div>
-      <div class="mi-pages">${data.pages} ${t('lbl_page_count')}</div>
+      <div class="mi-pages">${data.pages} ${tx('lbl_pages')}</div>
     </div>
     <button class="mi-del">✕</button>`;
   d.querySelector('.mi-del').addEventListener('click',()=>{
-    const i=mergeFiles.indexOf(data);if(i>-1)mergeFiles.splice(i,1);
-    d.remove();updateMergeState();
+    const i=mFiles.indexOf(data);if(i>-1)mFiles.splice(i,1);
+    d.remove();updateMState();
   });
-  mergeListEl.appendChild(d);
+  mList.appendChild(d);
 }
-function updateMergeState(){
-  const n=mergeFiles.length;
-  document.getElementById('mergePdfBtn').disabled=n<2;
-  document.getElementById('mergeClearBtn').disabled=n===0;
+function updateMState(){
+  const n=mFiles.length;
+  document.getElementById('mgBtn').disabled=n<2;
+  document.getElementById('mgClearBtn').disabled=n===0;
   if(n===0)document.getElementById('mergeEmpty').style.display='';
 }
-document.getElementById('mergeClearBtn').addEventListener('click',()=>{
-  if(!confirm(t('toast_confirm_clear_merge')))return;
-  mergeFiles=[];mergeListEl.querySelectorAll('.mi').forEach(el=>el.remove());updateMergeState();
+document.getElementById('mgClearBtn').addEventListener('click',()=>{
+  if(!confirm(tx('t_confirm_mg')))return;
+  mFiles=[];mList.querySelectorAll('.mi').forEach(el=>el.remove());updateMState();
 });
-document.getElementById('mergePdfBtn').addEventListener('click',async()=>{
-  if(mergeFiles.length<2)return;
-  showProg(t('prog_merging'));document.getElementById('mergePdfBtn').disabled=true;
+document.getElementById('mgBtn').addEventListener('click',async()=>{
+  if(mFiles.length<2)return;
+  showProg(tx('p_merging'));document.getElementById('mgBtn').disabled=true;
   try{
     const merged=await PDFLib.PDFDocument.create();
-    const domOrder=Array.from(mergeListEl.querySelectorAll('.mi-name')).map(el=>el.title);
-    const ordered=domOrder.map(n=>mergeFiles.find(f=>f.name===n)).filter(Boolean);
-    const src=ordered.length===mergeFiles.length?ordered:mergeFiles;
-    for(let i=0;i<src.length;i++){
-      const pdf=await PDFLib.PDFDocument.load(src[i].ab,{ignoreEncryption:true});
+    const order=Array.from(mList.querySelectorAll('.mi-name')).map(el=>el.title);
+    const src=order.map(n=>mFiles.find(f=>f.name===n)).filter(Boolean);
+    const list=src.length===mFiles.length?src:mFiles;
+    for(let i=0;i<list.length;i++){
+      const pdf=await PDFLib.PDFDocument.load(list[i].ab,{ignoreEncryption:true});
       const pages=await merged.copyPages(pdf,pdf.getPageIndices());
       pages.forEach(p=>merged.addPage(p));
-      setProg(Math.round((i+1)/src.length*100),`${i+1} / ${src.length}`);
+      setProg(Math.round((i+1)/list.length*100),`${i+1}/${list.length}`);
       await new Promise(r=>setTimeout(r,8));
     }
     dlBytes(await merged.save(),`merged-${Date.now()}.pdf`);
-    toast(t('toast_merge_done'));
-  }catch(e){console.error(e);toast(t('toast_err')+e.message)}
-  hideProg();document.getElementById('mergePdfBtn').disabled=false;
+    toast(tx('t_merge_ok'));
+  }catch(e){console.error(e);toast(tx('t_err')+e.message)}
+  hideProg();document.getElementById('mgBtn').disabled=false;
 });
 
-/* ═══════════════════════════════════════
-   TAB 3 – SIGN
-═══════════════════════════════════════ */
-let signDoc=null,signBytes=null,signPage=1,signPageCount=0,signPageScale=1;
-let placedSigs=[],isImageMode=false,signImgNaturalW=0,signImgNaturalH=0;
+/* ══════════════════════════════════════════
+   TAB 3 — SIGN
+══════════════════════════════════════════ */
+let sDoc=null,sBytes=null,sPage=1,sPageCount=0,sScale=1;
+let sigs=[],isImg=false,imgW=0,imgH=0;
 
 [document.getElementById('signPdfIn'),document.getElementById('signPdfIn2')]
-  .forEach(i=>i.addEventListener('change',e=>{if(e.target.files[0])loadSignPdf(e.target.files[0]);e.target.value=''}));
+  .forEach(i=>i.addEventListener('change',e=>{if(e.target.files[0])loadSPdf(e.target.files[0]);e.target.value=''}));
 [document.getElementById('signImgIn'),document.getElementById('signImgIn2')]
-  .forEach(i=>i.addEventListener('change',e=>{if(e.target.files[0])loadSignImg(e.target.files[0]);e.target.value=''}));
+  .forEach(i=>i.addEventListener('change',e=>{if(e.target.files[0])loadSImg(e.target.files[0]);e.target.value=''}));
 
-async function loadSignPdf(file){
-  showProg(t('prog_loading_pdf'));
+async function loadSPdf(file){
+  showProg(tx('p_load_pdf'));
   try{
     const ab=await file.arrayBuffer();
-    signBytes=ab;isImageMode=false;
-    signDoc=await pdfjsLib.getDocument({data:ab.slice(0)}).promise;
-    signPageCount=signDoc.numPages;
-    placedSigs=[];signPage=1;
-    document.getElementById('signFname').textContent=file.name.slice(0,32);
-    document.getElementById('signPcount').textContent=signPageCount;
-    document.getElementById('signPlabel').textContent=t('lbl_page_count');
-    showSignLoaded();
+    sBytes=ab;isImg=false;
+    sDoc=await pdfjsLib.getDocument({data:ab.slice(0)}).promise;
+    sPageCount=sDoc.numPages;sigs=[];sPage=1;
+    document.getElementById('sFname').textContent=file.name.slice(0,30);
+    document.getElementById('sPcount').textContent=sPageCount;
+    document.getElementById('sPlabel').textContent=tx('lbl_pages');
+    showSLoaded();
     await buildThumbs();
-    await renderSignPage(1);
-  }catch(e){console.error(e);toast(t('toast_pdf_err'))}
+    await renderPage(1);
+  }catch(e){console.error(e);toast(tx('t_pdf_err'))}
   hideProg();
 }
 
-async function loadSignImg(file){
-  showProg(t('prog_loading_img'));
+async function loadSImg(file){
+  showProg(tx('p_load_img'));
   try{
     const url=URL.createObjectURL(file);
     await new Promise((res,rej)=>{
       const img=new Image();
       img.onload=()=>{
-        isImageMode=true;signDoc=null;signBytes=null;
-        signPageCount=1;placedSigs=[];signPage=1;
-        signImgNaturalW=img.width;signImgNaturalH=img.height;
-        document.getElementById('signFname').textContent=file.name.slice(0,32);
-        document.getElementById('signPcount').textContent='1';
-        document.getElementById('signPlabel').textContent=t('sig_image_mode');
-        showSignLoaded();
+        isImg=true;sDoc=null;sBytes=null;
+        sPageCount=1;sigs=[];sPage=1;
+        imgW=img.width;imgH=img.height;
+        document.getElementById('sFname').textContent=file.name.slice(0,30);
+        document.getElementById('sPcount').textContent='1';
+        document.getElementById('sPlabel').textContent=tx('img_mode');
+        showSLoaded();
+        // thumbnail
         const thumbs=document.getElementById('signThumbs');thumbs.innerHTML='';
-        const tw=document.createElement('div');tw.className='tw active';
+        const tw=document.createElement('div');tw.className='tw active';tw.dataset.p=1;
         const tc=document.createElement('canvas');
-        const ts=Math.min(68/img.width,1);
+        const ts=Math.min(66/img.width,1);
         tc.width=Math.round(img.width*ts);tc.height=Math.round(img.height*ts);
         tc.getContext('2d').drawImage(img,0,0,tc.width,tc.height);
         const tn=document.createElement('div');tn.className='tn';tn.textContent='1';
         tw.append(tc,tn);thumbs.appendChild(tw);
+        // render main
         const area=document.getElementById('signPreview');
-        const maxW=Math.max(area.clientWidth-36,180);
-        const scale=Math.min(maxW/img.width,1.8);
-        signPageScale=scale;
-        const c=document.getElementById('mainCanvas');
-        c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);
-        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        const maxW=Math.max((area.clientWidth||300)-32,160);
+        sScale=Math.min(maxW/img.width,1.5);
+        const mc=document.getElementById('mainCvs');
+        mc.width=Math.round(img.width*sScale);
+        mc.height=Math.round(img.height*sScale);
+        mc.getContext('2d').drawImage(img,0,0,mc.width,mc.height);
         URL.revokeObjectURL(url);res();
       };
       img.onerror=rej;img.src=url;
     });
-  }catch(e){console.error(e);toast(t('toast_img_err'))}
+  }catch(e){console.error(e);toast(tx('t_img_err'))}
   hideProg();
 }
 
-function showSignLoaded(){
+function showSLoaded(){
   document.getElementById('signEmpty').style.display='none';
   document.getElementById('signLoaded').style.display='flex';
   document.getElementById('signAbar').style.display='flex';
@@ -937,227 +1022,235 @@ function showSignLoaded(){
 
 async function buildThumbs(){
   const ct=document.getElementById('signThumbs');ct.innerHTML='';
-  for(let p=1;p<=signPageCount;p++){
+  for(let p=1;p<=sPageCount;p++){
     const tw=document.createElement('div');tw.className='tw';tw.dataset.p=p;
     const c=document.createElement('canvas');
     const tn=document.createElement('div');tn.className='tn';tn.textContent=p;
     tw.append(c,tn);
-    tw.addEventListener('click',()=>renderSignPage(p));
+    tw.addEventListener('click',()=>renderPage(p));
     ct.appendChild(tw);
-    const pg=await signDoc.getPage(p);
-    const vp=pg.getViewport({scale:.26});
+    const pg=await sDoc.getPage(p);
+    const vp=pg.getViewport({scale:.24});
     c.width=vp.width;c.height=vp.height;
     await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
   }
-  updateThumbActive();
+  updateThumbs();
 }
 
-function updateThumbActive(){
-  document.querySelectorAll('.tw').forEach(w=>w.classList.toggle('active',parseInt(w.dataset.p||1)===signPage));
+function updateThumbs(){
+  document.querySelectorAll('.tw').forEach(w=>w.classList.toggle('active',parseInt(w.dataset.p||1)===sPage));
 }
 
-async function renderSignPage(p){
-  signPage=p;updateThumbActive();
+async function renderPage(p){
+  sPage=p;updateThumbs();
   document.querySelectorAll('.sov').forEach(el=>el.remove());
-  const pg=await signDoc.getPage(p);
+  const pg=await sDoc.getPage(p);
   const area=document.getElementById('signPreview');
-  const maxW=Math.max(area.clientWidth-36,180);
+  const maxW=Math.max((area.clientWidth||300)-32,160);
   const vp0=pg.getViewport({scale:1});
-  const scale=Math.min(maxW/vp0.width,1.8);
-  signPageScale=scale;
-  const vp=pg.getViewport({scale});
-  const c=document.getElementById('mainCanvas');
-  c.width=vp.width;c.height=vp.height;
-  await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
-  placedSigs.filter(s=>s.page===p).forEach(s=>buildSigOverlay(s));
+  sScale=Math.min(maxW/vp0.width,1.5);
+  const vp=pg.getViewport({scale:sScale});
+  const mc=document.getElementById('mainCvs');
+  mc.width=vp.width;mc.height=vp.height;
+  await pg.render({canvasContext:mc.getContext('2d'),viewport:vp}).promise;
+  sigs.filter(s=>s.page===p).forEach(s=>buildOverlay(s));
 }
 
-/* ─── Overlay placement ─── */
+/* ─── Place signature ─── */
 function placeSig(dataUrl){
-  const c=document.getElementById('mainCanvas');
-  const w=Math.round(c.width*.4),h=Math.round(w*.3);
-  const s={page:signPage,x:Math.round((c.width-w)/2),y:Math.round((c.height-h)/2),w,h,dataUrl};
-  placedSigs.push(s);
-  buildSigOverlay(s);
+  const mc=document.getElementById('mainCvs');
+  const w=Math.round(mc.width*.38),h=Math.round(w*.28);
+  const s={
+    page:sPage,
+    x:Math.round((mc.width-w)/2),
+    y:Math.round((mc.height-h)/2),
+    w,h,dataUrl
+  };
+  sigs.push(s);
+  buildOverlay(s);
 }
 
-/* ─── buildSigOverlay: pointer-event–aware drag & resize ─── */
-function buildSigOverlay(s){
+/* ─── Build draggable/resizable overlay ─── */
+function buildOverlay(s){
   const wrap=document.getElementById('ppw');
   const el=document.createElement('div');
   el.className='sov';
-  el.style.cssText=`left:${s.x}px;top:${s.y}px;width:${s.w}px;height:${s.h}px`;
+  el.style.cssText=`left:${s.x}px;top:${s.y}px;width:${s.w}px;height:${s.h}px;cursor:move`;
 
-  const img=document.createElement('img');img.src=s.dataUrl;
+  const imgEl=document.createElement('img');imgEl.src=s.dataUrl;
 
-  // Delete button
-  const del=document.createElement('button');del.className='sov-del';del.textContent='✕';
-  del.addEventListener('pointerdown',e=>{e.stopPropagation()});
-  del.addEventListener('click',e=>{
+  const delBtn=document.createElement('button');
+  delBtn.className='sov-del';delBtn.textContent='✕';
+  delBtn.addEventListener('pointerdown',e=>e.stopPropagation());
+  delBtn.addEventListener('click',e=>{
     e.stopPropagation();el.remove();
-    const i=placedSigs.indexOf(s);if(i>-1)placedSigs.splice(i,1);
+    const i=sigs.indexOf(s);if(i>-1)sigs.splice(i,1);
   });
 
-  // Resize handle
-  const rz=document.createElement('div');rz.className='sov-rz';rz.textContent='⇲';
+  const rzHnd=document.createElement('div');
+  rzHnd.className='sov-rz';rzHnd.textContent='⇲';
 
-  el.append(img,del,rz);
+  el.append(imgEl,delBtn,rzHnd);
   wrap.appendChild(el);
 
-  // ── Drag (pointer events on element, blocked by del/rz) ──
-  let dragActive=false,dStartX,dStartY,dOrigX,dOrigY;
+  /* ── DRAG ──
+     Use getBoundingClientRect() of wrap at drag-start so scroll offset is included.
+     Then compute position as (pointer - wrap_origin - initial_offset_within_el).
+  */
+  let dragOn=false,offX=0,offY=0;
 
   el.addEventListener('pointerdown',e=>{
-    // skip if clicking del or rz
-    if(e.target===del||e.target===rz)return;
+    if(e.target===delBtn||e.target===rzHnd)return;
     e.preventDefault();e.stopPropagation();
-    dragActive=true;
     el.setPointerCapture(e.pointerId);
-    dStartX=e.clientX;dStartY=e.clientY;
-    dOrigX=s.x;dOrigY=s.y;
+    dragOn=true;
+    // offset of pointer inside the element (in ppw-local coords)
+    const wr=wrap.getBoundingClientRect();
+    offX=e.clientX-wr.left-s.x;
+    offY=e.clientY-wr.top-s.y;
   });
 
   el.addEventListener('pointermove',e=>{
-    if(!dragActive)return;
+    if(!dragOn)return;
     e.preventDefault();
-    const c=document.getElementById('mainCanvas');
-    s.x=Math.max(0,Math.min(dOrigX+(e.clientX-dStartX), c.width-s.w));
-    s.y=Math.max(0,Math.min(dOrigY+(e.clientY-dStartY), c.height-s.h));
+    const mc=document.getElementById('mainCvs');
+    const wr=wrap.getBoundingClientRect();
+    s.x=Math.max(0,Math.min(e.clientX-wr.left-offX, mc.width-s.w));
+    s.y=Math.max(0,Math.min(e.clientY-wr.top-offY,  mc.height-s.h));
     el.style.left=s.x+'px';
     el.style.top=s.y+'px';
   });
 
-  el.addEventListener('pointerup',e=>{dragActive=false});
-  el.addEventListener('pointercancel',e=>{dragActive=false});
+  el.addEventListener('pointerup', ()=>dragOn=false);
+  el.addEventListener('pointercancel',()=>dragOn=false);
 
-  // ── Resize (pointer on rz handle) ──
-  let rzActive=false,rzStartX,rzStartY,rzOrigW,rzOrigH;
+  /* ── RESIZE ── */
+  let rzOn=false,rzSX=0,rzSY=0,rzW0=0,rzH0=0;
 
-  rz.addEventListener('pointerdown',e=>{
+  rzHnd.addEventListener('pointerdown',e=>{
     e.preventDefault();e.stopPropagation();
-    rzActive=true;
-    rz.setPointerCapture(e.pointerId);
-    rzStartX=e.clientX;rzStartY=e.clientY;
-    rzOrigW=s.w;rzOrigH=s.h;
+    rzHnd.setPointerCapture(e.pointerId);
+    rzOn=true;rzSX=e.clientX;rzSY=e.clientY;rzW0=s.w;rzH0=s.h;
   });
-
-  rz.addEventListener('pointermove',e=>{
-    if(!rzActive)return;
+  rzHnd.addEventListener('pointermove',e=>{
+    if(!rzOn)return;
     e.preventDefault();
-    s.w=Math.max(40,rzOrigW+(e.clientX-rzStartX));
-    s.h=Math.max(18,rzOrigH+(e.clientY-rzStartY));
+    s.w=Math.max(40,rzW0+(e.clientX-rzSX));
+    s.h=Math.max(16,rzH0+(e.clientY-rzSY));
     el.style.width=s.w+'px';
     el.style.height=s.h+'px';
   });
-
-  rz.addEventListener('pointerup',()=>rzActive=false);
-  rz.addEventListener('pointercancel',()=>rzActive=false);
+  rzHnd.addEventListener('pointerup', ()=>rzOn=false);
+  rzHnd.addEventListener('pointercancel',()=>rzOn=false);
 }
 
-document.getElementById('clearSigsBtn').addEventListener('click',()=>{
-  placedSigs=placedSigs.filter(s=>s.page!==signPage);
+document.getElementById('clrSigsBtn').addEventListener('click',()=>{
+  sigs=sigs.filter(s=>s.page!==sPage);
   document.querySelectorAll('.sov').forEach(el=>el.remove());
-  toast(t('toast_sigs_cleared'));
+  toast(tx('t_sigs_cleared'));
 });
 
 /* ─── Download signed ─── */
 document.getElementById('dlSignedBtn').addEventListener('click',async()=>{
-  if(!placedSigs.length){toast(t('toast_no_placed'));return}
+  if(!sigs.length){toast(tx('t_no_placed'));return}
 
-  if(isImageMode){
-    showProg(t('prog_signing_img'));
-    const c2=document.getElementById('mainCanvas');
+  if(isImg){
+    showProg(tx('p_signing_img'));
+    const mc=document.getElementById('mainCvs');
     const out=document.createElement('canvas');
-    out.width=signImgNaturalW;out.height=signImgNaturalH;
+    out.width=imgW;out.height=imgH;
     const ctx=out.getContext('2d');
-    ctx.drawImage(c2,0,0,signImgNaturalW,signImgNaturalH);
-    for(const s of placedSigs){
+    ctx.drawImage(mc,0,0,imgW,imgH);
+    for(const s of sigs){
       const si=new Image();
-      await new Promise(res=>{si.onload=res;si.src=s.dataUrl});
-      const fx=signImgNaturalW/c2.width,fy=signImgNaturalH/c2.height;
+      await new Promise(r=>{si.onload=r;si.src=s.dataUrl});
+      const fx=imgW/mc.width,fy=imgH/mc.height;
       ctx.drawImage(si,s.x*fx,s.y*fy,s.w*fx,s.h*fy);
     }
     dlDataUrl(out.toDataURL('image/png'),`signed-${Date.now()}.png`);
-    hideProg();toast(t('toast_sign_img_done'));
+    hideProg();toast(tx('t_sign_img_ok'));
     return;
   }
 
-  if(!signBytes)return;
-  showProg(t('prog_signing'));
+  if(!sBytes)return;
+  showProg(tx('p_signing'));
   try{
-    const pdfDoc=await PDFLib.PDFDocument.load(signBytes.slice(0),{ignoreEncryption:true});
-    for(let i=0;i<placedSigs.length;i++){
-      const s=placedSigs[i];
+    const pdfDoc=await PDFLib.PDFDocument.load(sBytes.slice(0),{ignoreEncryption:true});
+    for(let i=0;i<sigs.length;i++){
+      const s=sigs[i];
       const pg=pdfDoc.getPage(s.page-1);
       const{width:pW,height:pH}=pg.getSize();
-      const pjsPg=await signDoc.getPage(s.page);
-      const vp=pjsPg.getViewport({scale:signPageScale});
-      const pdfX=(s.x/vp.width)*pW;
-      const pdfY=pH-((s.y+s.h)/vp.height)*pH;
-      const pdfW=(s.w/vp.width)*pW;
-      const pdfH=(s.h/vp.height)*pH;
+      // get the viewport used when rendering this page
+      const pjsPg=await sDoc.getPage(s.page);
+      const rendVp=pjsPg.getViewport({scale:sScale});
+      const rW=rendVp.width,rH=rendVp.height;
+      // convert screen pixels → PDF user-space (PDF y-axis is bottom-up)
+      const pdfX=(s.x/rW)*pW;
+      const pdfY=pH-((s.y+s.h)/rH)*pH;
+      const pdfW=(s.w/rW)*pW;
+      const pdfH=(s.h/rH)*pH;
+      // embed PNG
       const b64=s.dataUrl.split(',')[1];
-      const byt=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-      const pngImg=await pdfDoc.embedPng(byt);
+      const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+      const pngImg=await pdfDoc.embedPng(bytes);
       pg.drawImage(pngImg,{x:pdfX,y:pdfY,width:pdfW,height:Math.abs(pdfH)});
-      setProg(Math.round((i+1)/placedSigs.length*100),`${i+1}/${placedSigs.length}`);
+      setProg(Math.round((i+1)/sigs.length*100),`${i+1}/${sigs.length}`);
     }
     dlBytes(await pdfDoc.save(),`signed-${Date.now()}.pdf`);
-    toast(t('toast_sign_done'));
-  }catch(e){console.error(e);toast(t('toast_err')+e.message)}
+    toast(tx('t_sign_ok'));
+  }catch(e){console.error(e);toast(tx('t_err')+e.message)}
   hideProg();
 });
 
-/* ═══════════════════════════════════════
-   PHOTO → SIGN FLOW
-═══════════════════════════════════════ */
-function openPhotoSignFlow(card){
+/* ─── Photo card → sign ─── */
+function openPhotoSign(card){
   const imgEl=card.querySelector('img');
+  // convert dataURL → File then load
   fetch(imgEl.src).then(r=>r.blob()).then(blob=>{
     const file=new File([blob],'photo.jpg',{type:'image/jpeg'});
     switchTab('sign');
-    loadSignImg(file);
-    toast(t('toast_photo_loaded'));
+    loadSImg(file);
+    toast(tx('t_photo_loaded'));
   });
 }
 
-/* ═══════════════════════════════════════
+/* ══════════════════════════════════════════
    SIGNATURE DRAW
-═══════════════════════════════════════ */
-let _drawing=false,_sigColor='#111111',_sigW=3;
-const sigCvs=document.getElementById('sigCanvas');
+══════════════════════════════════════════ */
+let _dn=false,_sc='#111111',_sw=3;
+const sigCvs=document.getElementById('sigCvs');
 const sigCtx=sigCvs.getContext('2d');
 
-function resizeSigCvs(){
+function resizeSig(){
   const r=sigCvs.parentElement.getBoundingClientRect();
-  // save existing strokes
+  if(r.width<1||r.height<1)return;
   const tmp=document.createElement('canvas');
   tmp.width=sigCvs.width||1;tmp.height=sigCvs.height||1;
   tmp.getContext('2d').drawImage(sigCvs,0,0);
-  sigCvs.width=Math.max(Math.floor(r.width),100);
-  sigCvs.height=Math.max(Math.floor(r.height),100);
+  sigCvs.width=Math.floor(r.width);
+  sigCvs.height=Math.floor(r.height);
   sigCtx.lineCap='round';sigCtx.lineJoin='round';
   sigCtx.drawImage(tmp,0,0);
 }
 
 sigCvs.addEventListener('pointerdown',e=>{
-  _drawing=true;sigCvs.setPointerCapture(e.pointerId);
+  _dn=true;sigCvs.setPointerCapture(e.pointerId);
   const r=sigCvs.getBoundingClientRect();
   sigCtx.beginPath();sigCtx.moveTo(e.clientX-r.left,e.clientY-r.top);
-  sigCtx.strokeStyle=_sigColor;sigCtx.lineWidth=_sigW;
+  sigCtx.strokeStyle=_sc;sigCtx.lineWidth=_sw;
   document.getElementById('sigHint').classList.add('gone');
 });
 sigCvs.addEventListener('pointermove',e=>{
-  if(!_drawing)return;
+  if(!_dn)return;
   const r=sigCvs.getBoundingClientRect();
   sigCtx.lineTo(e.clientX-r.left,e.clientY-r.top);
   sigCtx.stroke();
   sigCtx.beginPath();sigCtx.moveTo(e.clientX-r.left,e.clientY-r.top);
 });
-sigCvs.addEventListener('pointerup',()=>_drawing=false);
-sigCvs.addEventListener('pointercancel',()=>_drawing=false);
+sigCvs.addEventListener('pointerup',()=>_dn=false);
+sigCvs.addEventListener('pointercancel',()=>_dn=false);
 
-document.getElementById('clearSigCvs').addEventListener('click',()=>{
+document.getElementById('clrSigCvs').addEventListener('click',()=>{
   sigCtx.clearRect(0,0,sigCvs.width,sigCvs.height);
   document.getElementById('sigHint').classList.remove('gone');
 });
@@ -1165,13 +1258,13 @@ document.getElementById('clearSigCvs').addEventListener('click',()=>{
 document.querySelectorAll('.cdot').forEach(d=>{
   d.addEventListener('click',()=>{
     document.querySelectorAll('.cdot').forEach(x=>x.classList.remove('active'));
-    d.classList.add('active');_sigColor=d.dataset.c;
+    d.classList.add('active');_sc=d.dataset.c;
   });
 });
 document.querySelectorAll('[data-w]').forEach(b=>{
   b.addEventListener('click',()=>{
     document.querySelectorAll('[data-w]').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');_sigW=parseInt(b.dataset.w);
+    b.classList.add('active');_sw=parseInt(b.dataset.w);
   });
 });
 
@@ -1179,7 +1272,7 @@ document.getElementById('drawSigBtn').addEventListener('click',()=>{
   sigCtx.clearRect(0,0,sigCvs.width,sigCvs.height);
   document.getElementById('sigHint').classList.remove('gone');
   openModal('sigModal');
-  setTimeout(resizeSigCvs,60);
+  setTimeout(resizeSig,80);
 });
 
 document.getElementById('cancelSig').addEventListener('click',()=>{
@@ -1188,16 +1281,15 @@ document.getElementById('cancelSig').addEventListener('click',()=>{
 
 document.getElementById('applySig').addEventListener('click',()=>{
   const d=sigCtx.getImageData(0,0,sigCvs.width,sigCvs.height);
-  const hasPixels=d.data.some((_,i)=>i%4===3&&d.data[i]>10);
-  if(!hasPixels){toast(t('toast_no_sig'));return}
-  const cropped=cropSigCvs();
-  const dataUrl=cropped.toDataURL('image/png');
-  closeModal('sigModal');history.back();
+  if(!d.data.some((_,i)=>i%4===3&&d.data[i]>10)){toast(tx('t_no_sig'));return}
+  const dataUrl=cropSig().toDataURL('image/png');
+  closeModal('sigModal');
+  history.back();
   placeSig(dataUrl);
-  toast(t('toast_placed'));
+  toast(tx('t_placed'));
 });
 
-function cropSigCvs(){
+function cropSig(){
   const d=sigCtx.getImageData(0,0,sigCvs.width,sigCvs.height);
   let x0=sigCvs.width,y0=sigCvs.height,x1=0,y1=0;
   for(let y=0;y<sigCvs.height;y++)for(let x=0;x<sigCvs.width;x++){
@@ -1205,19 +1297,19 @@ function cropSigCvs(){
       if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;
     }
   }
-  const pad=14;
-  x0=Math.max(0,x0-pad);y0=Math.max(0,y0-pad);
-  x1=Math.min(sigCvs.width,x1+pad);y1=Math.min(sigCvs.height,y1+pad);
+  const p=12;
+  x0=Math.max(0,x0-p);y0=Math.max(0,y0-p);
+  x1=Math.min(sigCvs.width,x1+p);y1=Math.min(sigCvs.height,y1+p);
   const w=x1-x0||sigCvs.width,h=y1-y0||sigCvs.height;
   const out=document.createElement('canvas');out.width=w;out.height=h;
   out.getContext('2d').putImageData(sigCtx.getImageData(x0,y0,w,h),0,0);
   return out;
 }
 
-/* ═══════════════════════════════════════
+/* ══════════════════════════════════════════
    INIT
-═══════════════════════════════════════ */
-lang = localStorage.getItem('ptpLang') || 'tr';
+══════════════════════════════════════════ */
+lang=localStorage.getItem('lang')||'tr';
 applyLang();
 </script>
 </body>
