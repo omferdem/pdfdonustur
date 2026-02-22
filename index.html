@@ -260,14 +260,16 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:80px}
 
 /* ─── SIGNATURE OVERLAY ─── */
 .sov{
-  position:absolute;
+  position:absolute;left:0;top:0; /* base position; actual pos via transform */
   border:1.5px dashed rgba(245,200,66,.9);
   border-radius:3px;
-  /* cursor:move set by JS */
+  will-change:transform;
+  -webkit-transform:translateZ(0);
 }
 .sov img{
   display:block;width:100%;height:100%;
   pointer-events:none;user-select:none;
+  -webkit-user-drag:none;
 }
 .sov-del{
   position:absolute;top:-12px;right:-12px;
@@ -465,7 +467,7 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:80px}
 <div class="tab-panel" id="tab-merge">
   <div class="scroll">
     <div class="dz" id="mergeDZ">
-      <input type="file" id="mergeIn" multiple accept=".pdf">
+      <input type="file" id="mergeIn" multiple accept="application/pdf,.pdf">
       <div class="dz-icon">📄</div>
       <h3 data-i="dz_mg_h">PDF Dosyaları Ekle</h3>
       <p data-i="dz_mg_p">Birleştirmek istediğin PDF'leri seç</p>
@@ -476,7 +478,7 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:80px}
   </div>
   <div class="abar">
     <button class="abtn-sm">
-      ＋<input type="file" id="mergeIn2" multiple accept=".pdf" style="position:absolute;inset:0;opacity:0;cursor:pointer">
+      ＋<input type="file" id="mergeIn2" multiple accept="application/pdf,.pdf" style="position:absolute;inset:0;opacity:0;cursor:pointer">
     </button>
     <button class="abtn-sm red" id="mgClearBtn" disabled>🗑</button>
     <button class="abtn-main abtn-teal" id="mgBtn" disabled data-i="btn_merge">🔗 Birleştir</button>
@@ -490,7 +492,7 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:80px}
     <div style="font-weight:500;color:var(--text);font-size:.9rem" data-i="sign_ttl">Dosyayı seç</div>
     <div style="font-size:.75rem" data-i="sign_sub">PDF veya fotoğraf</div>
     <div class="sign-empty-row">
-      <label class="open-btn">📄 <span data-i="btn_opdf">PDF Aç</span><input type="file" id="signPdfIn" accept=".pdf"></label>
+      <label class="open-btn">📄 <span data-i="btn_opdf">PDF Aç</span><input type="file" id="signPdfIn" accept="application/pdf,.pdf"></label>
       <label class="open-btn">🖼️ <span data-i="btn_oimg">Foto Aç</span><input type="file" id="signImgIn" accept="image/*"></label>
     </div>
   </div>
@@ -498,7 +500,7 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:80px}
     <div class="sign-topbar">
       <div class="sfname"><b id="sFname">-</b> · <span id="sPcount">0</span> <span id="sPlabel" data-i="lbl_pages">sayfa</span></div>
       <div class="schange">
-        <label class="sch">PDF<input type="file" id="signPdfIn2" accept=".pdf"></label>
+        <label class="sch">PDF<input type="file" id="signPdfIn2" accept="application/pdf,.pdf"></label>
         <label class="sch"><span data-i="btn_oimg">Foto</span><input type="file" id="signImgIn2" accept="image/*"></label>
       </div>
     </div>
@@ -695,9 +697,13 @@ function updatePill(){
 
 /* ══════════════════════════════════════════
    NAVIGATION + BACK BUTTON
+   Sentinel state at bottom prevents browser from leaving the app.
 ══════════════════════════════════════════ */
 const MODALS=['cropModal','sigModal'];
-history.replaceState({k:'tab',v:'photo'},'');
+
+// Push two states: sentinel (never popped away from) + initial tab
+history.replaceState({k:'sentinel'},'');
+history.pushState({k:'tab',v:'photo'},'');
 
 function pushH(k,v){history.pushState({k,v},'')}
 function openModal(id){pushH('modal',id);document.getElementById(id).classList.add('open')}
@@ -711,6 +717,15 @@ function switchTab(id,push=true){
 
 window.addEventListener('popstate',e=>{
   const s=e.state;
+
+  // Sentinel hit — push tab state back so we never leave the app
+  if(!s || s.k==='sentinel'){
+    history.pushState({k:'tab',v:'photo'},'');
+    switchTab('photo',false);
+    return;
+  }
+
+  // Close topmost open modal
   for(const id of MODALS){
     if(document.getElementById(id).classList.contains('open')){
       if(id==='cropModal')_closeCrop(false);
@@ -718,8 +733,9 @@ window.addEventListener('popstate',e=>{
       return;
     }
   }
-  if(s&&s.k==='tab')switchTab(s.v,false);
-  else switchTab('photo',false);
+
+  if(s.k==='tab') switchTab(s.v,false);
+  // else: unknown state, ignore
 });
 
 document.querySelectorAll('.nc').forEach(n=>
@@ -1070,12 +1086,16 @@ function placeSig(dataUrl){
   buildOverlay(s);
 }
 
-/* ─── Build draggable/resizable overlay ─── */
+/* ─── Build draggable/resizable overlay (GPU-accelerated via transform) ─── */
 function buildOverlay(s){
   const wrap=document.getElementById('ppw');
   const el=document.createElement('div');
   el.className='sov';
-  el.style.cssText=`left:${s.x}px;top:${s.y}px;width:${s.w}px;height:${s.h}px;cursor:move`;
+  // size via style, position via transform
+  el.style.width=s.w+'px';
+  el.style.height=s.h+'px';
+  el.style.transform=`translate3d(${s.x}px,${s.y}px,0)`;
+  el.style.cursor='move';
 
   const imgEl=document.createElement('img');imgEl.src=s.dataUrl;
 
@@ -1093,19 +1113,18 @@ function buildOverlay(s){
   el.append(imgEl,delBtn,rzHnd);
   wrap.appendChild(el);
 
-  /* ── DRAG ──
-     Use getBoundingClientRect() of wrap at drag-start so scroll offset is included.
-     Then compute position as (pointer - wrap_origin - initial_offset_within_el).
-  */
+  /* ── DRAG — translate3d, offset computed once at pointerdown ── */
   let dragOn=false,offX=0,offY=0;
+  // pendingRAF avoids redundant rAF calls
+  let rafDrag=null,pendX=s.x,pendY=s.y;
 
   el.addEventListener('pointerdown',e=>{
     if(e.target===delBtn||e.target===rzHnd)return;
     e.preventDefault();e.stopPropagation();
     el.setPointerCapture(e.pointerId);
     dragOn=true;
-    // offset of pointer inside the element (in ppw-local coords)
     const wr=wrap.getBoundingClientRect();
+    // offset = pointer inside element (element pos is s.x, s.y relative to wrap)
     offX=e.clientX-wr.left-s.x;
     offY=e.clientY-wr.top-s.y;
   });
@@ -1115,17 +1134,23 @@ function buildOverlay(s){
     e.preventDefault();
     const mc=document.getElementById('mainCvs');
     const wr=wrap.getBoundingClientRect();
-    s.x=Math.max(0,Math.min(e.clientX-wr.left-offX, mc.width-s.w));
-    s.y=Math.max(0,Math.min(e.clientY-wr.top-offY,  mc.height-s.h));
-    el.style.left=s.x+'px';
-    el.style.top=s.y+'px';
+    pendX=Math.max(0,Math.min(e.clientX-wr.left-offX, mc.width-s.w));
+    pendY=Math.max(0,Math.min(e.clientY-wr.top-offY,  mc.height-s.h));
+    if(!rafDrag){
+      rafDrag=requestAnimationFrame(()=>{
+        s.x=pendX;s.y=pendY;
+        el.style.transform=`translate3d(${s.x}px,${s.y}px,0)`;
+        rafDrag=null;
+      });
+    }
   });
 
-  el.addEventListener('pointerup', ()=>dragOn=false);
-  el.addEventListener('pointercancel',()=>dragOn=false);
+  el.addEventListener('pointerup',  ()=>{ dragOn=false; if(rafDrag){cancelAnimationFrame(rafDrag);rafDrag=null;} });
+  el.addEventListener('pointercancel',()=>{ dragOn=false; if(rafDrag){cancelAnimationFrame(rafDrag);rafDrag=null;} });
 
-  /* ── RESIZE ── */
+  /* ── RESIZE — also via transform + size ── */
   let rzOn=false,rzSX=0,rzSY=0,rzW0=0,rzH0=0;
+  let rafRz=null,pendW=s.w,pendH=s.h;
 
   rzHnd.addEventListener('pointerdown',e=>{
     e.preventDefault();e.stopPropagation();
@@ -1135,13 +1160,19 @@ function buildOverlay(s){
   rzHnd.addEventListener('pointermove',e=>{
     if(!rzOn)return;
     e.preventDefault();
-    s.w=Math.max(40,rzW0+(e.clientX-rzSX));
-    s.h=Math.max(16,rzH0+(e.clientY-rzSY));
-    el.style.width=s.w+'px';
-    el.style.height=s.h+'px';
+    pendW=Math.max(40,rzW0+(e.clientX-rzSX));
+    pendH=Math.max(16,rzH0+(e.clientY-rzSY));
+    if(!rafRz){
+      rafRz=requestAnimationFrame(()=>{
+        s.w=pendW;s.h=pendH;
+        el.style.width=s.w+'px';
+        el.style.height=s.h+'px';
+        rafRz=null;
+      });
+    }
   });
-  rzHnd.addEventListener('pointerup', ()=>rzOn=false);
-  rzHnd.addEventListener('pointercancel',()=>rzOn=false);
+  rzHnd.addEventListener('pointerup',  ()=>{ rzOn=false; if(rafRz){cancelAnimationFrame(rafRz);rafRz=null;} });
+  rzHnd.addEventListener('pointercancel',()=>{ rzOn=false; if(rafRz){cancelAnimationFrame(rafRz);rafRz=null;} });
 }
 
 document.getElementById('clrSigsBtn').addEventListener('click',()=>{
