@@ -2,381 +2,592 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>FotoPDF – Fotoğraf & PDF</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FotoPDF</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg: #0f0f13;
-            --surface: #18181f;
-            --surface2: #22222d;
-            --accent: #f0c040;
-            --accent2: #e87c3e;
-            --text: #f0eee8;
-            --muted: #7a7a8a;
-            --danger: #e05252;
-            --radius: 14px;
-            --transition: 0.22s cubic-bezier(.4,0,.2,1);
+            --bg: #0d0d11;
+            --surface: #16161e;
+            --surface2: #1e1e28;
+            --surface3: #252530;
+            --accent: #f5c842;
+            --accent2: #f07840;
+            --green: #4caf82;
+            --red: #e05252;
+            --blue: #5b9cf6;
+            --text: #edeae2;
+            --muted: #6a6a7e;
+            --border: #252530;
+            --radius: 12px;
+            --ease: cubic-bezier(.4,0,.2,1);
         }
+
+        html, body { height: 100%; overflow: hidden; }
 
         body {
             font-family: 'DM Sans', sans-serif;
             background: var(--bg);
             color: var(--text);
-            min-height: 100vh;
-            padding: 0;
             display: flex;
             flex-direction: column;
+            height: 100dvh;
         }
 
-        /* ── Header ── */
+        /* ═══════════════════════════
+           HEADER
+        ═══════════════════════════ */
         header {
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 18px 24px;
+            padding: 14px 18px;
             background: var(--surface);
-            border-bottom: 1px solid #2a2a38;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
         }
         .logo {
             font-family: 'Syne', sans-serif;
             font-weight: 800;
-            font-size: 1.3rem;
-            letter-spacing: -0.5px;
+            font-size: 1.2rem;
         }
         .logo span { color: var(--accent); }
-        .photo-count {
+        .count-pill {
             background: var(--surface2);
-            border: 1px solid #2a2a38;
-            padding: 6px 14px;
+            border: 1px solid var(--border);
+            padding: 5px 14px;
             border-radius: 999px;
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             color: var(--muted);
         }
-        .photo-count b { color: var(--accent); font-weight: 700; }
+        .count-pill b { color: var(--accent); }
 
-        /* ── Main ── */
-        main { flex: 1; padding: 20px 16px 100px; max-width: 860px; margin: 0 auto; width: 100%; }
-
-        /* ── Settings Bar ── */
+        /* ═══════════════════════════
+           SETTINGS BAR
+        ═══════════════════════════ */
         .settings-bar {
+            flex-shrink: 0;
             display: flex;
-            gap: 10px;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            scrollbar-width: none;
         }
-        .setting-group {
+        .settings-bar::-webkit-scrollbar { display: none; }
+        .setting-chip {
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            flex: 1;
-            min-width: 130px;
+            gap: 3px;
+            flex-shrink: 0;
         }
-        .setting-group label {
-            font-size: 0.72rem;
+        .setting-chip label {
+            font-size: 0.65rem;
             color: var(--muted);
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            font-weight: 500;
+            letter-spacing: 0.07em;
+            white-space: nowrap;
         }
-        select, input[type="range"] {
+        select {
             background: var(--surface2);
-            border: 1px solid #2a2a38;
+            border: 1px solid var(--border);
             color: var(--text);
             border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 0.88rem;
+            padding: 6px 10px;
+            font-size: 0.82rem;
             font-family: inherit;
             cursor: pointer;
-            width: 100%;
             outline: none;
-            transition: border var(--transition);
         }
         select:focus { border-color: var(--accent); }
-        input[type="range"] { padding: 10px 12px; accent-color: var(--accent); }
-        .quality-value { font-size: 0.82rem; color: var(--accent); font-weight: 700; }
+        .quality-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        input[type="range"] {
+            width: 90px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+        .quality-val { font-size: 0.8rem; color: var(--accent); font-weight: 700; min-width: 34px; }
 
-        /* ── Drop Zone ── */
+        /* ═══════════════════════════
+           SCROLLABLE CONTENT
+        ═══════════════════════════ */
+        .content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding: 14px;
+        }
+
+        /* Drop Zone */
         .drop-zone {
-            border: 2px dashed #2e2e3e;
+            border: 2px dashed var(--border);
             border-radius: var(--radius);
-            padding: 40px 20px;
+            padding: 28px 16px;
             text-align: center;
             background: var(--surface);
             cursor: pointer;
-            transition: border var(--transition), background var(--transition);
-            margin-bottom: 18px;
+            transition: border 0.2s var(--ease), background 0.2s var(--ease);
+            margin-bottom: 14px;
             position: relative;
         }
         .drop-zone:hover, .drop-zone.drag-over {
             border-color: var(--accent);
-            background: rgba(240,192,64,0.04);
+            background: rgba(245,200,66,0.04);
         }
-        .drop-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-        .drop-icon { font-size: 2.4rem; margin-bottom: 10px; }
-        .drop-zone h3 { font-family: 'Syne', sans-serif; font-size: 1rem; margin-bottom: 5px; }
-        .drop-zone p { font-size: 0.82rem; color: var(--muted); }
+        .drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+        .drop-icon { font-size: 2rem; margin-bottom: 6px; }
+        .drop-zone h3 { font-family: 'Syne', sans-serif; font-size: 0.95rem; margin-bottom: 4px; }
+        .drop-zone p { font-size: 0.78rem; color: var(--muted); }
 
-        /* ── Photo Grid ── */
+        /* Photo Grid */
         #photo-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
         }
 
         .photo-item {
             position: relative;
             border-radius: 10px;
-            overflow: visible;
             cursor: grab;
-            animation: fadeIn 0.3s ease;
+            animation: popIn 0.25s var(--ease);
+            background: var(--surface2);
         }
-        @keyframes fadeIn { from { opacity:0; transform:scale(.9); } to { opacity:1; transform:scale(1); } }
+        @keyframes popIn {
+            from { opacity:0; transform:scale(.88); }
+            to   { opacity:1; transform:scale(1); }
+        }
         .photo-item:active { cursor: grabbing; }
 
         .photo-item img {
             width: 100%;
-            height: 140px;
+            height: 130px;
             object-fit: cover;
             border-radius: 10px;
             display: block;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-            transition: transform var(--transition);
+            pointer-events: none;
         }
-        .photo-item:hover img { transform: scale(1.02); }
 
-        .photo-item .index-badge {
+        /* Order badge */
+        .order-badge {
             position: absolute;
             bottom: 6px;
             left: 6px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.68);
             color: #fff;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             font-weight: 700;
             padding: 2px 7px;
             border-radius: 999px;
             pointer-events: none;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(3px);
         }
 
-        .remove-btn {
+        /* Overlay buttons on hover */
+        .photo-overlay {
             position: absolute;
-            top: -8px;
-            right: -8px;
-            background: var(--danger);
-            color: white;
-            border: 2px solid var(--bg);
-            border-radius: 50%;
-            width: 26px;
-            height: 26px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-            transition: transform var(--transition);
-            z-index: 2;
-        }
-        .remove-btn:hover { transform: scale(1.15); }
-
-        /* Sortable ghost */
-        .sortable-ghost { opacity: 0.3; }
-        .sortable-chosen { transform: scale(1.05); box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
-
-        /* ── Bottom Action Bar ── */
-        .action-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--surface);
-            border-top: 1px solid #2a2a38;
-            padding: 14px 16px;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            z-index: 100;
-        }
-        .btn {
-            padding: 13px 26px;
-            border: none;
-            border-radius: 10px;
-            font-family: 'Syne', sans-serif;
-            font-weight: 700;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: transform var(--transition), opacity var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn:hover { opacity: 0.88; transform: translateY(-1px); }
-        .btn:active { transform: translateY(0); }
-        .btn-select { background: var(--surface2); color: var(--text); border: 1px solid #2e2e3e; position: relative; overflow: hidden; }
-        .btn-select input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-        .btn-pdf {
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: #111;
-            flex: 1;
-            max-width: 280px;
-            justify-content: center;
-        }
-        .btn-pdf:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-        /* ── Progress ── */
-        .progress-overlay {
-            display: none;
-            position: fixed;
             inset: 0;
-            background: rgba(10,10,16,0.85);
-            backdrop-filter: blur(6px);
-            z-index: 200;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.45);
+            display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .progress-overlay.active { display: flex; }
-        .progress-box {
-            background: var(--surface);
-            border: 1px solid #2a2a38;
-            border-radius: 16px;
-            padding: 30px 36px;
-            text-align: center;
-            min-width: 260px;
-        }
-        .progress-box h3 { font-family: 'Syne', sans-serif; margin-bottom: 14px; }
-        .progress-bar-wrap {
-            width: 100%;
-            height: 8px;
-            background: var(--surface2);
-            border-radius: 999px;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            border-radius: 999px;
-            transition: width 0.25s ease;
-            width: 0%;
-        }
-        .progress-label { font-size: 0.82rem; color: var(--muted); }
-
-        /* ── Toast ── */
-        .toast {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-10px);
-            background: var(--surface2);
-            border: 1px solid #2e2e3e;
-            color: var(--text);
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 0.88rem;
+            gap: 6px;
             opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
-            pointer-events: none;
-            white-space: nowrap;
-            z-index: 300;
+            transition: opacity 0.18s var(--ease);
         }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .photo-item:hover .photo-overlay { opacity: 1; }
+
+        .overlay-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s;
+        }
+        .overlay-btn:hover { transform: scale(1.12); }
+        .overlay-btn.edit  { background: var(--blue); color: #fff; }
+        .overlay-btn.del   { background: var(--red);  color: #fff; }
+
+        /* Sortable states */
+        .sortable-ghost   { opacity: 0.25; }
+        .sortable-chosen  { transform: scale(1.04); box-shadow: 0 8px 28px rgba(0,0,0,.5); z-index: 5; }
 
         /* Empty state */
         .empty-state {
             grid-column: 1/-1;
             text-align: center;
-            padding: 40px 20px;
+            padding: 30px;
             color: var(--muted);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            line-height: 1.7;
         }
 
-        @media (max-width: 480px) {
+        /* ═══════════════════════════
+           ACTION BAR (fixed bottom)
+        ═══════════════════════════ */
+        .action-bar {
+            flex-shrink: 0;
+            display: flex;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            /* safe area for phones */
+            padding-bottom: calc(10px + env(safe-area-inset-bottom));
+        }
+
+        .btn {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: opacity 0.18s, transform 0.18s var(--ease);
+            white-space: nowrap;
+        }
+        .btn:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+        .btn:active:not(:disabled) { transform: translateY(0); }
+        .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .btn-select {
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-select input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .btn-clear {
+            background: transparent;
+            color: var(--red);
+            border: 1px solid var(--red);
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #111;
+            flex: 1;
+        }
+
+        /* ═══════════════════════════
+           CROP MODAL
+        ═══════════════════════════ */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 500;
+            flex-direction: column;
+        }
+        .modal-backdrop.open { display: flex; }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .modal-header h2 { font-family: 'Syne', sans-serif; font-size: 1rem; }
+
+        .modal-toolbar {
+            display: flex;
+            gap: 6px;
+            padding: 10px 14px;
+            background: var(--surface2);
+            flex-shrink: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .modal-toolbar::-webkit-scrollbar { display: none; }
+
+        .tool-btn {
+            padding: 7px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .tool-btn:hover { background: var(--surface3); border-color: var(--accent); }
+        .tool-btn.active { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }
+
+        .aspect-group {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .aspect-label {
+            font-size: 0.7rem;
+            color: var(--muted);
+            white-space: nowrap;
+            margin-left: 4px;
+        }
+
+        .modal-canvas-area {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            background: #0a0a0e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-canvas-area img {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom));
+        }
+        .btn-cancel { background: var(--surface2); color: var(--text); border: 1px solid var(--border); flex: 1; }
+        .btn-reset  { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+        .btn-apply  { background: linear-gradient(135deg, var(--green), #3a9e6a); color: #fff; flex: 2; }
+
+        /* ═══════════════════════════
+           PROGRESS OVERLAY
+        ═══════════════════════════ */
+        .progress-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(6px);
+            z-index: 600;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-backdrop.open { display: flex; }
+        .progress-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px 32px;
+            text-align: center;
+            min-width: 240px;
+        }
+        .progress-card h3 { font-family: 'Syne', sans-serif; margin-bottom: 16px; }
+        .progress-track {
+            width: 100%;
+            height: 7px;
+            background: var(--surface2);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border-radius: 999px;
+            transition: width 0.2s var(--ease);
+            width: 0%;
+        }
+        .progress-note { font-size: 0.8rem; color: var(--muted); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-6px);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 0.84rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s, transform 0.25s;
+            z-index: 700;
+            white-space: nowrap;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* Responsive */
+        @media (max-width: 420px) {
             #photo-list { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
             .photo-item img { height: 100px; }
-            .settings-bar { flex-direction: column; }
+            .photo-overlay { opacity: 1; background: rgba(0,0,0,0.25); }
+            .overlay-btn { width: 28px; height: 28px; font-size: 12px; }
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-<!-- Header -->
+<!-- ══════════ HEADER ══════════ -->
 <header>
     <div class="logo">Foto<span>PDF</span></div>
-    <div class="photo-count" id="countBadge">Fotoğraf: <b>0</b></div>
+    <div class="count-pill" id="countPill">Fotoğraf: <b>0</b></div>
 </header>
 
-<!-- Main -->
-<main>
-    <!-- Settings -->
-    <div class="settings-bar">
-        <div class="setting-group">
-            <label>Sayfa Boyutu</label>
-            <select id="pageSize">
-                <option value="a4">A4</option>
-                <option value="a5">A5</option>
-                <option value="letter">Letter</option>
-                <option value="square">Kare (15×15cm)</option>
-            </select>
-        </div>
-        <div class="setting-group">
-            <label>Yerleşim</label>
-            <select id="layoutMode">
-                <option value="auto">Otomatik (Yön Algıla)</option>
-                <option value="portrait">Hep Dikey</option>
-                <option value="landscape">Hep Yatay</option>
-            </select>
-        </div>
-        <div class="setting-group">
-            <label>Kalite: <span class="quality-value" id="qualityLabel">85%</span></label>
+<!-- ══════════ SETTINGS ══════════ -->
+<div class="settings-bar">
+    <div class="setting-chip">
+        <label>Sayfa Boyutu</label>
+        <select id="pageSize">
+            <option value="a4">A4</option>
+            <option value="a5">A5</option>
+            <option value="letter">Letter</option>
+            <option value="square">Kare 15cm</option>
+        </select>
+    </div>
+    <div class="setting-chip">
+        <label>Yön</label>
+        <select id="orientation">
+            <option value="auto">Otomatik</option>
+            <option value="portrait">Dikey</option>
+            <option value="landscape">Yatay</option>
+        </select>
+    </div>
+    <div class="setting-chip">
+        <label>Kenar Boşluk</label>
+        <select id="margin">
+            <option value="8">Normal (8mm)</option>
+            <option value="0">Kenarsız</option>
+            <option value="15">Geniş (15mm)</option>
+        </select>
+    </div>
+    <div class="setting-chip">
+        <label>Kalite: <span id="qualityVal" class="quality-val">85%</span></label>
+        <div class="quality-row">
             <input type="range" id="qualityRange" min="40" max="100" value="85">
         </div>
     </div>
+</div>
 
+<!-- ══════════ SCROLL AREA ══════════ -->
+<div class="content-scroll">
     <!-- Drop Zone -->
     <div class="drop-zone" id="dropZone">
-        <input type="file" id="imageInput" multiple accept="image/*">
+        <input type="file" id="fileInput" multiple accept="image/*">
         <div class="drop-icon">📷</div>
         <h3>Fotoğraf Ekle</h3>
-        <p>Tıkla veya sürükleyip bırak • JPG, PNG, WebP</p>
+        <p>Tıkla veya sürükleyip bırak · JPG, PNG, WebP</p>
     </div>
 
     <!-- Photo Grid -->
     <div id="photo-list">
         <div class="empty-state" id="emptyState">
-            Henüz fotoğraf yok.<br>Yukarıdan seçerek başlayın.
+            📂 Henüz fotoğraf eklenmedi.<br>
+            Yukarıdan seçerek başlayın.
         </div>
     </div>
-</main>
-
-<!-- Bottom Action Bar -->
-<div class="action-bar">
-    <button class="btn btn-select">
-        <span>📁</span> Fotoğraf Seç
-        <input type="file" id="imageInput2" multiple accept="image/*">
-    </button>
-    <button class="btn btn-pdf" id="generatePdfBtn" disabled>
-        <span>📄</span> PDF İndir
-    </button>
 </div>
 
-<!-- Progress Overlay -->
-<div class="progress-overlay" id="progressOverlay">
-    <div class="progress-box">
+<!-- ══════════ ACTION BAR ══════════ -->
+<div class="action-bar">
+    <button class="btn btn-select">
+        ＋ Ekle
+        <input type="file" id="fileInput2" multiple accept="image/*">
+    </button>
+    <button class="btn btn-clear" id="clearBtn" disabled>🗑</button>
+    <button class="btn btn-pdf" id="pdfBtn" disabled>📄 PDF İndir</button>
+</div>
+
+<!-- ══════════ CROP MODAL ══════════ -->
+<div class="modal-backdrop" id="cropModal">
+    <div class="modal-header">
+        <h2>✂️ Fotoğrafı Düzenle</h2>
+        <span style="color:var(--muted);font-size:0.8rem;" id="editIndex"></span>
+    </div>
+
+    <div class="modal-toolbar">
+        <!-- Aspect ratios -->
+        <span class="aspect-label">Oran:</span>
+        <button class="tool-btn active" data-ratio="free">Serbest</button>
+        <button class="tool-btn" data-ratio="1">1:1</button>
+        <button class="tool-btn" data-ratio="1.333">4:3</button>
+        <button class="tool-btn" data-ratio="1.778">16:9</button>
+        <button class="tool-btn" data-ratio="0.707">A4</button>
+
+        <div style="width:1px;background:var(--border);margin:0 4px;flex-shrink:0;"></div>
+
+        <!-- Actions -->
+        <button class="tool-btn" id="rotateLeft">↺ Sol</button>
+        <button class="tool-btn" id="rotateRight">↻ Sağ</button>
+        <button class="tool-btn" id="flipH">⇄ Yatay</button>
+        <button class="tool-btn" id="flipV">⇅ Dikey</button>
+        <button class="tool-btn" id="zoomIn">🔍+</button>
+        <button class="tool-btn" id="zoomOut">🔍−</button>
+    </div>
+
+    <div class="modal-canvas-area">
+        <img id="cropImage" src="" alt="">
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-cancel" id="cancelEdit">İptal</button>
+        <button class="btn btn-reset"  id="resetEdit">Sıfırla</button>
+        <button class="btn btn-apply"  id="applyEdit">✓ Uygula</button>
+    </div>
+</div>
+
+<!-- ══════════ PROGRESS ══════════ -->
+<div class="progress-backdrop" id="progressBack">
+    <div class="progress-card">
         <h3>PDF Oluşturuluyor…</h3>
-        <div class="progress-bar-wrap">
-            <div class="progress-bar-fill" id="progressFill"></div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
         </div>
-        <div class="progress-label" id="progressLabel">0 / 0 fotoğraf</div>
+        <div class="progress-note" id="progressNote">Hazırlanıyor…</div>
     </div>
 </div>
 
@@ -384,204 +595,322 @@
 <div class="toast" id="toast"></div>
 
 <script>
-    const { jsPDF } = window.jspdf;
-    const photoList = document.getElementById('photo-list');
-    const generatePdfBtn = document.getElementById('generatePdfBtn');
-    const progressOverlay = document.getElementById('progressOverlay');
-    const progressFill = document.getElementById('progressFill');
-    const progressLabel = document.getElementById('progressLabel');
-    const countBadge = document.getElementById('countBadge');
-    const emptyState = document.getElementById('emptyState');
-    const qualityRange = document.getElementById('qualityRange');
-    const qualityLabel = document.getElementById('qualityLabel');
-    const dropZone = document.getElementById('dropZone');
-    const toastEl = document.getElementById('toast');
+/* ═════════════════════════════════════════
+   STATE
+═════════════════════════════════════════ */
+const { jsPDF } = window.jspdf;
+const photoList   = document.getElementById('photo-list');
+const emptyState  = document.getElementById('emptyState');
+const countPill   = document.getElementById('countPill');
+const pdfBtn      = document.getElementById('pdfBtn');
+const clearBtn    = document.getElementById('clearBtn');
+const cropModal   = document.getElementById('cropModal');
+const cropImage   = document.getElementById('cropImage');
+const progressBack  = document.getElementById('progressBack');
+const progressFill  = document.getElementById('progressFill');
+const progressNote  = document.getElementById('progressNote');
+const toastEl     = document.getElementById('toast');
 
-    // ── Sortable ──
-    new Sortable(photoList, {
-        animation: 200,
-        ghostClass: 'sortable-ghost',
-        chosenClass: 'sortable-chosen',
-        filter: '.remove-btn,.empty-state',
-        onEnd: updateBadges
+let cropper = null;
+let editingItem = null;   // DOM element being edited
+let originalSrc = null;   // untouched src for reset
+
+/* ═════════════════════════════════════════
+   SORTABLE
+═════════════════════════════════════════ */
+new Sortable(photoList, {
+    animation: 200,
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    filter: '.empty-state',
+    onEnd: refreshBadges
+});
+
+/* ═════════════════════════════════════════
+   FILE INPUT EVENTS
+═════════════════════════════════════════ */
+document.getElementById('fileInput').addEventListener('change',  e => loadFiles(e.target.files));
+document.getElementById('fileInput2').addEventListener('change', e => loadFiles(e.target.files));
+
+/* Drag & drop on the drop zone */
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', ()=> dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop',      e => { e.preventDefault(); dropZone.classList.remove('drag-over'); loadFiles(e.dataTransfer.files); });
+
+/* ═════════════════════════════════════════
+   LOAD FILES
+═════════════════════════════════════════ */
+function loadFiles(files) {
+    const imgs = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (!imgs.length) return;
+    imgs.forEach(f => {
+        const reader = new FileReader();
+        reader.onload = e => createPhotoItem(e.target.result);
+        reader.readAsDataURL(f);
     });
+    document.getElementById('fileInput').value  = '';
+    document.getElementById('fileInput2').value = '';
+}
 
-    // ── Quality slider ──
-    qualityRange.addEventListener('input', () => {
-        qualityLabel.textContent = qualityRange.value + '%';
+function createPhotoItem(src) {
+    // Remove empty state
+    emptyState.style.display = 'none';
+
+    const div = document.createElement('div');
+    div.className = 'photo-item';
+
+    const img = document.createElement('img');
+    img.src = src;
+    img.draggable = false;
+
+    const badge = document.createElement('div');
+    badge.className = 'order-badge';
+
+    // Overlay with edit & delete
+    const overlay = document.createElement('div');
+    overlay.className = 'photo-overlay';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'overlay-btn edit';
+    editBtn.innerHTML = '✏️';
+    editBtn.title = 'Düzenle / Kırp';
+    editBtn.onclick = (e) => { e.stopPropagation(); openEditor(div); };
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'overlay-btn del';
+    delBtn.innerHTML = '✕';
+    delBtn.title = 'Sil';
+    delBtn.onclick = (e) => { e.stopPropagation(); removeItem(div); };
+
+    overlay.appendChild(editBtn);
+    overlay.appendChild(delBtn);
+    div.appendChild(img);
+    div.appendChild(badge);
+    div.appendChild(overlay);
+    photoList.appendChild(div);
+
+    refreshBadges();
+    updateState();
+}
+
+function removeItem(div) {
+    div.style.animation = 'popIn 0.2s reverse';
+    setTimeout(() => { div.remove(); refreshBadges(); updateState(); }, 180);
+}
+
+/* ═════════════════════════════════════════
+   CLEAR ALL
+═════════════════════════════════════════ */
+clearBtn.addEventListener('click', () => {
+    if (!confirm('Tüm fotoğraflar silinsin mi?')) return;
+    photoList.querySelectorAll('.photo-item').forEach(el => el.remove());
+    updateState();
+});
+
+/* ═════════════════════════════════════════
+   BADGES & STATE
+═════════════════════════════════════════ */
+function refreshBadges() {
+    photoList.querySelectorAll('.photo-item .order-badge').forEach((b, i) => {
+        b.textContent = i + 1;
     });
+}
 
-    // ── File inputs ──
-    [document.getElementById('imageInput'), document.getElementById('imageInput2')]
-        .forEach(input => input.addEventListener('change', e => loadFiles(e.target.files)));
+function updateState() {
+    const count = photoList.querySelectorAll('.photo-item').length;
+    countPill.innerHTML = `Fotoğraf: <b>${count}</b>`;
+    pdfBtn.disabled   = count === 0;
+    clearBtn.disabled = count === 0;
+    if (count === 0) emptyState.style.display = '';
+}
 
-    // ── Drag & Drop on zone ──
-    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-    dropZone.addEventListener('drop', e => {
-        e.preventDefault();
-        dropZone.classList.remove('drag-over');
-        loadFiles(e.dataTransfer.files);
-    });
+/* ═════════════════════════════════════════
+   QUALITY SLIDER
+═════════════════════════════════════════ */
+document.getElementById('qualityRange').addEventListener('input', function() {
+    document.getElementById('qualityVal').textContent = this.value + '%';
+});
 
-    // ── Load Files ──
-    function loadFiles(files) {
-        const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
-        if (imageFiles.length === 0) return;
+/* ═════════════════════════════════════════
+   CROP / EDIT MODAL
+═════════════════════════════════════════ */
+function openEditor(item) {
+    editingItem = item;
+    const img = item.querySelector('img');
+    originalSrc = img.src;
 
-        imageFiles.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = e => addPhotoItem(e.target.result, file.type);
-            reader.readAsDataURL(file);
+    cropImage.src = img.src;
+    document.getElementById('editIndex').textContent =
+        '#' + (Array.from(photoList.querySelectorAll('.photo-item')).indexOf(item) + 1);
+
+    cropModal.classList.add('open');
+
+    // Reset aspect buttons
+    document.querySelectorAll('[data-ratio]').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-ratio="free"]').classList.add('active');
+
+    // Init Cropper after image loads
+    cropImage.onload = () => {
+        if (cropper) { cropper.destroy(); cropper = null; }
+        cropper = new Cropper(cropImage, {
+            viewMode: 1,
+            autoCropArea: 0.9,
+            movable: true,
+            scalable: true,
+            zoomable: true,
+            background: true,
+            responsive: true,
         });
-
-        // Clear inputs
-        document.getElementById('imageInput').value = '';
-        document.getElementById('imageInput2').value = '';
-    }
-
-    function addPhotoItem(src, mimeType) {
-        if (emptyState) emptyState.style.display = 'none';
-
-        const div = document.createElement('div');
-        div.className = 'photo-item';
-        div.dataset.mime = mimeType || 'image/jpeg';
-
-        const img = document.createElement('img');
-        img.src = src;
-        img.loading = 'lazy';
-
-        const badge = document.createElement('div');
-        badge.className = 'index-badge';
-
-        const btn = document.createElement('button');
-        btn.className = 'remove-btn';
-        btn.innerHTML = '×';
-        btn.onclick = () => {
-            div.remove();
-            updateBadges();
-            updateState();
-        };
-
-        div.appendChild(img);
-        div.appendChild(badge);
-        div.appendChild(btn);
-        photoList.appendChild(div);
-
-        updateBadges();
-        updateState();
-    }
-
-    function updateBadges() {
-        photoList.querySelectorAll('.photo-item .index-badge').forEach((b, i) => {
-            b.textContent = i + 1;
-        });
-    }
-
-    function updateState() {
-        const count = photoList.querySelectorAll('.photo-item').length;
-        countBadge.innerHTML = `Fotoğraf: <b>${count}</b>`;
-        generatePdfBtn.disabled = count === 0;
-        if (count === 0 && emptyState) emptyState.style.display = '';
-    }
-
-    // ── Toast ──
-    function showToast(msg, duration = 2500) {
-        toastEl.textContent = msg;
-        toastEl.classList.add('show');
-        setTimeout(() => toastEl.classList.remove('show'), duration);
-    }
-
-    // ── Page size map ──
-    const PAGE_SIZES = {
-        a4:     { w: 210, h: 297 },
-        a5:     { w: 148, h: 210 },
-        letter: { w: 215.9, h: 279.4 },
-        square: { w: 150, h: 150 }
     };
+    // If already cached:
+    if (cropImage.complete) cropImage.onload();
+}
 
-    // ── Get image format for jsPDF ──
-    function getFormat(mime) {
-        if (mime.includes('png')) return 'PNG';
-        if (mime.includes('webp')) return 'WEBP';
-        return 'JPEG';
-    }
+function closeEditor() {
+    if (cropper) { cropper.destroy(); cropper = null; }
+    cropModal.classList.remove('open');
+    editingItem = null;
+}
 
-    // ── PDF Generation ──
-    generatePdfBtn.addEventListener('click', async () => {
-        const items = Array.from(photoList.querySelectorAll('.photo-item'));
-        if (items.length === 0) return;
+// Aspect ratio buttons
+document.querySelectorAll('[data-ratio]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-ratio]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (!cropper) return;
+        const val = btn.dataset.ratio;
+        cropper.setAspectRatio(val === 'free' ? NaN : parseFloat(val));
+    });
+});
 
-        const pageSizeKey = document.getElementById('pageSize').value;
-        const layoutMode = document.getElementById('layoutMode').value;
-        const quality = parseInt(qualityRange.value) / 100;
-        const pageSize = PAGE_SIZES[pageSizeKey];
-        const margin = 8; // mm
-        const UNIT = 'mm';
+// Tool buttons
+document.getElementById('rotateLeft').addEventListener('click',  () => cropper?.rotate(-90));
+document.getElementById('rotateRight').addEventListener('click', () => cropper?.rotate(90));
+document.getElementById('zoomIn').addEventListener('click',  () => cropper?.zoom(0.1));
+document.getElementById('zoomOut').addEventListener('click', () => cropper?.zoom(-0.1));
 
-        // Show progress
-        progressOverlay.classList.add('active');
-        generatePdfBtn.disabled = true;
+let scaleX = 1, scaleY = 1;
+document.getElementById('flipH').addEventListener('click', () => {
+    scaleX *= -1;
+    cropper?.scaleX(scaleX);
+});
+document.getElementById('flipV').addEventListener('click', () => {
+    scaleY *= -1;
+    cropper?.scaleY(scaleY);
+});
 
-        let doc = null;
+// Reset
+document.getElementById('resetEdit').addEventListener('click', () => {
+    scaleX = 1; scaleY = 1;
+    cropImage.src = originalSrc;
+    if (cropper) { cropper.destroy(); cropper = null; }
+    cropImage.onload = () => {
+        cropper = new Cropper(cropImage, {
+            viewMode: 1, autoCropArea: 0.9, movable: true, scalable: true, zoomable: true, background: true, responsive: true,
+        });
+    };
+    if (cropImage.complete) cropImage.onload();
+});
 
-        for (let i = 0; i < items.length; i++) {
-            const img = items[i].querySelector('img');
-            const imgData = img.src;
-            const mime = items[i].dataset.mime || 'image/jpeg';
-            const fmt = getFormat(mime);
+// Cancel
+document.getElementById('cancelEdit').addEventListener('click', closeEditor);
 
-            // Determine orientation
-            const naturalW = img.naturalWidth;
-            const naturalH = img.naturalHeight;
-            let orientation = 'portrait';
-            if (layoutMode === 'landscape') orientation = 'landscape';
-            else if (layoutMode === 'auto' && naturalW > naturalH) orientation = 'landscape';
+// Apply crop
+document.getElementById('applyEdit').addEventListener('click', () => {
+    if (!cropper || !editingItem) return;
+    const canvas = cropper.getCroppedCanvas({ maxWidth: 2400, maxHeight: 2400, imageSmoothingQuality: 'high' });
+    if (!canvas) return;
+    const newSrc = canvas.toDataURL('image/jpeg', 0.95);
+    editingItem.querySelector('img').src = newSrc;
+    closeEditor();
+    showToast('✅ Düzenleme uygulandı');
+});
 
-            const pw = orientation === 'landscape' ? pageSize.h : pageSize.w;
-            const ph = orientation === 'landscape' ? pageSize.w : pageSize.h;
+/* ═════════════════════════════════════════
+   PDF GENERATION
+═════════════════════════════════════════ */
+const PAGE_SIZES = {
+    a4:     [210, 297],
+    a5:     [148, 210],
+    letter: [215.9, 279.4],
+    square: [150, 150]
+};
 
-            if (i === 0) {
-                doc = new jsPDF({ orientation, unit: UNIT, format: [pw, ph] });
-            } else {
-                doc.addPage([pw, ph], orientation);
-            }
+pdfBtn.addEventListener('click', async () => {
+    const items = Array.from(photoList.querySelectorAll('.photo-item'));
+    if (!items.length) return;
 
-            // Scale image to fit with margin
-            const maxW = pw - margin * 2;
-            const maxH = ph - margin * 2;
-            const imgRatio = naturalW / naturalH;
-            let drawW = maxW;
-            let drawH = drawW / imgRatio;
-            if (drawH > maxH) { drawH = maxH; drawW = drawH * imgRatio; }
-            const x = (pw - drawW) / 2;
-            const y = (ph - drawH) / 2;
+    const sizeKey    = document.getElementById('pageSize').value;
+    const orientation= document.getElementById('orientation').value;
+    const marginMM   = parseInt(document.getElementById('margin').value);
+    const quality    = parseInt(document.getElementById('qualityRange').value) / 100;
+    const [pw0, ph0] = PAGE_SIZES[sizeKey];
 
-            // Convert to canvas for quality control
-            const canvas = document.createElement('canvas');
-            canvas.width = naturalW;
-            canvas.height = naturalH;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            const outFmt = fmt === 'PNG' ? 'PNG' : 'JPEG';
-            const outData = outFmt === 'JPEG' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png');
+    progressBack.classList.add('open');
+    pdfBtn.disabled = true;
 
-            doc.addImage(outData, outFmt, x, y, drawW, drawH);
+    let doc = null;
 
-            // Update progress
-            const pct = Math.round(((i + 1) / items.length) * 100);
-            progressFill.style.width = pct + '%';
-            progressLabel.textContent = `${i + 1} / ${items.length} fotoğraf`;
+    for (let i = 0; i < items.length; i++) {
+        const img = items[i].querySelector('img');
 
-            // Small delay so UI can update
-            await new Promise(r => setTimeout(r, 30));
+        // Determine page orientation
+        let ori = 'portrait';
+        if (orientation === 'landscape') ori = 'landscape';
+        else if (orientation === 'auto' && img.naturalWidth > img.naturalHeight) ori = 'landscape';
+
+        const pw = ori === 'landscape' ? ph0 : pw0;
+        const ph = ori === 'landscape' ? pw0 : ph0;
+
+        if (i === 0) {
+            doc = new jsPDF({ orientation: ori, unit: 'mm', format: [pw, ph] });
+        } else {
+            doc.addPage([pw, ph], ori);
         }
 
-        doc.save(`fotopdf-${Date.now()}.pdf`);
-        progressOverlay.classList.remove('active');
-        generatePdfBtn.disabled = false;
-        showToast('✅ PDF başarıyla indirildi!');
-    });
+        // Scale image to fit page with margin
+        const avW = pw - marginMM * 2;
+        const avH = ph - marginMM * 2;
+        const ratio = img.naturalWidth / img.naturalHeight;
+        let dw = avW, dh = dw / ratio;
+        if (dh > avH) { dh = avH; dw = dh * ratio; }
+        const x = (pw - dw) / 2;
+        const y = (ph - dh) / 2;
+
+        // Render to canvas with quality
+        const canvas = document.createElement('canvas');
+        canvas.width  = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        const data = canvas.toDataURL('image/jpeg', quality);
+
+        doc.addImage(data, 'JPEG', x, y, dw, dh);
+
+        const pct = Math.round(((i + 1) / items.length) * 100);
+        progressFill.style.width = pct + '%';
+        progressNote.textContent = `${i + 1} / ${items.length} fotoğraf işlendi`;
+
+        await new Promise(r => setTimeout(r, 20));
+    }
+
+    doc.save(`fotopdf-${Date.now()}.pdf`);
+    progressBack.classList.remove('open');
+    progressFill.style.width = '0%';
+    pdfBtn.disabled = false;
+    showToast('✅ PDF başarıyla indirildi!');
+});
+
+/* ═════════════════════════════════════════
+   TOAST
+═════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg, ms = 2600) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), ms);
+}
 </script>
 </body>
 </html>
