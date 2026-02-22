@@ -63,13 +63,13 @@ header{
 
 /* ─── NAV CARDS ─── */
 .nav-cards{
-  flex-shrink:0;display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
-  padding:9px 10px;
+  flex-shrink:0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+  padding:8px 10px;
 }
 .nc{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;padding:11px 3px;border-radius:12px;border:2px solid transparent;
-  cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:.69rem;
+  gap:3px;padding:10px 2px;border-radius:12px;border:2px solid transparent;
+  cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:.63rem;
   text-align:center;line-height:1.2;color:#fff;
   transition:opacity .13s,border-color .13s,transform .1s;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;
@@ -77,10 +77,11 @@ header{
 .nc:active{transform:scale(.93)}
 .nc.active{border-color:rgba(255,255,255,.5);box-shadow:0 3px 14px rgba(0,0,0,.4)}
 .nc:not(.active){opacity:.5}
-.nc-icon{font-size:1.3rem;line-height:1}
+.nc-icon{font-size:1.2rem;line-height:1}
 .nc.c1{background:linear-gradient(135deg,#1d4ed8,#2563eb)}
 .nc.c2{background:linear-gradient(135deg,#047857,#059669)}
 .nc.c3{background:linear-gradient(135deg,#6d28d9,#7c3aed)}
+.nc.c4{background:linear-gradient(135deg,#b45309,#d97706)}
 
 /* ─── TAB PANELS ─── */
 .tab-panel{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0;min-width:0}
@@ -181,6 +182,7 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:80px}
 .abtn-blue  {background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff}
 .abtn-teal  {background:linear-gradient(135deg,#047857,#10b981);color:#fff}
 .abtn-purple{background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff}
+.abtn-orange{background:linear-gradient(135deg,#b45309,#f59e0b);color:#fff}
 
 /* ─── MERGE LIST ─── */
 .mlist{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
@@ -379,6 +381,80 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:80px}
   grid-column:1/-1;text-align:center;padding:22px;
   color:var(--muted);font-size:.79rem;line-height:1.9;
 }
+
+/* ─── SHARE BAR ─── */
+.share-bar{
+  flex-shrink:0;display:none;align-items:center;gap:8px;
+  padding:8px 10px;background:rgba(61,184,122,.07);
+  border-top:1px solid rgba(61,184,122,.2);
+}
+.share-bar.visible{display:flex}
+.share-btn{
+  flex:1;height:42px;border-radius:10px;border:1.5px solid rgba(61,184,122,.6);
+  background:rgba(61,184,122,.15);color:var(--green);
+  font-family:'Syne',sans-serif;font-weight:700;font-size:.84rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  touch-action:manipulation;
+}
+.share-btn:active{opacity:.7}
+.share-dl{
+  height:42px;padding:0 13px;border-radius:10px;border:1px solid var(--border);
+  background:var(--surf2);color:var(--muted);font-size:.78rem;cursor:pointer;
+  display:flex;align-items:center;gap:5px;white-space:nowrap;touch-action:manipulation;
+}
+.share-dl:active{opacity:.7}
+
+/* ─── PDF SPLIT TAB ─── */
+.split-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex:1;gap:14px;color:var(--muted);text-align:center;padding:24px;
+}
+.split-empty .big{font-size:3rem;opacity:.3}
+.split-loaded{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
+.split-topbar{
+  flex-shrink:0;display:flex;align-items:center;gap:8px;
+  padding:9px 13px;background:var(--surf);border-bottom:1px solid var(--border);
+}
+.split-fname{font-size:.79rem;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.split-badge{
+  flex-shrink:0;background:var(--surf2);border:1px solid var(--border);
+  padding:3px 9px;border-radius:999px;font-size:.7rem;color:var(--muted);
+}
+.split-badge b{color:var(--acc)}
+.split-range-area{
+  flex-shrink:0;padding:11px 13px;background:var(--surf2);border-bottom:1px solid var(--border);
+}
+.split-range-lbl{font-size:.71rem;color:var(--muted);margin-bottom:5px}
+.split-range-lbl b{color:var(--acc)}
+.split-range-inp{
+  width:100%;background:var(--surf);border:1.5px solid var(--border);
+  color:var(--text);border-radius:9px;padding:9px 12px;font-size:.88rem;
+  font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s;
+}
+.split-range-inp:focus{border-color:var(--acc)}
+.split-range-hint{font-size:.67rem;color:var(--muted);margin-top:4px}
+.split-page-grid{
+  flex:1;overflow-y:auto;overflow-x:hidden;padding:10px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px;
+  align-content:start;
+}
+.spt{
+  border-radius:8px;overflow:hidden;border:2px solid transparent;
+  transition:border-color .15s,transform .1s;background:var(--surf);
+  position:relative;cursor:pointer;
+}
+.spt:active{transform:scale(.93)}
+.spt.sel{border-color:var(--acc);box-shadow:0 2px 10px rgba(245,200,66,.25)}
+.spt canvas{width:100%;display:block}
+.spt-num{
+  position:absolute;bottom:3px;left:3px;
+  background:rgba(0,0,0,.75);color:#fff;font-size:.57rem;font-weight:700;
+  padding:1px 5px;border-radius:999px;
+}
+.spt.sel .spt-num{background:var(--acc);color:#111}
+
+/* ─── SCAN MODE BUTTON ─── */
+.tb.scan-on{background:rgba(61,184,122,.18);color:#34d399;border-color:rgba(61,184,122,.5)}
 </style>
 </head>
 <body>
@@ -409,6 +485,10 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:80px}
   <div class="nc c3" data-tab="sign">
     <div class="nc-icon">✍️</div>
     <div data-i="nav_sign">İmzala</div>
+  </div>
+  <div class="nc c4" data-tab="split">
+    <div class="nc-icon">✂️</div>
+    <div data-i="nav_split">PDF Böl</div>
   </div>
 </div>
 
@@ -461,6 +541,10 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:80px}
     <button class="abtn-sm red" id="phClearBtn" disabled>🗑</button>
     <button class="abtn-main abtn-blue" id="phPdfBtn" disabled data-i="btn_cpdf">📄 PDF Oluştur</button>
   </div>
+  <div class="share-bar" id="photoShareBar">
+    <button class="share-btn" id="photoShareBtn">🔗 <span data-i="btn_share">Paylaş</span></button>
+    <button class="share-dl" id="photoSaveDlBtn">⬇ <span data-i="btn_save">Kaydet</span></button>
+  </div>
 </div>
 
 <!-- ═══ MERGE TAB ═══ -->
@@ -482,6 +566,10 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:80px}
     </button>
     <button class="abtn-sm red" id="mgClearBtn" disabled>🗑</button>
     <button class="abtn-main abtn-teal" id="mgBtn" disabled data-i="btn_merge">🔗 Birleştir</button>
+  </div>
+  <div class="share-bar" id="mergeShareBar">
+    <button class="share-btn" id="mergeShareBtn">🔗 <span data-i="btn_share">Paylaş</span></button>
+    <button class="share-dl" id="mergeSaveDlBtn">⬇ <span data-i="btn_save">Kaydet</span></button>
   </div>
 </div>
 
@@ -516,6 +604,39 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:80px}
     <button class="abtn-main abtn-purple" id="drawSigBtn" data-i="btn_draw_sig">✍️ İmza Çiz</button>
     <button class="abtn-main abtn-blue" id="dlSignedBtn" data-i="btn_dl_signed">📄 İndir</button>
   </div>
+  <div class="share-bar" id="signShareBar">
+    <button class="share-btn" id="signShareBtn">🔗 <span data-i="btn_share">Paylaş</span></button>
+    <button class="share-dl" id="signSaveDlBtn">⬇ <span data-i="btn_save">Kaydet</span></button>
+  </div>
+</div>
+
+<!-- ═══ SPLIT TAB ═══ -->
+<div class="tab-panel" id="tab-split">
+  <div class="split-empty" id="splitEmpty">
+    <div class="big">✂️</div>
+    <div style="font-weight:500;color:var(--text);font-size:.9rem" data-i="split_ttl">PDF Böl</div>
+    <div style="font-size:.75rem" data-i="split_sub">Sayfa aralığı seçerek yeni PDF oluştur</div>
+    <label class="open-btn" style="margin-top:4px">
+      📄 <span data-i="btn_opdf">PDF Aç</span>
+      <input type="file" id="splitPdfIn" accept="application/pdf,.pdf">
+    </label>
+  </div>
+  <div class="split-loaded" id="splitLoaded">
+    <div class="split-topbar">
+      <div class="split-fname" id="splitFname">-</div>
+      <div class="split-badge"><b id="splitTotal">0</b> <span data-i="lbl_pages">sayfa</span></div>
+    </div>
+    <div class="split-range-area">
+      <div class="split-range-lbl" data-i="split_range_lbl">Sayfa aralığı: <b id="splitPreview">-</b></div>
+      <input class="split-range-inp" id="splitRangeInp" type="text" placeholder="ör: 1-3, 5, 7-9">
+      <div class="split-range-hint" data-i="split_range_hint">Virgülle ayır · Örnek: 1-3, 5, 8-10</div>
+    </div>
+    <div class="split-page-grid" id="splitPageGrid"></div>
+  </div>
+  <div class="abar" id="splitAbar" style="display:none">
+    <button class="abtn-sm red" id="splitClearBtn">🗑</button>
+    <button class="abtn-main abtn-orange" id="splitBtn" disabled data-i="btn_split">✂️ Böl ve İndir</button>
+  </div>
 </div>
 
 <!-- ═══ CROP MODAL ═══ -->
@@ -535,6 +656,8 @@ input[type=range]{accent-color:var(--acc);cursor:pointer;width:80px}
     <button class="tb" id="flipV">⇅</button>
     <button class="tb" id="zIn">+</button>
     <button class="tb" id="zOut">−</button>
+    <div class="divv"></div>
+    <button class="tb" id="scanBtn" data-i="btn_scan">📄 Tarama</button>
   </div>
   <div class="mcvs"><img id="cropImg" src="" alt=""></div>
   <div class="mftr">
@@ -616,7 +739,19 @@ tr:{
   t_crop_ok:'✅ Düzenleme uygulandı',t_sigs_cleared:'İmzalar temizlendi',
   t_no_sig:'⚠️ Önce imzanı çiz!',t_no_placed:'⚠️ Henüz imza eklemedin',
   t_confirm_ph:'Tüm fotoğraflar silinsin mi?',t_confirm_mg:'Liste temizlensin mi?',
-  t_pdf_err:'❌ PDF yüklenemedi',t_img_err:'❌ Görsel yüklenemedi',t_err:'❌ Hata: '
+  t_pdf_err:'❌ PDF yüklenemedi',t_img_err:'❌ Görsel yüklenemedi',t_err:'❌ Hata: ',
+  // NEW
+  nav_split:'PDF Böl',
+  btn_share:'Paylaş',btn_save:'Kaydet',
+  btn_scan:'📄 Tarama',
+  split_ttl:'PDF Böl',split_sub:'Sayfa aralığı seçerek yeni PDF oluştur',
+  split_range_lbl:'Seçili sayfalar:',split_range_hint:'Virgülle ayır · Örnek: 1-3, 5, 8-10',
+  btn_split:'✂️ Böl ve İndir',
+  t_split_ok:'✅ PDF bölündü ve indirildi!',t_split_err:'❌ PDF bölünemedi',
+  t_scan_on:'📄 Tarama modu aktif',t_scan_off:'Tarama modu kapatıldı',
+  t_share_err:'⚠️ Paylaşım desteklenmiyor, indirildi',
+  t_no_pages:'⚠️ Geçerli sayfa aralığı gir',
+  p_splitting:'PDF Bölünüyor…'
 },
 en:{
   nav_photo:'Photo→PDF',nav_merge:'Merge',nav_sign:'Sign',
@@ -645,7 +780,19 @@ en:{
   t_crop_ok:'✅ Edit applied',t_sigs_cleared:'Signatures cleared',
   t_no_sig:'⚠️ Draw your signature first!',t_no_placed:'⚠️ No signature yet',
   t_confirm_ph:'Delete all photos?',t_confirm_mg:'Clear list?',
-  t_pdf_err:'❌ Could not load PDF',t_img_err:'❌ Could not load image',t_err:'❌ Error: '
+  t_pdf_err:'❌ Could not load PDF',t_img_err:'❌ Could not load image',t_err:'❌ Error: ',
+  // NEW
+  nav_split:'Split PDF',
+  btn_share:'Share',btn_save:'Save',
+  btn_scan:'📄 Scan',
+  split_ttl:'Split PDF',split_sub:'Select page range to create a new PDF',
+  split_range_lbl:'Selected pages:',split_range_hint:'Comma-separated · Example: 1-3, 5, 8-10',
+  btn_split:'✂️ Split & Download',
+  t_split_ok:'✅ PDF split and downloaded!',t_split_err:'❌ Could not split PDF',
+  t_scan_on:'📄 Scan mode on',t_scan_off:'Scan mode off',
+  t_share_err:'⚠️ Sharing not supported, saved instead',
+  t_no_pages:'⚠️ Enter a valid page range',
+  p_splitting:'Splitting PDF…'
 }};
 
 let lang='tr';
@@ -839,8 +986,13 @@ phPdfBtn.addEventListener('click',async()=>{
     setProg(Math.round((i+1)/items.length*100),`${i+1}/${items.length}`);
     await new Promise(r=>setTimeout(r,10));
   }
-  doc.save(`photo-to-pdf-${Date.now()}.pdf`);
+  const pdfBlob=new Blob([doc.output('arraybuffer')],{type:'application/pdf'});
+  const pdfName=`photo-to-pdf-${Date.now()}.pdf`;
+  const u=URL.createObjectURL(pdfBlob);
+  const a=document.createElement('a');a.href=u;a.download=pdfName;a.click();
+  setTimeout(()=>URL.revokeObjectURL(u),5000);
   hideProg();phPdfBtn.disabled=false;toast(tx('t_pdf_ok'));
+  showShareBar('photoShareBar',pdfBlob,pdfName);
 });
 
 /* ══════════════════════════════════════════
@@ -880,6 +1032,7 @@ document.getElementById('applyCrop').addEventListener('click',()=>{
   if(!_cr||!_crItem)return;
   const c=_cr.getCroppedCanvas({maxWidth:2400,maxHeight:2400,imageSmoothingQuality:'high'});
   if(!c)return;
+  if(_scanOn) applyScanMode(c);
   _crItem.querySelector('img').src=c.toDataURL('image/jpeg',.94);
   _closeCrop();toast(tx('t_crop_ok'));savePhotos();
 });
@@ -961,8 +1114,12 @@ document.getElementById('mgBtn').addEventListener('click',async()=>{
       setProg(Math.round((i+1)/list.length*100),`${i+1}/${list.length}`);
       await new Promise(r=>setTimeout(r,8));
     }
-    dlBytes(await merged.save(),`merged-${Date.now()}.pdf`);
+    const bytes=await merged.save();
+    const blob=new Blob([bytes],{type:'application/pdf'});
+    const name=`merged-${Date.now()}.pdf`;
+    dlBytes(bytes,name);
     toast(tx('t_merge_ok'));
+    showShareBar('mergeShareBar',blob,name);
   }catch(e){console.error(e);toast(tx('t_err')+e.message)}
   hideProg();document.getElementById('mgBtn').disabled=false;
 });
@@ -1193,7 +1350,11 @@ document.getElementById('dlSignedBtn').addEventListener('click',async()=>{
       const fx=imgW/mc.width,fy=imgH/mc.height;
       ctx.drawImage(si,s.x*fx,s.y*fy,s.w*fx,s.h*fy);
     }
-    dlDataUrl(out.toDataURL('image/png'),`signed-${Date.now()}.png`);
+    const imgName=`signed-${Date.now()}.png`;
+    out.toBlob(blob=>{
+      dlDataUrl(URL.createObjectURL(blob),imgName);
+      showShareBar('signShareBar',blob,imgName);
+    },'image/png');
     hideProg();toast(tx('t_sign_img_ok'));
     return;
   }
@@ -1222,8 +1383,12 @@ document.getElementById('dlSignedBtn').addEventListener('click',async()=>{
       pg.drawImage(pngImg,{x:pdfX,y:pdfY,width:pdfW,height:Math.abs(pdfH)});
       setProg(Math.round((i+1)/sigs.length*100),`${i+1}/${sigs.length}`);
     }
-    dlBytes(await pdfDoc.save(),`signed-${Date.now()}.pdf`);
+    const pdfBytes=await pdfDoc.save();
+    const pdfBlob2=new Blob([pdfBytes],{type:'application/pdf'});
+    const signedName=`signed-${Date.now()}.pdf`;
+    dlBytes(pdfBytes,signedName);
     toast(tx('t_sign_ok'));
+    showShareBar('signShareBar',pdfBlob2,signedName);
   }catch(e){console.error(e);toast(tx('t_err')+e.message)}
   hideProg();
 });
@@ -1331,6 +1496,175 @@ function cropSig(){
   out.getContext('2d').putImageData(sigCtx.getImageData(x0,y0,w,h),0,0);
   return out;
 }
+
+/* ══════════════════════════════════════════
+   SHARE HELPER
+══════════════════════════════════════════ */
+async function shareOrDownload(blob, filename){
+  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[new File([blob],filename,{type:blob.type})]})){
+    try{await navigator.share({files:[new File([blob],filename,{type:blob.type})],title:filename});return;}
+    catch(e){if(e.name==='AbortError')return}
+  }
+  const u=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=u;a.download=filename;a.click();
+  setTimeout(()=>URL.revokeObjectURL(u),5000);
+  toast(tx('t_share_err'));
+}
+
+function showShareBar(barId,blob,name){
+  const bar=document.getElementById(barId);
+  bar._blob=blob;bar._name=name;
+  bar.classList.add('visible');
+}
+
+['photo','merge','sign'].forEach(prefix=>{
+  const bar=document.getElementById(prefix+'ShareBar');
+  document.getElementById(prefix+'ShareBtn').addEventListener('click',()=>{
+    if(bar._blob)shareOrDownload(bar._blob,bar._name);
+  });
+  document.getElementById(prefix+'SaveDlBtn').addEventListener('click',()=>{
+    if(bar._blob){const u=URL.createObjectURL(bar._blob);const a=document.createElement('a');a.href=u;a.download=bar._name;a.click();setTimeout(()=>URL.revokeObjectURL(u),5000);}
+  });
+});
+
+/* ══════════════════════════════════════════
+   SCAN MODE
+══════════════════════════════════════════ */
+let _scanOn=false;
+document.getElementById('scanBtn').addEventListener('click',()=>{
+  _scanOn=!_scanOn;
+  document.getElementById('scanBtn').classList.toggle('scan-on',_scanOn);
+  toast(_scanOn?tx('t_scan_on'):tx('t_scan_off'));
+});
+
+function applyScanMode(canvas){
+  const ctx=canvas.getContext('2d');
+  const w=canvas.width,h=canvas.height;
+  const id=ctx.getImageData(0,0,w,h);
+  const d=id.data;
+  // Grayscale + high contrast
+  for(let i=0;i<d.length;i+=4){
+    let v=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+    v=Math.min(255,Math.max(0,(v-128)*1.85+148));
+    d[i]=d[i+1]=d[i+2]=v;
+  }
+  // Sharpen (unsharp 3×3)
+  const src=new Uint8ClampedArray(d);
+  const k=[0,-1,0,-1,5,-1,0,-1,0];
+  for(let y=1;y<h-1;y++){
+    for(let x=1;x<w-1;x++){
+      for(let c=0;c<3;c++){
+        let s=0;
+        for(let ky=-1;ky<=1;ky++)for(let kx=-1;kx<=1;kx++)
+          s+=src[((y+ky)*w+(x+kx))*4+c]*k[(ky+1)*3+(kx+1)];
+        d[(y*w+x)*4+c]=Math.min(255,Math.max(0,s));
+      }
+    }
+  }
+  ctx.putImageData(id,0,0);
+  return canvas;
+}
+
+/* ══════════════════════════════════════════
+   TAB 4 — PDF SPLIT
+══════════════════════════════════════════ */
+let spDoc=null,spBytes=null,spCount=0;
+
+document.getElementById('splitPdfIn').addEventListener('change',async e=>{
+  const f=e.target.files[0];if(!f)return;e.target.value='';await loadSplitPdf(f);
+});
+
+async function loadSplitPdf(file){
+  showProg(tx('p_load_pdf'));
+  try{
+    const ab=await file.arrayBuffer();
+    spBytes=ab;
+    spDoc=await pdfjsLib.getDocument({data:ab.slice(0)}).promise;
+    spCount=spDoc.numPages;
+    document.getElementById('splitFname').textContent=file.name.slice(0,30);
+    document.getElementById('splitTotal').textContent=spCount;
+    document.getElementById('splitRangeInp').value='';
+    document.getElementById('splitPreview').textContent='-';
+    document.getElementById('splitEmpty').style.display='none';
+    document.getElementById('splitLoaded').style.display='flex';
+    document.getElementById('splitAbar').style.display='flex';
+    document.getElementById('splitBtn').disabled=true;
+    await buildSpThumbs();
+  }catch(e){console.error(e);toast(tx('t_pdf_err'))}
+  hideProg();
+}
+
+async function buildSpThumbs(){
+  const grid=document.getElementById('splitPageGrid');grid.innerHTML='';
+  for(let p=1;p<=spCount;p++){
+    const el=document.createElement('div');el.className='spt';el.dataset.p=p;
+    const cv=document.createElement('canvas');
+    const num=document.createElement('div');num.className='spt-num';num.textContent=p;
+    el.append(cv,num);grid.appendChild(el);
+    el.addEventListener('click',()=>{el.classList.toggle('sel');syncSpInput();});
+    const pg=await spDoc.getPage(p);
+    const vp=pg.getViewport({scale:.28});
+    cv.width=vp.width;cv.height=vp.height;
+    await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+  }
+}
+
+function parseRange(str,max){
+  const pages=new Set();
+  str.split(',').forEach(part=>{
+    part=part.trim();
+    const m=part.match(/^(\d+)\s*[-–]\s*(\d+)$/);
+    if(m){const a=parseInt(m[1]),b=parseInt(m[2]);for(let i=Math.min(a,b);i<=Math.min(Math.max(a,b),max);i++)pages.add(i);}
+    else{const n=parseInt(part);if(!isNaN(n)&&n>=1&&n<=max)pages.add(n);}
+  });
+  return [...pages].sort((a,b)=>a-b);
+}
+
+function syncSpInput(){
+  const sel=Array.from(document.querySelectorAll('.spt.sel')).map(e=>parseInt(e.dataset.p)).sort((a,b)=>a-b);
+  if(!sel.length){document.getElementById('splitRangeInp').value='';document.getElementById('splitPreview').textContent='-';document.getElementById('splitBtn').disabled=true;return;}
+  const ranges=[];let s=sel[0],e2=sel[0];
+  for(let i=1;i<sel.length;i++){if(sel[i]===e2+1){e2=sel[i]}else{ranges.push(s===e2?`${s}`:`${s}-${e2}`);s=e2=sel[i];}}
+  ranges.push(s===e2?`${s}`:`${s}-${e2}`);
+  const v=ranges.join(', ');
+  document.getElementById('splitRangeInp').value=v;
+  document.getElementById('splitPreview').textContent=v;
+  document.getElementById('splitBtn').disabled=false;
+}
+
+document.getElementById('splitRangeInp').addEventListener('input',e=>{
+  const pages=parseRange(e.target.value,spCount);
+  const ps=new Set(pages);
+  document.querySelectorAll('.spt').forEach(el=>el.classList.toggle('sel',ps.has(parseInt(el.dataset.p))));
+  document.getElementById('splitPreview').textContent=pages.length?e.target.value.trim():'-';
+  document.getElementById('splitBtn').disabled=pages.length===0;
+});
+
+document.getElementById('splitClearBtn').addEventListener('click',()=>{
+  spDoc=null;spBytes=null;spCount=0;
+  document.getElementById('splitLoaded').style.display='none';
+  document.getElementById('splitEmpty').style.display='';
+  document.getElementById('splitAbar').style.display='none';
+  document.getElementById('splitPageGrid').innerHTML='';
+});
+
+document.getElementById('splitBtn').addEventListener('click',async()=>{
+  const pages=parseRange(document.getElementById('splitRangeInp').value,spCount);
+  if(!pages.length){toast(tx('t_no_pages'));return}
+  showProg(tx('p_splitting'));document.getElementById('splitBtn').disabled=true;
+  try{
+    const src=await PDFLib.PDFDocument.load(spBytes.slice(0),{ignoreEncryption:true});
+    const out=await PDFLib.PDFDocument.create();
+    const copied=await out.copyPages(src,pages.map(p=>p-1));
+    copied.forEach(p=>out.addPage(p));
+    const bytes=await out.save();
+    const blob=new Blob([bytes],{type:'application/pdf'});
+    const name=`split-${pages[0]}-${pages[pages.length-1]}-${Date.now()}.pdf`;
+    const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),5000);
+    toast(tx('t_split_ok'));
+  }catch(e){console.error(e);toast(tx('t_split_err'))}
+  hideProg();document.getElementById('splitBtn').disabled=false;
+});
 
 /* ══════════════════════════════════════════
    PHOTO PERSISTENCE — IndexedDB
