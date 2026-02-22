@@ -1,915 +1,819 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FotoPDF</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>FotoPDF</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d11;--surf:#16161e;--surf2:#1e1e28;--surf3:#252530;
+  --acc:#f5c842;--acc2:#f07840;--green:#4caf82;--red:#e05252;--blue:#5b9cf6;--purple:#a78bfa;
+  --text:#edeae2;--muted:#6a6a7e;--border:#252530;--r:12px;--ease:cubic-bezier(.4,0,.2,1);
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100dvh}
 
-        :root {
-            --bg: #0d0d11;
-            --surface: #16161e;
-            --surface2: #1e1e28;
-            --surface3: #252530;
-            --accent: #f5c842;
-            --accent2: #f07840;
-            --green: #4caf82;
-            --red: #e05252;
-            --blue: #5b9cf6;
-            --text: #edeae2;
-            --muted: #6a6a7e;
-            --border: #252530;
-            --radius: 12px;
-            --ease: cubic-bezier(.4,0,.2,1);
-        }
+/* HEADER */
+header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surf);border-bottom:1px solid var(--border);gap:10px;z-index:10}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;white-space:nowrap}
+.logo span{color:var(--acc)}
+.tabs{display:flex;gap:3px;background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:3px}
+.tab-btn{padding:6px 12px;border-radius:7px;border:none;background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-weight:700;font-size:.76rem;cursor:pointer;transition:background .18s,color .18s;white-space:nowrap}
+.tab-btn.active{background:var(--acc);color:#111}
+.count-pill{background:var(--surf2);border:1px solid var(--border);padding:4px 12px;border-radius:999px;font-size:.73rem;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.count-pill b{color:var(--acc)}
 
-        html, body { height: 100%; overflow: hidden; }
+/* SETTINGS */
+.settings-bar{flex-shrink:0;display:flex;gap:8px;padding:8px 14px;background:var(--surf);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.settings-bar::-webkit-scrollbar{display:none}
+.setting-chip{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
+.setting-chip label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+select{background:var(--surf2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:.8rem;font-family:inherit;cursor:pointer;outline:none}
+select:focus{border-color:var(--acc)}
+input[type=range]{accent-color:var(--acc);cursor:pointer;width:90px}
+.quality-val{font-size:.77rem;color:var(--acc);font-weight:700;min-width:32px}
 
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            display: flex;
-            flex-direction: column;
-            height: 100dvh;
-        }
+/* TAB PANELS */
+.tab-panel{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
+.tab-panel.active{display:flex}
+.content-scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px}
 
-        /* ═══════════════════════════
-           HEADER
-        ═══════════════════════════ */
-        header {
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 18px;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            z-index: 10;
-        }
-        .logo {
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: 1.2rem;
-        }
-        .logo span { color: var(--accent); }
-        .count-pill {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            padding: 5px 14px;
-            border-radius: 999px;
-            font-size: 0.78rem;
-            color: var(--muted);
-        }
-        .count-pill b { color: var(--accent); }
+/* DROP ZONE */
+.drop-zone{border:2px dashed var(--border);border-radius:var(--r);padding:24px 16px;text-align:center;background:var(--surf);cursor:pointer;transition:border .2s,background .2s;margin-bottom:14px;position:relative}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--acc);background:rgba(245,200,66,.04)}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-icon{font-size:1.8rem;margin-bottom:5px}
+.drop-zone h3{font-family:'Syne',sans-serif;font-size:.9rem;margin-bottom:3px}
+.drop-zone p{font-size:.74rem;color:var(--muted)}
 
-        /* ═══════════════════════════
-           SETTINGS BAR
-        ═══════════════════════════ */
-        .settings-bar {
-            flex-shrink: 0;
-            display: flex;
-            gap: 8px;
-            padding: 10px 14px;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-        .settings-bar::-webkit-scrollbar { display: none; }
-        .setting-chip {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            flex-shrink: 0;
-        }
-        .setting-chip label {
-            font-size: 0.65rem;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
-            white-space: nowrap;
-        }
-        select {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            color: var(--text);
-            border-radius: 8px;
-            padding: 6px 10px;
-            font-size: 0.82rem;
-            font-family: inherit;
-            cursor: pointer;
-            outline: none;
-        }
-        select:focus { border-color: var(--accent); }
-        .quality-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        input[type="range"] {
-            width: 90px;
-            accent-color: var(--accent);
-            cursor: pointer;
-        }
-        .quality-val { font-size: 0.8rem; color: var(--accent); font-weight: 700; min-width: 34px; }
+/* PHOTO GRID */
+#photo-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.photo-item{position:relative;border-radius:10px;cursor:grab;animation:popIn .22s var(--ease);background:var(--surf2)}
+.photo-item:active{cursor:grabbing}
+.photo-item img{width:100%;height:118px;object-fit:cover;border-radius:10px;display:block;pointer-events:none}
+.order-badge{position:absolute;bottom:5px;left:5px;background:rgba(0,0,0,.68);color:#fff;font-size:.63rem;font-weight:700;padding:2px 6px;border-radius:999px;pointer-events:none;backdrop-filter:blur(3px)}
+.photo-overlay{position:absolute;inset:0;border-radius:10px;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;gap:6px;opacity:0;transition:opacity .18s}
+.photo-item:hover .photo-overlay,.photo-item:focus-within .photo-overlay{opacity:1}
+.overlay-btn{width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.overlay-btn:hover{transform:scale(1.12)}
+.overlay-btn.edit{background:var(--blue);color:#fff}
+.overlay-btn.del{background:var(--red);color:#fff}
+.sortable-ghost{opacity:.22}
+.sortable-chosen{transform:scale(1.04);box-shadow:0 8px 28px rgba(0,0,0,.5);z-index:5}
+@keyframes popIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
 
-        /* ═══════════════════════════
-           SCROLLABLE CONTENT
-        ═══════════════════════════ */
-        .content-scroll {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-            padding: 14px;
-        }
+/* MERGE LIST */
+.merge-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.merge-item{display:flex;align-items:center;gap:10px;background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:grab;animation:popIn .22s var(--ease)}
+.merge-item:active{cursor:grabbing}
+.merge-drag{color:var(--muted);font-size:1rem;flex-shrink:0;user-select:none}
+.merge-info{flex:1;min-width:0}
+.merge-name{font-size:.83rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.merge-pages{font-size:.7rem;color:var(--muted);margin-top:2px}
+.merge-del{background:transparent;border:1px solid var(--border);color:var(--red);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.merge-del:hover{background:rgba(224,82,82,.12)}
 
-        /* Drop Zone */
-        .drop-zone {
-            border: 2px dashed var(--border);
-            border-radius: var(--radius);
-            padding: 28px 16px;
-            text-align: center;
-            background: var(--surface);
-            cursor: pointer;
-            transition: border 0.2s var(--ease), background 0.2s var(--ease);
-            margin-bottom: 14px;
-            position: relative;
-        }
-        .drop-zone:hover, .drop-zone.drag-over {
-            border-color: var(--accent);
-            background: rgba(245,200,66,0.04);
-        }
-        .drop-zone input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-            width: 100%;
-            height: 100%;
-        }
-        .drop-icon { font-size: 2rem; margin-bottom: 6px; }
-        .drop-zone h3 { font-family: 'Syne', sans-serif; font-size: 0.95rem; margin-bottom: 4px; }
-        .drop-zone p { font-size: 0.78rem; color: var(--muted); }
+/* SIGN TAB */
+.sign-layout{display:flex;flex:1;overflow:hidden;min-height:0}
+.sign-thumbs{flex-shrink:0;width:86px;overflow-y:auto;overflow-x:hidden;background:var(--surf);border-right:1px solid var(--border);padding:8px;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;scrollbar-color:var(--surf3) transparent}
+.thumb-wrap{position:relative;cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid transparent;transition:border-color .18s;flex-shrink:0}
+.thumb-wrap.active{border-color:var(--acc)}
+.thumb-wrap canvas{width:100%;display:block}
+.thumb-num{position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,.7);color:#fff;font-size:.56rem;font-weight:700;padding:1px 5px;border-radius:999px}
+.sign-preview-area{flex:1;overflow:auto;background:#111;display:flex;align-items:flex-start;justify-content:center;padding:20px}
+.page-preview-wrap{position:relative;display:inline-block;line-height:0;flex-shrink:0}
+.page-preview-wrap canvas{border-radius:4px;box-shadow:0 8px 32px rgba(0,0,0,.6);display:block}
+.sig-overlay{position:absolute;cursor:move;user-select:none;touch-action:none;border:1.5px dashed rgba(245,200,66,.7);border-radius:3px}
+.sig-overlay img{width:100%;height:100%;display:block;pointer-events:none}
+.sig-del{position:absolute;top:-11px;right:-11px;background:var(--red);color:#fff;border:2px solid var(--bg);border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;z-index:3;line-height:1}
+.sig-resize{position:absolute;bottom:-9px;right:-9px;width:18px;height:18px;background:var(--acc);border-radius:3px;cursor:se-resize;z-index:3;display:flex;align-items:center;justify-content:center;font-size:10px;color:#111}
+.sign-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:var(--muted);font-size:.88rem;text-align:center;padding:24px}
+.sign-empty .big-icon{font-size:3rem;opacity:.35}
 
-        /* Photo Grid */
-        #photo-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 10px;
-        }
+/* ACTION BAR */
+.action-bar{flex-shrink:0;display:flex;gap:8px;padding:10px 14px;background:var(--surf);border-top:1px solid var(--border);padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+.btn{padding:11px 16px;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .18s,transform .18s var(--ease);white-space:nowrap}
+.btn:hover:not(:disabled){opacity:.85;transform:translateY(-1px)}
+.btn:active:not(:disabled){transform:translateY(0)}
+.btn:disabled{opacity:.3;cursor:not-allowed}
+.btn-ghost{background:var(--surf2);color:var(--text);border:1px solid var(--border);position:relative;overflow:hidden}
+.btn-ghost input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red)}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#111;flex:1}
+.btn-green{background:linear-gradient(135deg,var(--green),#3a9e6a);color:#fff}
+.btn-purple{background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff}
 
-        .photo-item {
-            position: relative;
-            border-radius: 10px;
-            cursor: grab;
-            animation: popIn 0.25s var(--ease);
-            background: var(--surface2);
-        }
-        @keyframes popIn {
-            from { opacity:0; transform:scale(.88); }
-            to   { opacity:1; transform:scale(1); }
-        }
-        .photo-item:active { cursor: grabbing; }
+/* MODALS */
+.modal-back{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:400;flex-direction:column}
+.modal-back.open{display:flex}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-header h2{font-family:'Syne',sans-serif;font-size:.95rem}
+.modal-header span{font-size:.74rem;color:var(--muted)}
+.modal-toolbar{display:flex;gap:5px;padding:8px 12px;background:var(--surf2);flex-shrink:0;overflow-x:auto;scrollbar-width:none;align-items:center}
+.modal-toolbar::-webkit-scrollbar{display:none}
+.tool-btn{padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:var(--surf);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.77rem;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s;display:flex;align-items:center;gap:4px;flex-shrink:0}
+.tool-btn:hover{background:var(--surf3);border-color:var(--acc)}
+.tool-btn.active{background:var(--acc);color:#111;border-color:var(--acc);font-weight:600}
+.modal-canvas{flex:1;overflow:hidden;position:relative;background:#0a0a0e;display:flex;align-items:center;justify-content:center}
+.modal-canvas img{max-width:100%;max-height:100%;display:block}
+.modal-footer{display:flex;gap:8px;padding:10px 14px;background:var(--surf);border-top:1px solid var(--border);flex-shrink:0;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+.divider{width:1px;background:var(--border);margin:0 2px;align-self:stretch;flex-shrink:0}
 
-        .photo-item img {
-            width: 100%;
-            height: 130px;
-            object-fit: cover;
-            border-radius: 10px;
-            display: block;
-            pointer-events: none;
-        }
+/* Signature draw */
+.color-dot{width:22px;height:22px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .15s,transform .15s;flex-shrink:0}
+.color-dot.active{border-color:#fff;transform:scale(1.15)}
+.sig-canvas-wrap{flex:1;display:flex;align-items:center;justify-content:center;background:#f5f5ec;position:relative;overflow:hidden}
+#sigCanvas{display:block;cursor:crosshair;touch-action:none;max-width:100%;max-height:100%}
+.sig-hint{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);font-size:.7rem;color:#bbb;pointer-events:none;white-space:nowrap}
 
-        /* Order badge */
-        .order-badge {
-            position: absolute;
-            bottom: 6px;
-            left: 6px;
-            background: rgba(0,0,0,0.68);
-            color: #fff;
-            font-size: 0.68rem;
-            font-weight: 700;
-            padding: 2px 7px;
-            border-radius: 999px;
-            pointer-events: none;
-            backdrop-filter: blur(3px);
-        }
+/* Progress */
+.progress-back{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:600;align-items:center;justify-content:center}
+.progress-back.open{display:flex}
+.progress-card{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:26px 30px;text-align:center;min-width:230px}
+.progress-card h3{font-family:'Syne',sans-serif;margin-bottom:14px;font-size:.94rem}
+.progress-track{width:100%;height:7px;background:var(--surf2);border-radius:999px;overflow:hidden;margin-bottom:9px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:999px;transition:width .2s var(--ease);width:0%}
+.progress-note{font-size:.77rem;color:var(--muted)}
 
-        /* Overlay buttons on hover */
-        .photo-overlay {
-            position: absolute;
-            inset: 0;
-            border-radius: 10px;
-            background: rgba(0,0,0,0.45);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            opacity: 0;
-            transition: opacity 0.18s var(--ease);
-        }
-        .photo-item:hover .photo-overlay { opacity: 1; }
+.toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-6px);background:var(--surf2);border:1px solid var(--border);color:var(--text);padding:8px 18px;border-radius:10px;font-size:.81rem;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:700;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty-state{grid-column:1/-1;text-align:center;padding:26px;color:var(--muted);font-size:.81rem;line-height:1.8}
 
-        .overlay-btn {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.15s;
-        }
-        .overlay-btn:hover { transform: scale(1.12); }
-        .overlay-btn.edit  { background: var(--blue); color: #fff; }
-        .overlay-btn.del   { background: var(--red);  color: #fff; }
-
-        /* Sortable states */
-        .sortable-ghost   { opacity: 0.25; }
-        .sortable-chosen  { transform: scale(1.04); box-shadow: 0 8px 28px rgba(0,0,0,.5); z-index: 5; }
-
-        /* Empty state */
-        .empty-state {
-            grid-column: 1/-1;
-            text-align: center;
-            padding: 30px;
-            color: var(--muted);
-            font-size: 0.85rem;
-            line-height: 1.7;
-        }
-
-        /* ═══════════════════════════
-           ACTION BAR (fixed bottom)
-        ═══════════════════════════ */
-        .action-bar {
-            flex-shrink: 0;
-            display: flex;
-            gap: 8px;
-            padding: 10px 14px;
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            /* safe area for phones */
-            padding-bottom: calc(10px + env(safe-area-inset-bottom));
-        }
-
-        .btn {
-            padding: 12px 18px;
-            border: none;
-            border-radius: 10px;
-            font-family: 'Syne', sans-serif;
-            font-weight: 700;
-            font-size: 0.88rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: opacity 0.18s, transform 0.18s var(--ease);
-            white-space: nowrap;
-        }
-        .btn:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
-        .btn:active:not(:disabled) { transform: translateY(0); }
-        .btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-        .btn-select {
-            background: var(--surface2);
-            color: var(--text);
-            border: 1px solid var(--border);
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-select input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .btn-clear {
-            background: transparent;
-            color: var(--red);
-            border: 1px solid var(--red);
-        }
-
-        .btn-pdf {
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: #111;
-            flex: 1;
-        }
-
-        /* ═══════════════════════════
-           CROP MODAL
-        ═══════════════════════════ */
-        .modal-backdrop {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
-            z-index: 500;
-            flex-direction: column;
-        }
-        .modal-backdrop.open { display: flex; }
-
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 16px;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
-        }
-        .modal-header h2 { font-family: 'Syne', sans-serif; font-size: 1rem; }
-
-        .modal-toolbar {
-            display: flex;
-            gap: 6px;
-            padding: 10px 14px;
-            background: var(--surface2);
-            flex-shrink: 0;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-        .modal-toolbar::-webkit-scrollbar { display: none; }
-
-        .tool-btn {
-            padding: 7px 14px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--text);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.8rem;
-            cursor: pointer;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: background 0.15s, border-color 0.15s;
-        }
-        .tool-btn:hover { background: var(--surface3); border-color: var(--accent); }
-        .tool-btn.active { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }
-
-        .aspect-group {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
-        .aspect-label {
-            font-size: 0.7rem;
-            color: var(--muted);
-            white-space: nowrap;
-            margin-left: 4px;
-        }
-
-        .modal-canvas-area {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-            background: #0a0a0e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-canvas-area img {
-            max-width: 100%;
-            max-height: 100%;
-            display: block;
-        }
-
-        .modal-footer {
-            display: flex;
-            gap: 8px;
-            padding: 10px 14px;
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            flex-shrink: 0;
-            padding-bottom: calc(10px + env(safe-area-inset-bottom));
-        }
-        .btn-cancel { background: var(--surface2); color: var(--text); border: 1px solid var(--border); flex: 1; }
-        .btn-reset  { background: transparent; color: var(--muted); border: 1px solid var(--border); }
-        .btn-apply  { background: linear-gradient(135deg, var(--green), #3a9e6a); color: #fff; flex: 2; }
-
-        /* ═══════════════════════════
-           PROGRESS OVERLAY
-        ═══════════════════════════ */
-        .progress-backdrop {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(6px);
-            z-index: 600;
-            align-items: center;
-            justify-content: center;
-        }
-        .progress-backdrop.open { display: flex; }
-        .progress-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 28px 32px;
-            text-align: center;
-            min-width: 240px;
-        }
-        .progress-card h3 { font-family: 'Syne', sans-serif; margin-bottom: 16px; }
-        .progress-track {
-            width: 100%;
-            height: 7px;
-            background: var(--surface2);
-            border-radius: 999px;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            border-radius: 999px;
-            transition: width 0.2s var(--ease);
-            width: 0%;
-        }
-        .progress-note { font-size: 0.8rem; color: var(--muted); }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-6px);
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 9px 18px;
-            border-radius: 10px;
-            font-size: 0.84rem;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s, transform 0.25s;
-            z-index: 700;
-            white-space: nowrap;
-        }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* Responsive */
-        @media (max-width: 420px) {
-            #photo-list { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-            .photo-item img { height: 100px; }
-            .photo-overlay { opacity: 1; background: rgba(0,0,0,0.25); }
-            .overlay-btn { width: 28px; height: 28px; font-size: 12px; }
-        }
-    </style>
+@media(max-width:480px){
+  .tabs .tab-btn{padding:5px 8px;font-size:.7rem}
+  .sign-thumbs{width:68px}
+  .photo-overlay{opacity:1;background:rgba(0,0,0,.25)}
+}
+</style>
 </head>
 <body>
 
-<!-- ══════════ HEADER ══════════ -->
+<!-- HEADER -->
 <header>
-    <div class="logo">Foto<span>PDF</span></div>
-    <div class="count-pill" id="countPill">Fotoğraf: <b>0</b></div>
+  <div class="logo">Foto<span>PDF</span></div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="photo">📷 Fotoğraf</button>
+    <button class="tab-btn" data-tab="merge">🔗 Birleştir</button>
+    <button class="tab-btn" data-tab="sign">✍️ İmzala</button>
+  </div>
+  <div class="count-pill" id="countPill">Foto: <b>0</b></div>
 </header>
 
-<!-- ══════════ SETTINGS ══════════ -->
-<div class="settings-bar">
+<!-- ═══════ TAB: PHOTO ═══════ -->
+<div class="tab-panel active" id="tab-photo">
+  <div class="settings-bar">
     <div class="setting-chip">
-        <label>Sayfa Boyutu</label>
-        <select id="pageSize">
-            <option value="a4">A4</option>
-            <option value="a5">A5</option>
-            <option value="letter">Letter</option>
-            <option value="square">Kare 15cm</option>
-        </select>
+      <label>Sayfa</label>
+      <select id="pageSize"><option value="a4">A4</option><option value="a5">A5</option><option value="letter">Letter</option><option value="square">Kare</option></select>
     </div>
     <div class="setting-chip">
-        <label>Yön</label>
-        <select id="orientation">
-            <option value="auto">Otomatik</option>
-            <option value="portrait">Dikey</option>
-            <option value="landscape">Yatay</option>
-        </select>
+      <label>Yön</label>
+      <select id="orientation"><option value="auto">Otomatik</option><option value="portrait">Dikey</option><option value="landscape">Yatay</option></select>
     </div>
     <div class="setting-chip">
-        <label>Kenar Boşluk</label>
-        <select id="margin">
-            <option value="8">Normal (8mm)</option>
-            <option value="0">Kenarsız</option>
-            <option value="15">Geniş (15mm)</option>
-        </select>
+      <label>Kenar</label>
+      <select id="margin"><option value="8">8mm</option><option value="0">Kenarsız</option><option value="15">15mm</option></select>
     </div>
     <div class="setting-chip">
-        <label>Kalite: <span id="qualityVal" class="quality-val">85%</span></label>
-        <div class="quality-row">
-            <input type="range" id="qualityRange" min="40" max="100" value="85">
-        </div>
+      <label>Kalite: <span id="qualityVal" class="quality-val">85%</span></label>
+      <input type="range" id="qualityRange" min="40" max="100" value="85">
     </div>
-</div>
-
-<!-- ══════════ SCROLL AREA ══════════ -->
-<div class="content-scroll">
-    <!-- Drop Zone -->
-    <div class="drop-zone" id="dropZone">
-        <input type="file" id="fileInput" multiple accept="image/*">
-        <div class="drop-icon">📷</div>
-        <h3>Fotoğraf Ekle</h3>
-        <p>Tıkla veya sürükleyip bırak · JPG, PNG, WebP</p>
+  </div>
+  <div class="content-scroll">
+    <div class="drop-zone" id="photoDropZone">
+      <input type="file" id="photoFileInput" multiple accept="image/*">
+      <div class="drop-icon">📷</div>
+      <h3>Fotoğraf Ekle</h3>
+      <p>Tıkla veya sürükleyip bırak · JPG, PNG, WebP</p>
     </div>
-
-    <!-- Photo Grid -->
     <div id="photo-list">
-        <div class="empty-state" id="emptyState">
-            📂 Henüz fotoğraf eklenmedi.<br>
-            Yukarıdan seçerek başlayın.
+      <div class="empty-state" id="photoEmpty">📂 Henüz fotoğraf eklenmedi.</div>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button class="btn btn-ghost">＋ Ekle<input type="file" id="photoFileInput2" multiple accept="image/*"></button>
+    <button class="btn btn-danger" id="photoClearBtn" disabled>🗑</button>
+    <button class="btn btn-primary" id="photoPdfBtn" disabled>📄 PDF İndir</button>
+  </div>
+</div>
+
+<!-- ═══════ TAB: MERGE ═══════ -->
+<div class="tab-panel" id="tab-merge">
+  <div class="content-scroll">
+    <div class="drop-zone" id="mergeDropZone">
+      <input type="file" id="mergeFileInput" multiple accept="application/pdf">
+      <div class="drop-icon">📄</div>
+      <h3>PDF Dosyaları Ekle</h3>
+      <p>Birleştirmek istediğin PDF'leri seç · Sürükle sırala</p>
+    </div>
+    <div class="merge-list" id="mergeList">
+      <div class="empty-state" id="mergeEmpty">📂 Henüz PDF eklenmedi.</div>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button class="btn btn-ghost">＋ PDF Ekle<input type="file" id="mergeFileInput2" multiple accept="application/pdf"></button>
+    <button class="btn btn-danger" id="mergeClearBtn" disabled>🗑</button>
+    <button class="btn btn-primary" id="mergePdfBtn" disabled>🔗 Birleştir ve İndir</button>
+  </div>
+</div>
+
+<!-- ═══════ TAB: SIGN ═══════ -->
+<div class="tab-panel" id="tab-sign">
+  <div class="sign-empty" id="signEmpty">
+    <div class="big-icon">✍️</div>
+    <div>İmzalamak istediğin PDF'i seç</div>
+    <label class="btn btn-ghost" style="margin-top:8px;cursor:pointer">📄 PDF Aç<input type="file" id="signFileInput" accept="application/pdf"></label>
+  </div>
+  <div id="signLoaded" style="display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0;gap:10px">
+      <div style="font-size:.79rem;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        <b style="color:var(--acc)" id="signFileName">-</b> · <span id="signPageCount">0</span> sayfa
+      </div>
+      <label class="btn btn-ghost" style="padding:6px 12px;font-size:.73rem;flex-shrink:0">Değiştir<input type="file" id="signFileInput2" accept="application/pdf"></label>
+    </div>
+    <div class="sign-layout">
+      <div class="sign-thumbs" id="signThumbs"></div>
+      <div class="sign-preview-area" id="signPreviewArea">
+        <div class="page-preview-wrap" id="pagePreviewWrap">
+          <canvas id="mainPageCanvas"></canvas>
         </div>
+      </div>
     </div>
+  </div>
+  <div class="action-bar" id="signActionBar" style="display:none">
+    <button class="btn btn-purple" id="drawSigBtn">✍️ İmza Çiz</button>
+    <button class="btn btn-danger" id="clearSigsBtn">🗑 Temizle</button>
+    <button class="btn btn-primary" id="downloadSignedBtn">📄 İmzalı PDF İndir</button>
+  </div>
 </div>
 
-<!-- ══════════ ACTION BAR ══════════ -->
-<div class="action-bar">
-    <button class="btn btn-select">
-        ＋ Ekle
-        <input type="file" id="fileInput2" multiple accept="image/*">
-    </button>
-    <button class="btn btn-clear" id="clearBtn" disabled>🗑</button>
-    <button class="btn btn-pdf" id="pdfBtn" disabled>📄 PDF İndir</button>
+<!-- ═══════ CROP MODAL ═══════ -->
+<div class="modal-back" id="cropModal">
+  <div class="modal-header"><h2>✂️ Düzenle / Kırp</h2><span id="cropIndex"></span></div>
+  <div class="modal-toolbar">
+    <span style="font-size:.66rem;color:var(--muted)">Oran:</span>
+    <button class="tool-btn active" data-ratio="free">Serbest</button>
+    <button class="tool-btn" data-ratio="1">1:1</button>
+    <button class="tool-btn" data-ratio="1.333">4:3</button>
+    <button class="tool-btn" data-ratio="1.778">16:9</button>
+    <button class="tool-btn" data-ratio="0.707">A4</button>
+    <div class="divider"></div>
+    <button class="tool-btn" id="rotL">↺ Sol</button>
+    <button class="tool-btn" id="rotR">↻ Sağ</button>
+    <button class="tool-btn" id="flipH">⇄</button>
+    <button class="tool-btn" id="flipV">⇅</button>
+    <button class="tool-btn" id="zoomIn">🔍+</button>
+    <button class="tool-btn" id="zoomOut">🔍−</button>
+  </div>
+  <div class="modal-canvas"><img id="cropImage" src="" alt=""></div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" id="cancelCrop" style="flex:1">İptal</button>
+    <button class="btn btn-ghost" id="resetCrop">Sıfırla</button>
+    <button class="btn btn-green" id="applyCrop" style="flex:2">✓ Uygula</button>
+  </div>
 </div>
 
-<!-- ══════════ CROP MODAL ══════════ -->
-<div class="modal-backdrop" id="cropModal">
-    <div class="modal-header">
-        <h2>✂️ Fotoğrafı Düzenle</h2>
-        <span style="color:var(--muted);font-size:0.8rem;" id="editIndex"></span>
-    </div>
-
-    <div class="modal-toolbar">
-        <!-- Aspect ratios -->
-        <span class="aspect-label">Oran:</span>
-        <button class="tool-btn active" data-ratio="free">Serbest</button>
-        <button class="tool-btn" data-ratio="1">1:1</button>
-        <button class="tool-btn" data-ratio="1.333">4:3</button>
-        <button class="tool-btn" data-ratio="1.778">16:9</button>
-        <button class="tool-btn" data-ratio="0.707">A4</button>
-
-        <div style="width:1px;background:var(--border);margin:0 4px;flex-shrink:0;"></div>
-
-        <!-- Actions -->
-        <button class="tool-btn" id="rotateLeft">↺ Sol</button>
-        <button class="tool-btn" id="rotateRight">↻ Sağ</button>
-        <button class="tool-btn" id="flipH">⇄ Yatay</button>
-        <button class="tool-btn" id="flipV">⇅ Dikey</button>
-        <button class="tool-btn" id="zoomIn">🔍+</button>
-        <button class="tool-btn" id="zoomOut">🔍−</button>
-    </div>
-
-    <div class="modal-canvas-area">
-        <img id="cropImage" src="" alt="">
-    </div>
-
-    <div class="modal-footer">
-        <button class="btn btn-cancel" id="cancelEdit">İptal</button>
-        <button class="btn btn-reset"  id="resetEdit">Sıfırla</button>
-        <button class="btn btn-apply"  id="applyEdit">✓ Uygula</button>
-    </div>
+<!-- ═══════ SIGNATURE DRAW MODAL ═══════ -->
+<div class="modal-back" id="sigDrawModal">
+  <div class="modal-header"><h2>✍️ İmzanı Çiz</h2><span>Parmak veya mouse ile</span></div>
+  <div class="modal-toolbar" id="sigToolbar">
+    <span style="font-size:.66rem;color:var(--muted)">Renk:</span>
+    <div class="color-dot active" data-color="#111111" style="background:#111111"></div>
+    <div class="color-dot" data-color="#1a3a8a" style="background:#1a3a8a"></div>
+    <div class="color-dot" data-color="#8a1a1a" style="background:#8a1a1a"></div>
+    <div class="divider"></div>
+    <span style="font-size:.66rem;color:var(--muted)">Kalınlık:</span>
+    <button class="tool-btn" data-width="2">İnce</button>
+    <button class="tool-btn active" data-width="3">Orta</button>
+    <button class="tool-btn" data-width="5">Kalın</button>
+    <div class="divider"></div>
+    <button class="tool-btn" id="clearSigCanvas">🗑 Temizle</button>
+  </div>
+  <div class="sig-canvas-wrap">
+    <canvas id="sigCanvas" width="700" height="300"></canvas>
+    <div class="sig-hint">Buraya imzanı çiz ✍️</div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" id="cancelSig" style="flex:1">İptal</button>
+    <button class="btn btn-green" id="applySig" style="flex:2">✓ İmzayı Yerleştir</button>
+  </div>
 </div>
 
-<!-- ══════════ PROGRESS ══════════ -->
-<div class="progress-backdrop" id="progressBack">
-    <div class="progress-card">
-        <h3>PDF Oluşturuluyor…</h3>
-        <div class="progress-track">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <div class="progress-note" id="progressNote">Hazırlanıyor…</div>
-    </div>
+<!-- PROGRESS -->
+<div class="progress-back" id="progressBack">
+  <div class="progress-card">
+    <h3 id="progressTitle">İşleniyor…</h3>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-note" id="progressNote">Lütfen bekleyin</div>
+  </div>
 </div>
-
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-/* ═════════════════════════════════════════
-   STATE
-═════════════════════════════════════════ */
-const { jsPDF } = window.jspdf;
-const photoList   = document.getElementById('photo-list');
-const emptyState  = document.getElementById('emptyState');
-const countPill   = document.getElementById('countPill');
-const pdfBtn      = document.getElementById('pdfBtn');
-const clearBtn    = document.getElementById('clearBtn');
-const cropModal   = document.getElementById('cropModal');
-const cropImage   = document.getElementById('cropImage');
-const progressBack  = document.getElementById('progressBack');
-const progressFill  = document.getElementById('progressFill');
-const progressNote  = document.getElementById('progressNote');
-const toastEl     = document.getElementById('toast');
+/* ════ GLOBALS ════ */
+const {jsPDF} = window.jspdf;
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-let cropper = null;
-let editingItem = null;   // DOM element being edited
-let originalSrc = null;   // untouched src for reset
-
-/* ═════════════════════════════════════════
-   SORTABLE
-═════════════════════════════════════════ */
-new Sortable(photoList, {
-    animation: 200,
-    ghostClass: 'sortable-ghost',
-    chosenClass: 'sortable-chosen',
-    filter: '.empty-state',
-    onEnd: refreshBadges
-});
-
-/* ═════════════════════════════════════════
-   FILE INPUT EVENTS
-═════════════════════════════════════════ */
-document.getElementById('fileInput').addEventListener('change',  e => loadFiles(e.target.files));
-document.getElementById('fileInput2').addEventListener('change', e => loadFiles(e.target.files));
-
-/* Drag & drop on the drop zone */
-const dropZone = document.getElementById('dropZone');
-dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-dropZone.addEventListener('dragleave', ()=> dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop',      e => { e.preventDefault(); dropZone.classList.remove('drag-over'); loadFiles(e.dataTransfer.files); });
-
-/* ═════════════════════════════════════════
-   LOAD FILES
-═════════════════════════════════════════ */
-function loadFiles(files) {
-    const imgs = Array.from(files).filter(f => f.type.startsWith('image/'));
-    if (!imgs.length) return;
-    imgs.forEach(f => {
-        const reader = new FileReader();
-        reader.onload = e => createPhotoItem(e.target.result);
-        reader.readAsDataURL(f);
-    });
-    document.getElementById('fileInput').value  = '';
-    document.getElementById('fileInput2').value = '';
-}
-
-function createPhotoItem(src) {
-    // Remove empty state
-    emptyState.style.display = 'none';
-
-    const div = document.createElement('div');
-    div.className = 'photo-item';
-
-    const img = document.createElement('img');
-    img.src = src;
-    img.draggable = false;
-
-    const badge = document.createElement('div');
-    badge.className = 'order-badge';
-
-    // Overlay with edit & delete
-    const overlay = document.createElement('div');
-    overlay.className = 'photo-overlay';
-
-    const editBtn = document.createElement('button');
-    editBtn.className = 'overlay-btn edit';
-    editBtn.innerHTML = '✏️';
-    editBtn.title = 'Düzenle / Kırp';
-    editBtn.onclick = (e) => { e.stopPropagation(); openEditor(div); };
-
-    const delBtn = document.createElement('button');
-    delBtn.className = 'overlay-btn del';
-    delBtn.innerHTML = '✕';
-    delBtn.title = 'Sil';
-    delBtn.onclick = (e) => { e.stopPropagation(); removeItem(div); };
-
-    overlay.appendChild(editBtn);
-    overlay.appendChild(delBtn);
-    div.appendChild(img);
-    div.appendChild(badge);
-    div.appendChild(overlay);
-    photoList.appendChild(div);
-
-    refreshBadges();
-    updateState();
-}
-
-function removeItem(div) {
-    div.style.animation = 'popIn 0.2s reverse';
-    setTimeout(() => { div.remove(); refreshBadges(); updateState(); }, 180);
-}
-
-/* ═════════════════════════════════════════
-   CLEAR ALL
-═════════════════════════════════════════ */
-clearBtn.addEventListener('click', () => {
-    if (!confirm('Tüm fotoğraflar silinsin mi?')) return;
-    photoList.querySelectorAll('.photo-item').forEach(el => el.remove());
-    updateState();
-});
-
-/* ═════════════════════════════════════════
-   BADGES & STATE
-═════════════════════════════════════════ */
-function refreshBadges() {
-    photoList.querySelectorAll('.photo-item .order-badge').forEach((b, i) => {
-        b.textContent = i + 1;
-    });
-}
-
-function updateState() {
-    const count = photoList.querySelectorAll('.photo-item').length;
-    countPill.innerHTML = `Fotoğraf: <b>${count}</b>`;
-    pdfBtn.disabled   = count === 0;
-    clearBtn.disabled = count === 0;
-    if (count === 0) emptyState.style.display = '';
-}
-
-/* ═════════════════════════════════════════
-   QUALITY SLIDER
-═════════════════════════════════════════ */
-document.getElementById('qualityRange').addEventListener('input', function() {
-    document.getElementById('qualityVal').textContent = this.value + '%';
-});
-
-/* ═════════════════════════════════════════
-   CROP / EDIT MODAL
-═════════════════════════════════════════ */
-function openEditor(item) {
-    editingItem = item;
-    const img = item.querySelector('img');
-    originalSrc = img.src;
-
-    cropImage.src = img.src;
-    document.getElementById('editIndex').textContent =
-        '#' + (Array.from(photoList.querySelectorAll('.photo-item')).indexOf(item) + 1);
-
-    cropModal.classList.add('open');
-
-    // Reset aspect buttons
-    document.querySelectorAll('[data-ratio]').forEach(b => b.classList.remove('active'));
-    document.querySelector('[data-ratio="free"]').classList.add('active');
-
-    // Init Cropper after image loads
-    cropImage.onload = () => {
-        if (cropper) { cropper.destroy(); cropper = null; }
-        cropper = new Cropper(cropImage, {
-            viewMode: 1,
-            autoCropArea: 0.9,
-            movable: true,
-            scalable: true,
-            zoomable: true,
-            background: true,
-            responsive: true,
-        });
-    };
-    // If already cached:
-    if (cropImage.complete) cropImage.onload();
-}
-
-function closeEditor() {
-    if (cropper) { cropper.destroy(); cropper = null; }
-    cropModal.classList.remove('open');
-    editingItem = null;
-}
-
-// Aspect ratio buttons
-document.querySelectorAll('[data-ratio]').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('[data-ratio]').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        if (!cropper) return;
-        const val = btn.dataset.ratio;
-        cropper.setAspectRatio(val === 'free' ? NaN : parseFloat(val));
-    });
-});
-
-// Tool buttons
-document.getElementById('rotateLeft').addEventListener('click',  () => cropper?.rotate(-90));
-document.getElementById('rotateRight').addEventListener('click', () => cropper?.rotate(90));
-document.getElementById('zoomIn').addEventListener('click',  () => cropper?.zoom(0.1));
-document.getElementById('zoomOut').addEventListener('click', () => cropper?.zoom(-0.1));
-
-let scaleX = 1, scaleY = 1;
-document.getElementById('flipH').addEventListener('click', () => {
-    scaleX *= -1;
-    cropper?.scaleX(scaleX);
-});
-document.getElementById('flipV').addEventListener('click', () => {
-    scaleY *= -1;
-    cropper?.scaleY(scaleY);
-});
-
-// Reset
-document.getElementById('resetEdit').addEventListener('click', () => {
-    scaleX = 1; scaleY = 1;
-    cropImage.src = originalSrc;
-    if (cropper) { cropper.destroy(); cropper = null; }
-    cropImage.onload = () => {
-        cropper = new Cropper(cropImage, {
-            viewMode: 1, autoCropArea: 0.9, movable: true, scalable: true, zoomable: true, background: true, responsive: true,
-        });
-    };
-    if (cropImage.complete) cropImage.onload();
-});
-
-// Cancel
-document.getElementById('cancelEdit').addEventListener('click', closeEditor);
-
-// Apply crop
-document.getElementById('applyEdit').addEventListener('click', () => {
-    if (!cropper || !editingItem) return;
-    const canvas = cropper.getCroppedCanvas({ maxWidth: 2400, maxHeight: 2400, imageSmoothingQuality: 'high' });
-    if (!canvas) return;
-    const newSrc = canvas.toDataURL('image/jpeg', 0.95);
-    editingItem.querySelector('img').src = newSrc;
-    closeEditor();
-    showToast('✅ Düzenleme uygulandı');
-});
-
-/* ═════════════════════════════════════════
-   PDF GENERATION
-═════════════════════════════════════════ */
-const PAGE_SIZES = {
-    a4:     [210, 297],
-    a5:     [148, 210],
-    letter: [215.9, 279.4],
-    square: [150, 150]
-};
-
-pdfBtn.addEventListener('click', async () => {
-    const items = Array.from(photoList.querySelectorAll('.photo-item'));
-    if (!items.length) return;
-
-    const sizeKey    = document.getElementById('pageSize').value;
-    const orientation= document.getElementById('orientation').value;
-    const marginMM   = parseInt(document.getElementById('margin').value);
-    const quality    = parseInt(document.getElementById('qualityRange').value) / 100;
-    const [pw0, ph0] = PAGE_SIZES[sizeKey];
-
-    progressBack.classList.add('open');
-    pdfBtn.disabled = true;
-
-    let doc = null;
-
-    for (let i = 0; i < items.length; i++) {
-        const img = items[i].querySelector('img');
-
-        // Determine page orientation
-        let ori = 'portrait';
-        if (orientation === 'landscape') ori = 'landscape';
-        else if (orientation === 'auto' && img.naturalWidth > img.naturalHeight) ori = 'landscape';
-
-        const pw = ori === 'landscape' ? ph0 : pw0;
-        const ph = ori === 'landscape' ? pw0 : ph0;
-
-        if (i === 0) {
-            doc = new jsPDF({ orientation: ori, unit: 'mm', format: [pw, ph] });
-        } else {
-            doc.addPage([pw, ph], ori);
-        }
-
-        // Scale image to fit page with margin
-        const avW = pw - marginMM * 2;
-        const avH = ph - marginMM * 2;
-        const ratio = img.naturalWidth / img.naturalHeight;
-        let dw = avW, dh = dw / ratio;
-        if (dh > avH) { dh = avH; dw = dh * ratio; }
-        const x = (pw - dw) / 2;
-        const y = (ph - dh) / 2;
-
-        // Render to canvas with quality
-        const canvas = document.createElement('canvas');
-        canvas.width  = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-        canvas.getContext('2d').drawImage(img, 0, 0);
-        const data = canvas.toDataURL('image/jpeg', quality);
-
-        doc.addImage(data, 'JPEG', x, y, dw, dh);
-
-        const pct = Math.round(((i + 1) / items.length) * 100);
-        progressFill.style.width = pct + '%';
-        progressNote.textContent = `${i + 1} / ${items.length} fotoğraf işlendi`;
-
-        await new Promise(r => setTimeout(r, 20));
-    }
-
-    doc.save(`fotopdf-${Date.now()}.pdf`);
-    progressBack.classList.remove('open');
-    progressFill.style.width = '0%';
-    pdfBtn.disabled = false;
-    showToast('✅ PDF başarıyla indirildi!');
-});
-
-/* ═════════════════════════════════════════
-   TOAST
-═════════════════════════════════════════ */
+/* ════ HELPERS ════ */
 let toastTimer;
-function showToast(msg, ms = 2600) {
-    toastEl.textContent = msg;
-    toastEl.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove('show'), ms);
+function toast(msg,ms=2800){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),ms);
+}
+function showProgress(title){
+  document.getElementById('progressTitle').textContent=title||'İşleniyor…';
+  document.getElementById('progressFill').style.width='0%';
+  document.getElementById('progressNote').textContent='Hazırlanıyor…';
+  document.getElementById('progressBack').classList.add('open');
+}
+function setProgress(pct,note){
+  document.getElementById('progressFill').style.width=pct+'%';
+  if(note)document.getElementById('progressNote').textContent=note;
+}
+function hideProgress(){document.getElementById('progressBack').classList.remove('open')}
+function dlBytes(bytes,name){
+  const b=new Blob([bytes],{type:'application/pdf'});
+  const u=URL.createObjectURL(b);const a=document.createElement('a');
+  a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),5000);
+}
+
+/* ════ TABS ════ */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ══════════════════════════════════════
+   TAB 1 – PHOTO → PDF
+══════════════════════════════════════ */
+const photoList=document.getElementById('photo-list');
+const photoEmpty=document.getElementById('photoEmpty');
+const photoPdfBtn=document.getElementById('photoPdfBtn');
+const photoClearBtn=document.getElementById('photoClearBtn');
+const countPill=document.getElementById('countPill');
+
+document.getElementById('qualityRange').addEventListener('input',function(){
+  document.getElementById('qualityVal').textContent=this.value+'%';
+});
+
+[document.getElementById('photoFileInput'),document.getElementById('photoFileInput2')]
+  .forEach(i=>i.addEventListener('change',e=>{loadPhotoFiles(e.target.files);e.target.value=''}));
+
+const photoDZ=document.getElementById('photoDropZone');
+photoDZ.addEventListener('dragover',e=>{e.preventDefault();photoDZ.classList.add('drag-over')});
+photoDZ.addEventListener('dragleave',()=>photoDZ.classList.remove('drag-over'));
+photoDZ.addEventListener('drop',e=>{e.preventDefault();photoDZ.classList.remove('drag-over');loadPhotoFiles(e.dataTransfer.files)});
+
+new Sortable(photoList,{animation:200,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',filter:'.empty-state',onEnd:refreshBadges});
+
+function loadPhotoFiles(files){
+  Array.from(files).filter(f=>f.type.startsWith('image/')).forEach(f=>{
+    const r=new FileReader();r.onload=e=>createPhotoItem(e.target.result);r.readAsDataURL(f);
+  });
+}
+function createPhotoItem(src){
+  photoEmpty.style.display='none';
+  const div=document.createElement('div');div.className='photo-item';
+  const img=document.createElement('img');img.src=src;img.draggable=false;
+  const badge=document.createElement('div');badge.className='order-badge';
+  const ov=document.createElement('div');ov.className='photo-overlay';
+  const eb=document.createElement('button');eb.className='overlay-btn edit';eb.innerHTML='✏️';eb.title='Düzenle/Kırp';
+  eb.onclick=e=>{e.stopPropagation();openCrop(div)};
+  const db=document.createElement('button');db.className='overlay-btn del';db.innerHTML='✕';db.title='Sil';
+  db.onclick=e=>{e.stopPropagation();div.remove();refreshBadges();photoState()};
+  ov.append(eb,db);div.append(img,badge,ov);photoList.appendChild(div);
+  refreshBadges();photoState();
+}
+function refreshBadges(){
+  photoList.querySelectorAll('.photo-item .order-badge').forEach((b,i)=>b.textContent=i+1);
+}
+function photoState(){
+  const n=photoList.querySelectorAll('.photo-item').length;
+  countPill.innerHTML=`Foto: <b>${n}</b>`;
+  photoPdfBtn.disabled=n===0;photoClearBtn.disabled=n===0;
+  if(n===0)photoEmpty.style.display='';
+}
+photoClearBtn.addEventListener('click',()=>{
+  if(!confirm('Tüm fotoğraflar silinsin mi?'))return;
+  photoList.querySelectorAll('.photo-item').forEach(el=>el.remove());photoState();
+});
+
+const PAGE_SIZES={a4:[210,297],a5:[148,210],letter:[215.9,279.4],square:[150,150]};
+photoPdfBtn.addEventListener('click',async()=>{
+  const items=Array.from(photoList.querySelectorAll('.photo-item'));if(!items.length)return;
+  const [pw0,ph0]=PAGE_SIZES[document.getElementById('pageSize').value];
+  const ori0=document.getElementById('orientation').value;
+  const marg=parseInt(document.getElementById('margin').value);
+  const qual=parseInt(document.getElementById('qualityRange').value)/100;
+  showProgress('PDF Oluşturuluyor…');photoPdfBtn.disabled=true;
+  let doc=null;
+  for(let i=0;i<items.length;i++){
+    const img=items[i].querySelector('img');
+    let ori='portrait';
+    if(ori0==='landscape')ori='landscape';
+    else if(ori0==='auto'&&img.naturalWidth>img.naturalHeight)ori='landscape';
+    const pw=ori==='landscape'?ph0:pw0,ph=ori==='landscape'?pw0:ph0;
+    if(i===0)doc=new jsPDF({orientation:ori,unit:'mm',format:[pw,ph]});
+    else doc.addPage([pw,ph],ori);
+    const avW=pw-marg*2,avH=ph-marg*2,ratio=img.naturalWidth/img.naturalHeight;
+    let dw=avW,dh=dw/ratio;if(dh>avH){dh=avH;dw=dh*ratio}
+    const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;
+    c.getContext('2d').drawImage(img,0,0);
+    doc.addImage(c.toDataURL('image/jpeg',qual),'JPEG',(pw-dw)/2,(ph-dh)/2,dw,dh);
+    setProgress(Math.round((i+1)/items.length*100),`${i+1} / ${items.length} fotoğraf`);
+    await new Promise(r=>setTimeout(r,15));
+  }
+  doc.save(`fotopdf-${Date.now()}.pdf`);
+  hideProgress();photoPdfBtn.disabled=false;toast('✅ PDF indirildi!');
+});
+
+/* ══════════════════════════════════════
+   CROP MODAL
+══════════════════════════════════════ */
+let cropper=null,editItem=null,origSrc=null,sx=1,sy=1;
+function openCrop(item){
+  editItem=item;sx=1;sy=1;
+  const img=item.querySelector('img');origSrc=img.src;
+  const ci=document.getElementById('cropImage');ci.src=img.src;
+  document.getElementById('cropIndex').textContent=
+    '#'+(Array.from(photoList.querySelectorAll('.photo-item')).indexOf(item)+1);
+  document.querySelectorAll('[data-ratio]').forEach(b=>b.classList.remove('active'));
+  document.querySelector('[data-ratio="free"]').classList.add('active');
+  document.getElementById('cropModal').classList.add('open');
+  ci.onload=()=>{
+    if(cropper){cropper.destroy();cropper=null}
+    cropper=new Cropper(ci,{viewMode:1,autoCropArea:.88,movable:true,scalable:true,zoomable:true,background:true,responsive:true});
+  };
+  if(ci.complete)ci.onload();
+}
+function closeCrop(){
+  if(cropper){cropper.destroy();cropper=null}
+  document.getElementById('cropModal').classList.remove('open');editItem=null;
+}
+document.querySelectorAll('[data-ratio]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('[data-ratio]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    cropper?.setAspectRatio(btn.dataset.ratio==='free'?NaN:parseFloat(btn.dataset.ratio));
+  });
+});
+document.getElementById('rotL').addEventListener('click',()=>cropper?.rotate(-90));
+document.getElementById('rotR').addEventListener('click',()=>cropper?.rotate(90));
+document.getElementById('flipH').addEventListener('click',()=>{sx*=-1;cropper?.scaleX(sx)});
+document.getElementById('flipV').addEventListener('click',()=>{sy*=-1;cropper?.scaleY(sy)});
+document.getElementById('zoomIn').addEventListener('click',()=>cropper?.zoom(.1));
+document.getElementById('zoomOut').addEventListener('click',()=>cropper?.zoom(-.1));
+document.getElementById('cancelCrop').addEventListener('click',closeCrop);
+document.getElementById('resetCrop').addEventListener('click',()=>{
+  sx=1;sy=1;const ci=document.getElementById('cropImage');ci.src=origSrc;
+  ci.onload=()=>{if(cropper){cropper.destroy();cropper=null}
+    cropper=new Cropper(ci,{viewMode:1,autoCropArea:.88,movable:true,scalable:true,zoomable:true,background:true,responsive:true});
+  };if(ci.complete)ci.onload();
+});
+document.getElementById('applyCrop').addEventListener('click',()=>{
+  if(!cropper||!editItem)return;
+  const c=cropper.getCroppedCanvas({maxWidth:2400,maxHeight:2400,imageSmoothingQuality:'high'});
+  if(!c)return;
+  editItem.querySelector('img').src=c.toDataURL('image/jpeg',.94);
+  closeCrop();toast('✅ Düzenleme uygulandı');
+});
+
+/* ══════════════════════════════════════
+   TAB 2 – PDF MERGE
+══════════════════════════════════════ */
+const mergeListEl=document.getElementById('mergeList');
+const mergeEmpty=document.getElementById('mergeEmpty');
+const mergePdfBtn=document.getElementById('mergePdfBtn');
+const mergeClearBtn=document.getElementById('mergeClearBtn');
+let mergeFiles=[];
+
+new Sortable(mergeListEl,{animation:200,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',filter:'.empty-state'});
+
+[document.getElementById('mergeFileInput'),document.getElementById('mergeFileInput2')]
+  .forEach(i=>i.addEventListener('change',e=>{loadMergeFiles(e.target.files);e.target.value=''}));
+
+const mergeDZ=document.getElementById('mergeDropZone');
+mergeDZ.addEventListener('dragover',e=>{e.preventDefault();mergeDZ.classList.add('drag-over')});
+mergeDZ.addEventListener('dragleave',()=>mergeDZ.classList.remove('drag-over'));
+mergeDZ.addEventListener('drop',e=>{e.preventDefault();mergeDZ.classList.remove('drag-over');loadMergeFiles(e.dataTransfer.files)});
+
+async function loadMergeFiles(files){
+  const pdfs=Array.from(files).filter(f=>f.type==='application/pdf'||f.name.endsWith('.pdf'));
+  for(const f of pdfs){
+    try{
+      const ab=await f.arrayBuffer();
+      const pdf=await PDFLib.PDFDocument.load(ab,{ignoreEncryption:true});
+      const data={name:f.name,pages:pdf.getPageCount(),arrayBuffer:ab};
+      mergeFiles.push(data);addMergeItem(data);
+    }catch(e){toast('❌ '+f.name+' okunamadı')}
+  }
+  mergeState();
+}
+function addMergeItem(data){
+  mergeEmpty.style.display='none';
+  const div=document.createElement('div');div.className='merge-item';
+  div.innerHTML=`<span class="merge-drag">⠿</span>
+    <div class="merge-info"><div class="merge-name" title="${data.name}">${data.name}</div>
+    <div class="merge-pages">${data.pages} sayfa</div></div>
+    <button class="merge-del">✕</button>`;
+  div.querySelector('.merge-del').addEventListener('click',()=>{
+    const i=mergeFiles.indexOf(data);if(i>-1)mergeFiles.splice(i,1);
+    div.remove();mergeState();
+  });
+  mergeListEl.appendChild(div);
+}
+function mergeState(){
+  const n=mergeFiles.length;
+  mergePdfBtn.disabled=n<2;mergeClearBtn.disabled=n===0;
+  if(n===0)mergeEmpty.style.display='';
+}
+mergeClearBtn.addEventListener('click',()=>{
+  if(!confirm('Liste temizlensin mi?'))return;
+  mergeFiles=[];mergeListEl.querySelectorAll('.merge-item').forEach(el=>el.remove());mergeState();
+});
+mergePdfBtn.addEventListener('click',async()=>{
+  if(mergeFiles.length<2)return;
+  showProgress('PDF\'ler Birleştiriliyor…');mergePdfBtn.disabled=true;
+  try{
+    const merged=await PDFLib.PDFDocument.create();
+    // Respect DOM order for dragged items
+    const domNames=Array.from(mergeListEl.querySelectorAll('.merge-name')).map(el=>el.title);
+    const ordered=domNames.map(name=>mergeFiles.find(f=>f.name===name)).filter(Boolean);
+    const src=ordered.length===mergeFiles.length?ordered:mergeFiles;
+    for(let i=0;i<src.length;i++){
+      const pdf=await PDFLib.PDFDocument.load(src[i].arrayBuffer,{ignoreEncryption:true});
+      const pages=await merged.copyPages(pdf,pdf.getPageIndices());
+      pages.forEach(p=>merged.addPage(p));
+      setProgress(Math.round((i+1)/src.length*100),`${i+1} / ${src.length} dosya`);
+      await new Promise(r=>setTimeout(r,10));
+    }
+    dlBytes(await merged.save(),`birlesik-${Date.now()}.pdf`);
+    toast('✅ PDF birleştirildi!');
+  }catch(e){console.error(e);toast('❌ Hata: '+e.message)}
+  hideProgress();mergePdfBtn.disabled=false;
+});
+
+/* ══════════════════════════════════════
+   TAB 3 – SIGN PDF
+══════════════════════════════════════ */
+let signDoc=null,signRawBytes=null,signCurrentPage=1,signPageCount=0;
+let signaturePng=null,placedSigs=[],pageScale=1;
+
+[document.getElementById('signFileInput'),document.getElementById('signFileInput2')]
+  .forEach(i=>i.addEventListener('change',e=>{if(e.target.files[0])loadSignPDF(e.target.files[0]);e.target.value=''}));
+
+async function loadSignPDF(file){
+  showProgress('PDF Yükleniyor…');
+  try{
+    const ab=await file.arrayBuffer();
+    signRawBytes=ab;
+    signDoc=await pdfjsLib.getDocument({data:ab.slice(0)}).promise;
+    signPageCount=signDoc.numPages;
+    document.getElementById('signFileName').textContent=
+      file.name.length>30?file.name.slice(0,28)+'…':file.name;
+    document.getElementById('signPageCount').textContent=signPageCount;
+    placedSigs=[];signCurrentPage=1;
+    document.getElementById('signEmpty').style.display='none';
+    const loaded=document.getElementById('signLoaded');
+    loaded.style.display='flex';
+    document.getElementById('signActionBar').style.display='flex';
+    await renderThumbs();
+    await renderPage(1);
+  }catch(e){console.error(e);toast('❌ PDF yüklenemedi')}
+  hideProgress();
+}
+
+async function renderThumbs(){
+  const ct=document.getElementById('signThumbs');ct.innerHTML='';
+  for(let p=1;p<=signPageCount;p++){
+    const wrap=document.createElement('div');wrap.className='thumb-wrap';wrap.dataset.page=p;
+    const c=document.createElement('canvas');
+    const num=document.createElement('div');num.className='thumb-num';num.textContent=p;
+    wrap.append(c,num);
+    wrap.addEventListener('click',()=>renderPage(p));
+    ct.appendChild(wrap);
+    const pg=await signDoc.getPage(p);
+    const vp=pg.getViewport({scale:.28});
+    c.width=vp.width;c.height=vp.height;
+    await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+  }
+  updateThumbActive();
+}
+function updateThumbActive(){
+  document.querySelectorAll('.thumb-wrap').forEach(w=>
+    w.classList.toggle('active',parseInt(w.dataset.page)===signCurrentPage));
+}
+
+async function renderPage(pageNum){
+  signCurrentPage=pageNum;updateThumbActive();
+  document.querySelectorAll('.sig-overlay').forEach(el=>el.remove());
+  const pg=await signDoc.getPage(pageNum);
+  const area=document.getElementById('signPreviewArea');
+  const maxW=Math.max(area.clientWidth-40,200);
+  const vp0=pg.getViewport({scale:1});
+  const scale=Math.min(maxW/vp0.width,1.9);
+  pageScale=scale;
+  const vp=pg.getViewport({scale});
+  const c=document.getElementById('mainPageCanvas');
+  c.width=vp.width;c.height=vp.height;
+  await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+  // Restore sigs for this page
+  placedSigs.filter(s=>s.pageNum===pageNum).forEach(s=>buildSigOverlay(s));
+}
+
+/* Signature overlays */
+function addSigToPage(dataUrl){
+  const c=document.getElementById('mainPageCanvas');
+  const sigW=Math.round(c.width*.38),sigH=Math.round(sigW*.32);
+  const sigData={pageNum:signCurrentPage,x:Math.round((c.width-sigW)/2),y:Math.round((c.height-sigH)/2),w:sigW,h:sigH,dataUrl};
+  placedSigs.push(sigData);buildSigOverlay(sigData);
+}
+function buildSigOverlay(sigData){
+  const wrap=document.getElementById('pagePreviewWrap');
+  const el=document.createElement('div');el.className='sig-overlay';
+  el.style.cssText=`left:${sigData.x}px;top:${sigData.y}px;width:${sigData.w}px;height:${sigData.h}px`;
+  const img=document.createElement('img');img.src=sigData.dataUrl;
+  const del=document.createElement('button');del.className='sig-del';del.innerHTML='✕';
+  del.addEventListener('click',e=>{
+    e.stopPropagation();el.remove();
+    const i=placedSigs.indexOf(sigData);if(i>-1)placedSigs.splice(i,1);
+  });
+  const rz=document.createElement('div');rz.className='sig-resize';rz.textContent='⇲';
+  el.append(img,del,rz);wrap.appendChild(el);
+  makeDraggable(el,sigData);makeResizable(el,rz,sigData);
+}
+function makeDraggable(el,d){
+  let startX,startY,ox,oy;
+  const move=e=>{
+    e.preventDefault();
+    const t=e.touches?e.touches[0]:e;
+    const c=document.getElementById('mainPageCanvas');
+    d.x=Math.max(0,Math.min(ox+(t.clientX-startX),c.width-d.w));
+    d.y=Math.max(0,Math.min(oy+(t.clientY-startY),c.height-d.h));
+    el.style.left=d.x+'px';el.style.top=d.y+'px';
+  };
+  const up=()=>{
+    document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
+    document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);
+  };
+  const down=e=>{
+    if(e.target.classList.contains('sig-del')||e.target.classList.contains('sig-resize'))return;
+    e.preventDefault();const t=e.touches?e.touches[0]:e;
+    startX=t.clientX;startY=t.clientY;ox=d.x;oy=d.y;
+    document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
+    document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);
+  };
+  el.addEventListener('mousedown',down);
+  el.addEventListener('touchstart',down,{passive:false});
+}
+function makeResizable(el,handle,d){
+  let startX,startY,ow,oh;
+  const move=e=>{
+    e.preventDefault();const t=e.touches?e.touches[0]:e;
+    d.w=Math.max(40,ow+(t.clientX-startX));d.h=Math.max(20,oh+(t.clientY-startY));
+    el.style.width=d.w+'px';el.style.height=d.h+'px';
+  };
+  const up=()=>{
+    document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
+    document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);
+  };
+  handle.addEventListener('mousedown',e=>{
+    e.stopPropagation();e.preventDefault();startX=e.clientX;startY=e.clientY;ow=d.w;oh=d.h;
+    document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
+  });
+  handle.addEventListener('touchstart',e=>{
+    e.stopPropagation();e.preventDefault();const t=e.touches[0];startX=t.clientX;startY=t.clientY;ow=d.w;oh=d.h;
+    document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);
+  },{passive:false});
+}
+
+document.getElementById('clearSigsBtn').addEventListener('click',()=>{
+  placedSigs=placedSigs.filter(s=>s.pageNum!==signCurrentPage);
+  document.querySelectorAll('.sig-overlay').forEach(el=>el.remove());
+  toast('İmzalar temizlendi');
+});
+
+document.getElementById('downloadSignedBtn').addEventListener('click',async()=>{
+  if(!signRawBytes)return;
+  if(!placedSigs.length){toast('⚠️ Henüz imza eklemedin');return}
+  showProgress('İmzalı PDF Oluşturuluyor…');
+  try{
+    const pdfDoc=await PDFLib.PDFDocument.load(signRawBytes.slice(0),{ignoreEncryption:true});
+    for(let i=0;i<placedSigs.length;i++){
+      const s=placedSigs[i];
+      const page=pdfDoc.getPage(s.pageNum-1);
+      const {width:pW,height:pH}=page.getSize();
+      // Get original page viewport to know rendered dimensions
+      const pjsPage=await signDoc.getPage(s.pageNum);
+      const vp=pjsPage.getViewport({scale:pageScale});
+      const rendW=vp.width,rendH=vp.height;
+      // Convert screen coords → PDF coords (PDF origin is bottom-left)
+      const pdfX=(s.x/rendW)*pW;
+      const pdfY=pH-((s.y+s.h)/rendH)*pH;
+      const pdfW=(s.w/rendW)*pW;
+      const pdfH=(s.h/rendH)*pH;
+      const b64=s.dataUrl.split(',')[1];
+      const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+      const pngImg=await pdfDoc.embedPng(bytes);
+      page.drawImage(pngImg,{x:pdfX,y:pdfY,width:pdfW,height:Math.abs(pdfH)});
+      setProgress(Math.round((i+1)/placedSigs.length*100),`${i+1} / ${placedSigs.length} imza`);
+    }
+    dlBytes(await pdfDoc.save(),`imzali-${Date.now()}.pdf`);
+    toast('✅ İmzalı PDF indirildi!');
+  }catch(e){console.error(e);toast('❌ Hata: '+e.message)}
+  hideProgress();
+});
+
+/* ══════════════════════════════════════
+   SIGNATURE DRAW
+══════════════════════════════════════ */
+let drawing=false,sigColor='#111111',sigLineWidth=3;
+const sigCvs=document.getElementById('sigCanvas');
+const sigCtx=sigCvs.getContext('2d');
+sigCtx.lineCap='round';sigCtx.lineJoin='round';
+
+function getSigPt(e){
+  const r=sigCvs.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  return{x:(t.clientX-r.left)*(sigCvs.width/r.width),y:(t.clientY-r.top)*(sigCvs.height/r.height)};
+}
+sigCvs.addEventListener('pointerdown',e=>{
+  drawing=true;const p=getSigPt(e);
+  sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);
+  sigCtx.strokeStyle=sigColor;sigCtx.lineWidth=sigLineWidth;
+});
+sigCvs.addEventListener('pointermove',e=>{
+  if(!drawing)return;const p=getSigPt(e);
+  sigCtx.lineTo(p.x,p.y);sigCtx.stroke();sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);
+});
+sigCvs.addEventListener('pointerup',()=>drawing=false);
+sigCvs.addEventListener('pointercancel',()=>drawing=false);
+
+document.getElementById('clearSigCanvas').addEventListener('click',()=>
+  sigCtx.clearRect(0,0,sigCvs.width,sigCvs.height));
+
+document.querySelectorAll('.color-dot').forEach(dot=>{
+  dot.addEventListener('click',()=>{
+    document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('active'));
+    dot.classList.add('active');sigColor=dot.dataset.color;
+  });
+});
+document.querySelectorAll('[data-width]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('[data-width]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');sigLineWidth=parseInt(btn.dataset.width);
+  });
+});
+
+document.getElementById('drawSigBtn').addEventListener('click',()=>{
+  sigCtx.clearRect(0,0,sigCvs.width,sigCvs.height);
+  document.getElementById('sigDrawModal').classList.add('open');
+});
+document.getElementById('cancelSig').addEventListener('click',()=>
+  document.getElementById('sigDrawModal').classList.remove('open'));
+
+document.getElementById('applySig').addEventListener('click',()=>{
+  const d=sigCtx.getImageData(0,0,sigCvs.width,sigCvs.height);
+  const drawn=d.data.some((_,i)=>i%4===3&&d.data[i]>0);
+  if(!drawn){toast('⚠️ Önce imzanı çiz!');return}
+  // Crop to content
+  const cropped=cropSigCanvas();
+  signaturePng=cropped.toDataURL('image/png');
+  document.getElementById('sigDrawModal').classList.remove('open');
+  addSigToPage(signaturePng);
+  toast('✅ İmza yerleştirildi — sürükleyerek konumlandır, köşeden yeniden boyutlandır');
+});
+
+function cropSigCanvas(){
+  const d=sigCtx.getImageData(0,0,sigCvs.width,sigCvs.height);
+  let mnX=sigCvs.width,mnY=sigCvs.height,mxX=0,mxY=0;
+  for(let y=0;y<sigCvs.height;y++)for(let x=0;x<sigCvs.width;x++){
+    if(d.data[(y*sigCvs.width+x)*4+3]>0){
+      if(x<mnX)mnX=x;if(x>mxX)mxX=x;if(y<mnY)mnY=y;if(y>mxY)mxY=y;
+    }
+  }
+  const pad=12;
+  mnX=Math.max(0,mnX-pad);mnY=Math.max(0,mnY-pad);
+  mxX=Math.min(sigCvs.width,mxX+pad);mxY=Math.min(sigCvs.height,mxY+pad);
+  const w=mxX-mnX||sigCvs.width,h=mxY-mnY||sigCvs.height;
+  const out=document.createElement('canvas');out.width=w;out.height=h;
+  out.getContext('2d').putImageData(sigCtx.getImageData(mnX,mnY,w,h),0,0);
+  return out;
 }
 </script>
 </body>
