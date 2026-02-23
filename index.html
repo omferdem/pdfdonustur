@@ -39,71 +39,105 @@ body{
 header{
   flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
   padding:8px 12px;
-  background:linear-gradient(135deg,#0f0f20 0%,#181830 100%);
-  border-bottom:1px solid rgba(255,215,0,.2);
-  box-shadow:0 2px 20px rgba(0,0,0,.5);
-  gap:8px;min-height:56px;
+  background:linear-gradient(135deg,#0c0c1f 0%,#16122e 50%,#0c0c1f 100%);
+  border-bottom:2px solid;
+  border-image:linear-gradient(90deg,transparent,#FFD700,#C8C8D8,#FFD700,transparent) 1;
+  box-shadow:0 0 30px rgba(255,215,0,.15),0 4px 20px rgba(0,0,0,.6);
+  gap:8px;min-height:58px;position:relative;
 }
-.h-brand{display:flex;flex-direction:column;align-items:flex-start;flex-shrink:0}
+/* Subtle shimmer line at very top */
+header::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent 0%,#B8860B 20%,#FFD700 50%,#B8860B 80%,transparent 100%);
+  opacity:.9;
+}
+.h-brand{display:flex;flex-direction:column;align-items:flex-start;flex-shrink:0;gap:1px}
 .h-title{
-  font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;
-  color:var(--text);letter-spacing:-.2px;line-height:1.1;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;
+  color:#fff;letter-spacing:-.3px;line-height:1.1;
 }
 .h-title span{
-  background:linear-gradient(90deg,#FFD700,#FFA500);
+  background:linear-gradient(90deg,#FFD700 0%,#FFF0A0 40%,#FFA500 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 6px rgba(255,215,0,.6));
 }
 .h-sig{
-  font-family:'Dancing Script',cursive;font-weight:600;font-size:.9rem;
-  background:linear-gradient(120deg,#C8C8D8,#FFD700,#C8C8D8);
+  font-family:'Dancing Script',cursive;font-weight:700;font-size:.95rem;
+  background:linear-gradient(120deg,#A0A0B8 0%,#E8E8F0 35%,#FFD700 55%,#D4AF37 75%,#C8C8D8 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 0 8px rgba(255,215,0,.5));
-  letter-spacing:.5px;line-height:1.2;margin-top:-1px;
+  filter:drop-shadow(0 0 10px rgba(255,215,0,.5));
+  letter-spacing:.6px;line-height:1.2;
 }
 .h-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .lang-btn{
-  background:var(--surf2);border:1px solid var(--border);
-  color:var(--muted);font-family:'Syne',sans-serif;font-weight:700;font-size:.66rem;
+  background:rgba(255,255,255,.05);border:1px solid rgba(200,200,216,.2);
+  color:var(--silver2);font-family:'Syne',sans-serif;font-weight:700;font-size:.66rem;
   padding:4px 7px;border-radius:7px;cursor:pointer;
-  touch-action:manipulation;transition:all .15s;flex-shrink:0;
+  touch-action:manipulation;transition:all .2s;flex-shrink:0;
 }
-.lang-btn.active{background:var(--gold);border-color:var(--gold);color:#111;box-shadow:0 0 10px rgba(255,215,0,.4)}
+.lang-btn.active{
+  background:linear-gradient(135deg,#B8860B,#FFD700);
+  border-color:var(--gold);color:#111;
+  box-shadow:0 0 14px rgba(255,215,0,.5),0 2px 6px rgba(0,0,0,.3);
+}
 .hpill{
-  background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);
-  padding:4px 10px;border-radius:999px;font-size:.7rem;color:var(--silver);white-space:nowrap;
+  background:linear-gradient(135deg,rgba(255,215,0,.12),rgba(212,175,55,.08));
+  border:1px solid rgba(255,215,0,.4);
+  padding:4px 11px;border-radius:999px;font-size:.7rem;color:var(--silver);white-space:nowrap;
+  box-shadow:0 0 8px rgba(255,215,0,.1);
 }
-.hpill b{color:var(--gold)}
+.hpill b{
+  color:var(--gold);font-weight:800;
+  text-shadow:0 0 8px rgba(255,215,0,.6);
+}
 
 /* ─── NAV CARDS ─── */
 .nav-cards{
-  flex-shrink:0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
-  padding:8px 10px;background:var(--surf);border-bottom:1px solid var(--border);
+  flex-shrink:0;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;
+  padding:8px 8px 6px;
+  background:linear-gradient(180deg,#0f0f22 0%,#0a0a14 100%);
+  border-bottom:1px solid rgba(255,215,0,.15);
+  box-shadow:0 4px 16px rgba(0,0,0,.5);
 }
 .nc{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;padding:10px 2px;border-radius:13px;border:2px solid transparent;
-  cursor:pointer;font-family:'Syne',sans-serif;font-weight:800;font-size:.6rem;
-  text-align:center;line-height:1.2;color:#fff;
-  transition:opacity .13s,border-color .15s,transform .1s,box-shadow .15s;
+  gap:4px;padding:11px 2px 9px;border-radius:13px;border:1.5px solid transparent;
+  cursor:pointer;font-family:'Syne',sans-serif;font-weight:800;font-size:.58rem;
+  text-align:center;line-height:1.2;color:rgba(255,255,255,.9);
+  transition:opacity .15s,border-color .2s,transform .1s,box-shadow .2s;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;
-  text-shadow:0 1px 3px rgba(0,0,0,.5);
+  text-shadow:0 1px 4px rgba(0,0,0,.6);
+  position:relative;overflow:hidden;
 }
-.nc:active{transform:scale(.91)}
-.nc.active{border-color:rgba(255,255,255,.7);box-shadow:0 4px 20px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.2)}
-.nc:not(.active){opacity:.45;filter:saturate(.7)}
-.nc-icon{font-size:1.3rem;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+/* Top shimmer line on each card */
+.nc::after{
+  content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
+  border-radius:999px;
+}
+.nc:active{transform:scale(.90)}
+.nc.active{
+  border-color:rgba(255,255,255,.5);
+  box-shadow:0 6px 24px rgba(0,0,0,.5),inset 0 0 20px rgba(255,255,255,.05);
+}
+.nc:not(.active){opacity:.38;filter:saturate(.5) brightness(.8)}
+.nc-icon{font-size:1.4rem;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
 /* Photo→PDF: Electric Blue */
-.nc.c1{background:linear-gradient(145deg,#1565C0,#1E88E5,#42A5F5)}
-.nc.c1.active{box-shadow:0 4px 18px rgba(30,136,229,.6),0 0 30px rgba(66,165,245,.2)}
-/* Birleştir: Emerald */
-.nc.c2{background:linear-gradient(145deg,#00695C,#00897B,#26A69A)}
-.nc.c2.active{box-shadow:0 4px 18px rgba(0,137,123,.6),0 0 30px rgba(38,166,154,.2)}
-/* PDF Böl: Amber Gold */
-.nc.c3{background:linear-gradient(145deg,#B8860B,#D4AF37,#FFD700)}
-.nc.c3.active{box-shadow:0 4px 18px rgba(212,175,55,.7),0 0 30px rgba(255,215,0,.3)}
-/* İmzala: Royal Purple */
-.nc.c4{background:linear-gradient(145deg,#6A1B9A,#8E24AA,#AB47BC)}
-.nc.c4.active{box-shadow:0 4px 18px rgba(142,36,170,.6),0 0 30px rgba(171,71,188,.2)}
+.nc.c1{background:linear-gradient(155deg,#0D47A1,#1565C0,#1976D2,#42A5F5)}
+.nc.c1.active{box-shadow:0 6px 22px rgba(21,101,192,.7),0 0 35px rgba(66,165,245,.25);border-color:#64B5F6}
+/* Birleştir: Deep Teal */
+.nc.c2{background:linear-gradient(155deg,#004D40,#00695C,#00838F,#26C6DA)}
+.nc.c2.active{box-shadow:0 6px 22px rgba(0,105,92,.7),0 0 35px rgba(38,198,218,.2);border-color:#4DD0E1}
+/* PDF Böl: GOLD ★ */
+.nc.c3{background:linear-gradient(155deg,#5D4037,#8D6E63,#D4AF37,#FFD700,#FFF176)}
+.nc.c3.active{
+  box-shadow:0 6px 22px rgba(212,175,55,.8),0 0 40px rgba(255,215,0,.4),0 0 60px rgba(255,215,0,.15);
+  border-color:#FFD700;
+}
+.nc.c3.active .nc-icon{filter:drop-shadow(0 0 8px rgba(255,215,0,.8))}
+/* İmzala: Deep Purple */
+.nc.c4{background:linear-gradient(155deg,#4A148C,#6A1B9A,#8E24AA,#CE93D8)}
+.nc.c4.active{box-shadow:0 6px 22px rgba(106,27,154,.7),0 0 35px rgba(206,147,216,.2);border-color:#CE93D8}
 
 /* ─── TAB PANELS ─── */
 .tab-panel{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0;min-width:0}
@@ -179,37 +213,57 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
 .abar{
   flex-shrink:0;display:flex;align-items:center;gap:7px;
   padding:9px 10px;
-  background:linear-gradient(180deg,var(--surf) 0%,rgba(13,13,18,.95) 100%);
-  border-top:1px solid var(--border);
+  background:linear-gradient(180deg,#111124 0%,#0a0a12 100%);
+  border-top:1px solid rgba(255,215,0,.2);
   padding-bottom:calc(9px + env(safe-area-inset-bottom));
-  box-shadow:0 -4px 20px rgba(0,0,0,.4);
+  box-shadow:0 -2px 20px rgba(0,0,0,.5),0 -1px 0 rgba(255,215,0,.08);
 }
 .abtn-sm{
   width:44px;height:44px;flex-shrink:0;
-  border-radius:10px;border:1px solid var(--border);
-  background:var(--surf2);color:var(--text);
+  border-radius:10px;border:1px solid rgba(255,215,0,.15);
+  background:rgba(255,255,255,.04);color:var(--silver);
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   font-size:1rem;touch-action:manipulation;transition:opacity .12s;
   position:relative;overflow:hidden;
 }
-.abtn-sm:disabled{opacity:.3;cursor:not-allowed}
-.abtn-sm.red{border-color:rgba(255,82,82,.4);color:var(--red);background:rgba(255,82,82,.1)}
+.abtn-sm:disabled{opacity:.25;cursor:not-allowed}
+.abtn-sm.red{border-color:rgba(255,82,82,.4);color:var(--red);background:rgba(255,82,82,.08)}
 .abtn-main{
-  flex:1;height:44px;min-width:0;
-  border-radius:10px;border:none;
-  font-family:'Syne',sans-serif;font-weight:800;font-size:.86rem;
+  flex:1;height:46px;min-width:0;
+  border-radius:12px;border:none;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:.88rem;
   cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;
-  touch-action:manipulation;transition:opacity .12s,box-shadow .15s;
+  touch-action:manipulation;transition:opacity .12s,transform .1s,box-shadow .2s;
   -webkit-tap-highlight-color:transparent;white-space:nowrap;overflow:hidden;
-  text-shadow:0 1px 3px rgba(0,0,0,.4);
+  text-shadow:0 1px 4px rgba(0,0,0,.5);letter-spacing:.01em;
 }
-.abtn-main:disabled{opacity:.3;cursor:not-allowed}
-.abtn-main:active{opacity:.8;transform:scale(.98)}
-.abtn-blue  {background:linear-gradient(135deg,#1565C0,#1E88E5,#42A5F5);color:#fff;box-shadow:0 3px 12px rgba(30,136,229,.4)}
-.abtn-teal  {background:linear-gradient(135deg,#00695C,#00897B,#26A69A);color:#fff;box-shadow:0 3px 12px rgba(0,137,123,.4)}
-.abtn-purple{background:linear-gradient(135deg,#6A1B9A,#8E24AA,#AB47BC);color:#fff;box-shadow:0 3px 12px rgba(142,36,170,.4)}
-.abtn-orange{background:linear-gradient(135deg,#E65100,#F57C00,#FFA726);color:#fff;box-shadow:0 3px 12px rgba(245,124,0,.4)}
-.abtn-gold  {background:linear-gradient(135deg,#B8860B,#D4AF37,#FFD700);color:#111;box-shadow:0 3px 14px rgba(255,215,0,.4)}
+.abtn-main:disabled{opacity:.25;cursor:not-allowed}
+.abtn-main:active{opacity:.85;transform:scale(.97)}
+.abtn-blue  {
+  background:linear-gradient(135deg,#0D47A1,#1565C0,#1976D2);color:#fff;
+  box-shadow:0 4px 16px rgba(21,101,192,.5),0 0 24px rgba(66,165,245,.15);
+  border-top:1px solid rgba(100,181,246,.3);
+}
+.abtn-teal  {
+  background:linear-gradient(135deg,#004D40,#00695C,#00897B);color:#fff;
+  box-shadow:0 4px 16px rgba(0,105,92,.5),0 0 24px rgba(38,198,218,.12);
+  border-top:1px solid rgba(77,208,225,.3);
+}
+.abtn-purple{
+  background:linear-gradient(135deg,#4A148C,#6A1B9A,#7B1FA2);color:#fff;
+  box-shadow:0 4px 16px rgba(74,20,140,.5),0 0 24px rgba(171,71,188,.12);
+  border-top:1px solid rgba(186,104,200,.3);
+}
+.abtn-orange{
+  background:linear-gradient(135deg,#BF360C,#E64A19,#FF5722);color:#fff;
+  box-shadow:0 4px 16px rgba(191,54,12,.5),0 0 20px rgba(255,87,34,.15);
+  border-top:1px solid rgba(255,138,101,.3);
+}
+.abtn-gold  {
+  background:linear-gradient(135deg,#6D4C0A,#B8860B,#D4AF37,#FFD700);color:#1a0f00;
+  box-shadow:0 4px 18px rgba(184,134,11,.6),0 0 30px rgba(255,215,0,.3);
+  border-top:1px solid rgba(255,241,118,.5);font-weight:900;
+}
 
 /* ─── MERGE LIST ─── */
 .mlist{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
@@ -542,6 +596,13 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
 .spt:active{transform:scale(.93)}
 .spt.sel{border-color:var(--gold);box-shadow:0 2px 10px rgba(255,215,0,.3)}
 .spt canvas{width:100%;display:block}
+.spt-ph{
+  width:100%;aspect-ratio:0.707;
+  background:linear-gradient(145deg,var(--surf2),var(--surf3));
+  display:flex;align-items:center;justify-content:center;
+  border-bottom:1px solid var(--border);
+}
+.spt-pn{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--muted)}
 .spt-num{
   position:absolute;bottom:3px;left:3px;
   background:rgba(0,0,0,.75);color:#fff;font-size:.57rem;font-weight:700;
@@ -551,6 +612,34 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
 
 /* ─── SCAN MODE BUTTON ─── */
 .tb.scan-on{background:rgba(0,230,118,.15);color:#00E676;border-color:rgba(0,230,118,.4);box-shadow:0 0 8px rgba(0,230,118,.2)}
+
+/* ─── GOLD SHIMMER ANIMATION ─── */
+@keyframes goldShimmer{
+  0%{background-position:200% center}
+  100%{background-position:-200% center}
+}
+@keyframes goldPulse{
+  0%,100%{box-shadow:0 0 10px rgba(255,215,0,.2),0 0 25px rgba(255,215,0,.05)}
+  50%{box-shadow:0 0 25px rgba(255,215,0,.5),0 0 50px rgba(255,215,0,.2)}
+}
+
+/* Gold accent strip between header and nav */
+.gold-strip{
+  height:3px;flex-shrink:0;
+  background:linear-gradient(90deg,transparent 0%,#6D4C0A 10%,#B8860B 25%,#D4AF37 40%,#FFD700 50%,#FFF0A0 52%,#FFD700 55%,#D4AF37 70%,#B8860B 85%,transparent 100%);
+  background-size:200% 100%;
+  animation:goldShimmer 3s linear infinite;
+}
+
+/* Split empty gold icon */
+.split-empty .big{font-size:3.5rem;filter:drop-shadow(0 0 16px rgba(255,215,0,.6))}
+
+/* Make split loaded topbar gold accented */
+.split-topbar{
+  background:linear-gradient(135deg,rgba(255,215,0,.08),rgba(212,175,55,.04));
+  border-bottom:1px solid rgba(255,215,0,.2) !important;
+}
+.split-fname{color:var(--gold) !important;text-shadow:0 0 10px rgba(255,215,0,.3)}
 </style>
 </head>
 <body>
@@ -567,6 +656,7 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
     <div class="hpill" id="cPill">Foto: <b>0</b></div>
   </div>
 </header>
+<div class="gold-strip"></div>
 
 <!-- NAV CARDS -->
 <div class="nav-cards">
@@ -745,11 +835,11 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
 
     <!-- Native OS share (WhatsApp, Telegram, Drive etc. hepsi buradan) -->
     <button class="smodal-primary" id="shareNativeBtn">
-      🔗 <span data-i="share_native">Paylaş (WhatsApp, Telegram…)</span>
+      📤 <span data-i="share_native">Android / iOS Paylaşım Menüsü</span>
     </button>
-    <div class="smodal-hint" data-i="share_hint">Sistem paylaşım menüsü açılır · Tüm uygulamalar listelenir</div>
+    <div class="smodal-hint" data-i="share_hint">Sistem menüsü açılır — WhatsApp, Telegram, Drive, Bluetooth…</div>
 
-    <!-- App shortcut icons (deep-link / mailto) -->
+    <!-- App shortcut icons — download + URI scheme to open app -->
     <div class="smodal-apps">
       <div class="sapp wa" id="shareWA">
         <div class="sapp-icon">💬</div>
@@ -1682,76 +1772,84 @@ function triggerDownload(blob, name){
   setTimeout(()=>URL.revokeObjectURL(u),5000);
 }
 
-// Native OS share (the real way to reach WhatsApp, Telegram etc. on mobile)
-document.getElementById('shareNativeBtn').addEventListener('click',async()=>{
-  if(!_shareBlob)return;
+// ── Native OS share ──
+/* ─── Shared helper: native share → fallback ─── */
+async function _tryNativeShare(){
+  if(!_shareBlob)return false;
   const file=new File([_shareBlob],_shareName,{type:_shareBlob.type});
-  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+  if(navigator.share){
     try{
-      await navigator.share({files:[file],title:_shareName});
-      closeShareModal();return;
-    }catch(e){if(e.name==='AbortError'){return}}
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],title:_shareName});
+      }else{
+        await navigator.share({title:_shareName});
+      }
+      return true;
+    }catch(e){
+      if(e.name==='AbortError')return true; // user cancelled — that's fine
+    }
   }
-  // Fallback: download
-  triggerDownload(_shareBlob,_shareName);
-  toast(tx('t_share_err'));
+  return false; // share not supported
+}
+function _dl(){triggerDownload(_shareBlob,_shareName);}
+function _openURI(uri,delay=600){setTimeout(()=>{window.location.href=uri;},delay);}
+
+/* ─── Native share button (opens system sheet) ─── */
+document.getElementById('shareNativeBtn').addEventListener('click',async()=>{
+  const ok=await _tryNativeShare();
+  if(!ok){_dl();toast('📥 İndirildi! Dosyayı uygulamanızdan gönderin.');}
   closeShareModal();
 });
 
-// WhatsApp — on mobile opens WhatsApp; on desktop opens WhatsApp Web
+/* ─── WhatsApp: URI scheme whatsapp:// opens the installed app ─── */
 document.getElementById('shareWA').addEventListener('click',async()=>{
-  if(!_shareBlob)return;
-  const file=new File([_shareBlob],_shareName,{type:_shareBlob.type});
-  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-    try{await navigator.share({files:[file],title:_shareName});closeShareModal();return;}
-    catch(e){if(e.name==='AbortError')return}
-  }
-  // Fallback: open WhatsApp web with a note
-  triggerDownload(_shareBlob,_shareName);
-  setTimeout(()=>window.open('https://web.whatsapp.com','_blank'),400);
+  const ok=await _tryNativeShare();
+  if(ok){closeShareModal();return;}
+  _dl();
+  _openURI('whatsapp://');
+  toast('📥 İndirildi → WhatsApp açılıyor, oradan dosyayı gönderin');
   closeShareModal();
 });
 
-// Telegram
+/* ─── Telegram: URI scheme tg:// opens the installed app ─── */
 document.getElementById('shareTG').addEventListener('click',async()=>{
-  if(!_shareBlob)return;
-  const file=new File([_shareBlob],_shareName,{type:_shareBlob.type});
-  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-    try{await navigator.share({files:[file],title:_shareName});closeShareModal();return;}
-    catch(e){if(e.name==='AbortError')return}
-  }
-  triggerDownload(_shareBlob,_shareName);
-  setTimeout(()=>window.open('https://t.me','_blank'),400);
+  const ok=await _tryNativeShare();
+  if(ok){closeShareModal();return;}
+  _dl();
+  _openURI('tg://');
+  toast('📥 İndirildi → Telegram açılıyor, oradan dosyayı gönderin');
   closeShareModal();
 });
 
-// Email — mailto with subject (can't attach file via URL, but prompts mail app)
+/* ─── E-posta: mailto: URI (opens default mail app) ─── */
 document.getElementById('shareML').addEventListener('click',()=>{
   if(!_shareBlob)return;
-  triggerDownload(_shareBlob,_shareName);
+  _dl();
   const sub=encodeURIComponent(_shareName);
-  const body=encodeURIComponent('Ekteki dosyayı paylaşıyorum.');
-  setTimeout(()=>window.location.href=`mailto:?subject=${sub}&body=${body}`,400);
+  const body=encodeURIComponent('Dosya ekte: '+_shareName);
+  _openURI(`mailto:?subject=${sub}&body=${body}`,400);
+  toast('📧 Dosya indirildi → Mail uygulaması açılıyor');
   closeShareModal();
 });
 
-// OneDrive
+/* ─── OneDrive: ms-onedrive:// opens the installed app ─── */
 document.getElementById('shareOD').addEventListener('click',()=>{
   if(!_shareBlob)return;
-  triggerDownload(_shareBlob,_shareName);
-  setTimeout(()=>window.open('https://onedrive.live.com','_blank'),500);
+  _dl();
+  // Try app URI; if app isn't installed browser ignores it silently
+  _openURI('ms-onedrive://',500);
+  toast('📥 İndirildi → OneDrive açılıyor');
   closeShareModal();
-  toast('📁 Dosya indirildi — OneDrive\'dan yükleyebilirsin');
 });
 
-// Download button
+/* ─── Local download ─── */
 document.getElementById('shareDownloadBtn').addEventListener('click',()=>{
-  if(_shareBlob){triggerDownload(_shareBlob,_shareName);}
+  if(_shareBlob)_dl();
+  toast('📥 Dosya indirildi!');
   closeShareModal();
 });
 
 document.getElementById('shareCloseBtn').addEventListener('click',closeShareModal);
-// Close on backdrop click
 document.getElementById('shareModal').addEventListener('click',e=>{
   if(e.target===document.getElementById('shareModal'))closeShareModal();
 });
@@ -1812,52 +1910,92 @@ function applyScanMode(canvas){
 
 /* ══════════════════════════════════════════
    TAB 4 — PDF SPLIT
+   Uses pdf-lib for load (no worker), simple
+   numbered boxes + optional pdfjs thumbnails
 ══════════════════════════════════════════ */
-let spDoc=null,spBytes=null,spCount=0;
+let spDoc=null,spBytes=null,spCount=0,spPjsDoc=null;
 
 document.getElementById('splitPdfIn').addEventListener('change',async e=>{
-  const f=e.target.files[0];if(!f)return;e.target.value='';await loadSplitPdf(f);
+  const f=e.target.files[0];
+  if(!f)return;
+  e.target.value='';
+  await loadSplitPdf(f);
 });
 
 async function loadSplitPdf(file){
   showProg(tx('p_load_pdf'));
   try{
-    const ab=await file.arrayBuffer();
-    // Keep a fresh copy for pdf-lib (needs its own ArrayBuffer)
-    spBytes=ab.slice(0);
-    // pdf.js needs a Uint8Array — don't pass the same ArrayBuffer that pdf-lib will use
-    const u8=new Uint8Array(ab);
-    const loadTask=pdfjsLib.getDocument({data:u8});
-    spDoc=await loadTask.promise;
-    spCount=spDoc.numPages;
-    document.getElementById('splitFname').textContent=file.name.slice(0,30);
-    document.getElementById('splitTotal').textContent=spCount;
-    document.getElementById('splitRangeInp').value='';
-    document.getElementById('splitPreview').textContent='-';
-    document.getElementById('splitEmpty').style.display='none';
-    document.getElementById('splitLoaded').style.display='flex';
-    document.getElementById('splitAbar').style.display='flex';
-    document.getElementById('splitBtn').disabled=true;
-    await buildSpThumbs();
+    /* ── Step 1: read file reliably ── */
+    const ab = await new Promise((res,rej)=>{
+      const fr=new FileReader();
+      fr.onload=ev=>res(ev.target.result);
+      fr.onerror=()=>rej(new Error('Dosya okunamadı'));
+      fr.readAsArrayBuffer(file);
+    });
+
+    /* ── Step 2: use pdf-lib to get page count (no worker) ── */
+    const copyA = ab.slice(0);
+    spBytes = ab.slice(0);   // saved clean copy for splitting later
+    const pdfLibDoc = await PDFLib.PDFDocument.load(copyA,{ignoreEncryption:true});
+    spCount = pdfLibDoc.getPageCount();
+
+    /* ── Step 3: show UI ── */
+    document.getElementById('splitFname').textContent = file.name.slice(0,32);
+    document.getElementById('splitTotal').textContent = spCount;
+    document.getElementById('splitRangeInp').value = '';
+    document.getElementById('splitPreview').textContent = '-';
+    document.getElementById('splitEmpty').style.display = 'none';
+    document.getElementById('splitLoaded').style.display = 'flex';
+    document.getElementById('splitAbar').style.display = 'flex';
+    document.getElementById('splitBtn').disabled = true;
+
+    /* ── Step 4: build numbered placeholder grid (instant) ── */
+    buildSpGrid();
+
+    /* ── Step 5: try to render real thumbnails (optional) ── */
+    renderSpThumbs(ab.slice(0)).catch(()=>{/* thumbnails optional */});
+
   }catch(err){
-    console.error('PDF Split Load Error:',err);
-    toast(tx('t_pdf_err'));
+    console.error('Split PDF load error:', err);
+    toast('❌ ' + err.message);
   }
   hideProg();
 }
 
-async function buildSpThumbs(){
-  const grid=document.getElementById('splitPageGrid');grid.innerHTML='';
+function buildSpGrid(){
+  const grid=document.getElementById('splitPageGrid');
+  grid.innerHTML='';
   for(let p=1;p<=spCount;p++){
-    const el=document.createElement('div');el.className='spt';el.dataset.p=p;
-    const cv=document.createElement('canvas');
+    const el=document.createElement('div');
+    el.className='spt';el.dataset.p=p;
+    // Placeholder canvas-like div
+    const ph=document.createElement('div');
+    ph.className='spt-ph';
+    ph.innerHTML=`<span class="spt-pn">${p}</span>`;
     const num=document.createElement('div');num.className='spt-num';num.textContent=p;
-    el.append(cv,num);grid.appendChild(el);
+    el.append(ph,num);
+    grid.appendChild(el);
     el.addEventListener('click',()=>{el.classList.toggle('sel');syncSpInput();});
-    const pg=await spDoc.getPage(p);
-    const vp=pg.getViewport({scale:.28});
-    cv.width=vp.width;cv.height=vp.height;
-    await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+  }
+}
+
+async function renderSpThumbs(ab){
+  const u8=new Uint8Array(ab);
+  spPjsDoc=await pdfjsLib.getDocument({data:u8}).promise;
+  const thumbs=document.querySelectorAll('.spt');
+  for(let i=0;i<thumbs.length;i++){
+    const el=thumbs[i];
+    const p=parseInt(el.dataset.p);
+    try{
+      const pg=await spPjsDoc.getPage(p);
+      const vp=pg.getViewport({scale:.3});
+      const cv=document.createElement('canvas');
+      cv.width=vp.width;cv.height=vp.height;
+      await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+      // Replace placeholder with real thumbnail
+      const ph=el.querySelector('.spt-ph');
+      if(ph)ph.replaceWith(cv);
+    }catch(e){/* keep placeholder */}
   }
 }
 
