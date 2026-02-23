@@ -1290,7 +1290,14 @@ document.getElementById('zOut').addEventListener('click',()=>_cr?.zoom(-.1));
 ══════════════════════════════════════════ */
 let mFiles=[];
 const mList=document.getElementById('mergeList');
-new Sortable(mList,{animation:160,ghostClass:'ghost',chosenClass:'chosen',filter:'.empty'});
+new Sortable(mList,{
+  animation:160,
+  ghostClass:'ghost',
+  chosenClass:'chosen',
+  filter:'.mi-del,.empty',
+  preventOnFilter:true,
+  handle:'.mi-drag'
+});
 
 [document.getElementById('mergeIn'),document.getElementById('mergeIn2')]
   .forEach(i=>i.addEventListener('change',e=>{loadMerge(e.target.files);e.target.value=''}));
@@ -1910,10 +1917,8 @@ function applyScanMode(canvas){
 
 /* ══════════════════════════════════════════
    TAB 4 — PDF SPLIT
-   Uses pdf-lib for load (no worker), simple
-   numbered boxes + optional pdfjs thumbnails
 ══════════════════════════════════════════ */
-let spDoc=null,spBytes=null,spCount=0,spPjsDoc=null;
+let spBytes=null,spCount=0,spPjsDoc=null;
 
 document.getElementById('splitPdfIn').addEventListener('change',async e=>{
   const f=e.target.files[0];
@@ -1924,24 +1929,35 @@ document.getElementById('splitPdfIn').addEventListener('change',async e=>{
 
 async function loadSplitPdf(file){
   showProg(tx('p_load_pdf'));
+  spBytes=null; spCount=0; spPjsDoc=null;
+
   try{
-    /* ── Step 1: read file reliably ── */
-    const ab = await new Promise((res,rej)=>{
+    /* Step 1: read with FileReader */
+    const rawBuf = await new Promise((res,rej)=>{
       const fr=new FileReader();
       fr.onload=ev=>res(ev.target.result);
       fr.onerror=()=>rej(new Error('Dosya okunamadı'));
       fr.readAsArrayBuffer(file);
     });
 
-    /* ── Step 2: use pdf-lib to get page count (no worker) ── */
-    const copyA = ab.slice(0);
-    spBytes = ab.slice(0);   // saved clean copy for splitting later
-    const pdfLibDoc = await PDFLib.PDFDocument.load(copyA,{ignoreEncryption:true});
-    spCount = pdfLibDoc.getPageCount();
+    /* Step 2: two independent typed-array copies */
+    const u8View = new Uint8Array(rawBuf);          // source view
+    const u8ForPdfJs  = u8View.slice();             // copy for pdf.js
+    const u8ForPdfLib = u8View.slice();             // copy for pdf-lib splitting
+    spBytes = u8ForPdfLib.buffer;
 
-    /* ── Step 3: show UI ── */
+    /* Step 3: open with pdf.js to get page count + for thumbnails */
+    const task = pdfjsLib.getDocument({
+      data: u8ForPdfJs,
+      isEvalSupported: false,
+      disableAutoFetch: true
+    });
+    spPjsDoc = await task.promise;
+    spCount = spPjsDoc.numPages;
+
+    /* Step 4: update UI labels */
     document.getElementById('splitFname').textContent = file.name.slice(0,32);
-    document.getElementById('splitTotal').textContent = spCount;
+    document.getElementById('splitTotal').textContent = String(spCount);
     document.getElementById('splitRangeInp').value = '';
     document.getElementById('splitPreview').textContent = '-';
     document.getElementById('splitEmpty').style.display = 'none';
@@ -1949,53 +1965,68 @@ async function loadSplitPdf(file){
     document.getElementById('splitAbar').style.display = 'flex';
     document.getElementById('splitBtn').disabled = true;
 
-    /* ── Step 4: build numbered placeholder grid (instant) ── */
+    /* Step 5: numbered grid (instant) then thumbnails (async) */
     buildSpGrid();
-
-    /* ── Step 5: try to render real thumbnails (optional) ── */
-    renderSpThumbs(ab.slice(0)).catch(()=>{/* thumbnails optional */});
+    _renderSpThumbs();          // runs in background, errors silently ignored
 
   }catch(err){
-    console.error('Split PDF load error:', err);
-    toast('❌ ' + err.message);
+    console.error('Split load error:', err);
+    toast('❌ PDF açılamadı. Hata: ' + (err&&err.message?err.message:String(err)));
+    document.getElementById('splitEmpty').style.display = '';
+    document.getElementById('splitLoaded').style.display = 'none';
+    document.getElementById('splitAbar').style.display = 'none';
   }
   hideProg();
 }
 
 function buildSpGrid(){
-  const grid=document.getElementById('splitPageGrid');
-  grid.innerHTML='';
-  for(let p=1;p<=spCount;p++){
-    const el=document.createElement('div');
-    el.className='spt';el.dataset.p=p;
-    // Placeholder canvas-like div
-    const ph=document.createElement('div');
-    ph.className='spt-ph';
-    ph.innerHTML=`<span class="spt-pn">${p}</span>`;
-    const num=document.createElement('div');num.className='spt-num';num.textContent=p;
-    el.append(ph,num);
+  const grid = document.getElementById('splitPageGrid');
+  grid.innerHTML = '';
+  for(let p=1; p<=spCount; p++){
+    const el  = document.createElement('div');
+    el.className = 'spt';
+    el.dataset.p = String(p);
+
+    const ph  = document.createElement('div');
+    ph.className = 'spt-ph';
+
+    const pn  = document.createElement('span');
+    pn.className = 'spt-pn';
+    pn.textContent = String(p);
+    ph.appendChild(pn);
+
+    const num = document.createElement('div');
+    num.className = 'spt-num';
+    num.textContent = String(p);
+
+    el.appendChild(ph);
+    el.appendChild(num);
     grid.appendChild(el);
-    el.addEventListener('click',()=>{el.classList.toggle('sel');syncSpInput();});
+
+    el.addEventListener('click', ()=>{
+      el.classList.toggle('sel');
+      syncSpInput();
+    });
   }
 }
 
-async function renderSpThumbs(ab){
-  const u8=new Uint8Array(ab);
-  spPjsDoc=await pdfjsLib.getDocument({data:u8}).promise;
-  const thumbs=document.querySelectorAll('.spt');
-  for(let i=0;i<thumbs.length;i++){
-    const el=thumbs[i];
-    const p=parseInt(el.dataset.p);
+async function _renderSpThumbs(){
+  if(!spPjsDoc) return;
+  const items = Array.from(document.querySelectorAll('#splitPageGrid .spt'));
+  for(const el of items){
+    if(!spPjsDoc) break;
+    const p = parseInt(el.dataset.p, 10);
+    if(!p) continue;
     try{
-      const pg=await spPjsDoc.getPage(p);
-      const vp=pg.getViewport({scale:.3});
-      const cv=document.createElement('canvas');
-      cv.width=vp.width;cv.height=vp.height;
-      await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
-      // Replace placeholder with real thumbnail
-      const ph=el.querySelector('.spt-ph');
-      if(ph)ph.replaceWith(cv);
-    }catch(e){/* keep placeholder */}
+      const pg = await spPjsDoc.getPage(p);
+      const vp = pg.getViewport({scale: 0.32});
+      const cv = document.createElement('canvas');
+      cv.width  = Math.round(vp.width);
+      cv.height = Math.round(vp.height);
+      await pg.render({canvasContext: cv.getContext('2d'), viewport: vp}).promise;
+      const ph = el.querySelector('.spt-ph');
+      if(ph) ph.replaceWith(cv);
+    }catch(e){ /* keep numbered placeholder */ }
   }
 }
 
@@ -2031,7 +2062,8 @@ document.getElementById('splitRangeInp').addEventListener('input',e=>{
 });
 
 document.getElementById('splitClearBtn').addEventListener('click',()=>{
-  spDoc=null;spBytes=null;spCount=0;
+  spBytes=null;spCount=0;
+  if(spPjsDoc){spPjsDoc.destroy().catch(()=>{});spPjsDoc=null;}
   document.getElementById('splitLoaded').style.display='none';
   document.getElementById('splitEmpty').style.display='';
   document.getElementById('splitAbar').style.display='none';
@@ -2041,6 +2073,7 @@ document.getElementById('splitClearBtn').addEventListener('click',()=>{
 document.getElementById('splitBtn').addEventListener('click',async()=>{
   const pages=parseRange(document.getElementById('splitRangeInp').value,spCount);
   if(!pages.length){toast(tx('t_no_pages'));return}
+  if(!spBytes){toast('❌ PDF yüklenmedi');return}
   showProg(tx('p_splitting'));document.getElementById('splitBtn').disabled=true;
   try{
     const src=await PDFLib.PDFDocument.load(spBytes.slice(0),{ignoreEncryption:true});
