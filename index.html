@@ -942,6 +942,29 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
 
 <script>
 /* ══════════════════════════════════════════
+   ANDROID BRIDGE
+   When running inside Android WebView, override
+   triggerDownload to send blob to native layer
+   which saves it and opens the real share sheet.
+══════════════════════════════════════════ */
+if(typeof Android !== 'undefined' && Android.isAndroid && Android.isAndroid()){
+  window._androidMode = true;
+  window.triggerDownload = function(blob, name){
+    const reader = new FileReader();
+    reader.onloadend = function(){
+      const b64 = reader.result.split(',')[1];
+      Android.saveBlob(b64, name, blob.type || 'application/pdf');
+    };
+    reader.readAsDataURL(blob);
+  };
+  // On Android the native share sheet handles everything — hide the share modal app icons
+  // and directly call saveBlob when share buttons are tapped
+  window.openShareModal = function(blob, name){
+    window.triggerDownload(blob, name);
+  };
+}
+
+/* ══════════════════════════════════════════
    i18n
 ══════════════════════════════════════════ */
 const S={
@@ -1052,8 +1075,12 @@ function setLang(l){lang=l;localStorage.setItem('lang',l);applyLang()}
    GLOBALS / HELPERS
 ══════════════════════════════════════════ */
 const {jsPDF}=window.jspdf;
+// WebViewAssetLoader serves assets at appassets origin
+// Stub worker loads real worker from CDN via importScripts (cross-origin allowed in workers)
 pdfjsLib.GlobalWorkerOptions.workerSrc=
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  (window.location.hostname==='appassets.androidplatform.net')
+  ? 'https://appassets.androidplatform.net/assets/pdf.worker.stub.js'
+  : 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 let _tt;
 function toast(msg,ms=3000){
@@ -1671,34 +1698,43 @@ function openPhotoSign(card){
 let _dn=false,_sc='#111111',_sw=3;
 const sigCvs=document.getElementById('sigCvs');
 const sigCtx=sigCvs.getContext('2d');
+const DPR=()=>Math.min(window.devicePixelRatio||1, 3); // max 3x
 
 function resizeSig(){
   const r=sigCvs.parentElement.getBoundingClientRect();
   if(r.width<1||r.height<1)return;
+  const dpr=DPR();
+  // Save current drawing at CSS size
   const tmp=document.createElement('canvas');
-  tmp.width=sigCvs.width||1;tmp.height=sigCvs.height||1;
+  tmp.width=sigCvs.width||1; tmp.height=sigCvs.height||1;
   tmp.getContext('2d').drawImage(sigCvs,0,0);
-  sigCvs.width=Math.floor(r.width);
-  sigCvs.height=Math.floor(r.height);
-  sigCtx.lineCap='round';sigCtx.lineJoin='round';
-  sigCtx.drawImage(tmp,0,0);
+  // Set canvas physical pixels = CSS size × DPR (e.g. 300px × 3 = 900px actual)
+  sigCvs.width =Math.floor(r.width *dpr);
+  sigCvs.height=Math.floor(r.height*dpr);
+  // Scale ctx so drawing coordinates stay in CSS pixels
+  sigCtx.scale(dpr,dpr);
+  sigCtx.lineCap='round'; sigCtx.lineJoin='round';
+  // Restore previous drawing scaled up
+  sigCtx.drawImage(tmp,0,0,r.width,r.height);
 }
 
 sigCvs.addEventListener('pointerdown',e=>{
-  _dn=true;sigCvs.setPointerCapture(e.pointerId);
+  _dn=true; sigCvs.setPointerCapture(e.pointerId);
   const r=sigCvs.getBoundingClientRect();
-  sigCtx.beginPath();sigCtx.moveTo(e.clientX-r.left,e.clientY-r.top);
-  sigCtx.strokeStyle=_sc;sigCtx.lineWidth=_sw;
+  sigCtx.beginPath();
+  sigCtx.moveTo(e.clientX-r.left, e.clientY-r.top);
+  sigCtx.strokeStyle=_sc; sigCtx.lineWidth=_sw;
   document.getElementById('sigHint').classList.add('gone');
 });
 sigCvs.addEventListener('pointermove',e=>{
   if(!_dn)return;
   const r=sigCvs.getBoundingClientRect();
-  sigCtx.lineTo(e.clientX-r.left,e.clientY-r.top);
+  sigCtx.lineTo(e.clientX-r.left, e.clientY-r.top);
   sigCtx.stroke();
-  sigCtx.beginPath();sigCtx.moveTo(e.clientX-r.left,e.clientY-r.top);
+  sigCtx.beginPath();
+  sigCtx.moveTo(e.clientX-r.left, e.clientY-r.top);
 });
-sigCvs.addEventListener('pointerup',()=>_dn=false);
+sigCvs.addEventListener('pointerup',   ()=>_dn=false);
 sigCvs.addEventListener('pointercancel',()=>_dn=false);
 
 document.getElementById('clrSigCvs').addEventListener('click',()=>{
@@ -1709,13 +1745,13 @@ document.getElementById('clrSigCvs').addEventListener('click',()=>{
 document.querySelectorAll('.cdot').forEach(d=>{
   d.addEventListener('click',()=>{
     document.querySelectorAll('.cdot').forEach(x=>x.classList.remove('active'));
-    d.classList.add('active');_sc=d.dataset.c;
+    d.classList.add('active'); _sc=d.dataset.c;
   });
 });
 document.querySelectorAll('[data-w]').forEach(b=>{
   b.addEventListener('click',()=>{
     document.querySelectorAll('[data-w]').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');_sw=parseInt(b.dataset.w);
+    b.classList.add('active'); _sw=parseInt(b.dataset.w);
   });
 });
 
@@ -1727,12 +1763,13 @@ document.getElementById('drawSigBtn').addEventListener('click',()=>{
 });
 
 document.getElementById('cancelSig').addEventListener('click',()=>{
-  closeModal('sigModal');history.back();
+  closeModal('sigModal'); history.back();
 });
 
 document.getElementById('applySig').addEventListener('click',()=>{
   const d=sigCtx.getImageData(0,0,sigCvs.width,sigCvs.height);
   if(!d.data.some((_,i)=>i%4===3&&d.data[i]>10)){toast(tx('t_no_sig'));return}
+  // Export at full physical resolution → PNG will be crisp even when scaled up
   const dataUrl=cropSig().toDataURL('image/png');
   closeModal('sigModal');
   history.back();
@@ -1741,18 +1778,19 @@ document.getElementById('applySig').addEventListener('click',()=>{
 });
 
 function cropSig(){
+  const dpr=DPR();
   const d=sigCtx.getImageData(0,0,sigCvs.width,sigCvs.height);
   let x0=sigCvs.width,y0=sigCvs.height,x1=0,y1=0;
-  for(let y=0;y<sigCvs.height;y++)for(let x=0;x<sigCvs.width;x++){
+  for(let y=0;y<sigCvs.height;y++) for(let x=0;x<sigCvs.width;x++){
     if(d.data[(y*sigCvs.width+x)*4+3]>8){
-      if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;
+      if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y;
     }
   }
-  const p=12;
-  x0=Math.max(0,x0-p);y0=Math.max(0,y0-p);
-  x1=Math.min(sigCvs.width,x1+p);y1=Math.min(sigCvs.height,y1+p);
-  const w=x1-x0||sigCvs.width,h=y1-y0||sigCvs.height;
-  const out=document.createElement('canvas');out.width=w;out.height=h;
+  const pad=Math.round(12*dpr);
+  x0=Math.max(0,x0-pad); y0=Math.max(0,y0-pad);
+  x1=Math.min(sigCvs.width, x1+pad); y1=Math.min(sigCvs.height,y1+pad);
+  const w=x1-x0||sigCvs.width, h=y1-y0||sigCvs.height;
+  const out=document.createElement('canvas'); out.width=w; out.height=h;
   out.getContext('2d').putImageData(sigCtx.getImageData(x0,y0,w,h),0,0);
   return out;
 }
@@ -1920,44 +1958,33 @@ function applyScanMode(canvas){
 /* ══════════════════════════════════════════
    TAB 4 — PDF SPLIT
 ══════════════════════════════════════════ */
-let spBytes=null,spCount=0,spPjsDoc=null;
+let spB64=null, spCount=0, spPjsDoc=null;  // spB64 = base64 string, never gets detached
+
+function _b64ToU8(b64){ const bin=atob(b64); const u8=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i); return u8; }
 
 document.getElementById('splitPdfIn').addEventListener('change',async e=>{
-  const f=e.target.files[0];
-  if(!f)return;
-  e.target.value='';
-  await loadSplitPdf(f);
+  const f=e.target.files[0]; if(!f)return; e.target.value=''; await loadSplitPdf(f);
 });
 
 async function loadSplitPdf(file){
   showProg(tx('p_load_pdf'));
-  spBytes=null; spCount=0; spPjsDoc=null;
-
+  spB64=null; spCount=0; spPjsDoc=null;
   try{
-    /* Step 1: read with FileReader */
-    const rawBuf = await new Promise((res,rej)=>{
+    /* Read ONCE with FileReader → base64 string (safe forever, never transferred) */
+    const b64 = await new Promise((res,rej)=>{
       const fr=new FileReader();
-      fr.onload=ev=>res(ev.target.result);
+      fr.onload=ev=>{ const r=ev.target.result; res(r.split(',')[1]); };
       fr.onerror=()=>rej(new Error('Dosya okunamadı'));
-      fr.readAsArrayBuffer(file);
+      fr.readAsDataURL(file);
     });
+    spB64 = b64;
 
-    /* Step 2: two independent typed-array copies */
-    const u8View = new Uint8Array(rawBuf);          // source view
-    const u8ForPdfJs  = u8View.slice();             // copy for pdf.js
-    const u8ForPdfLib = u8View.slice();             // copy for pdf-lib splitting
-    spBytes = u8ForPdfLib.buffer;
-
-    /* Step 3: open with pdf.js to get page count + for thumbnails */
-    const task = pdfjsLib.getDocument({
-      data: u8ForPdfJs,
-      isEvalSupported: false,
-      disableAutoFetch: true
-    });
+    /* Decode fresh copy for pdf.js */
+    const u8 = _b64ToU8(b64);
+    const task = pdfjsLib.getDocument({ data:u8, isEvalSupported:false, disableAutoFetch:true });
     spPjsDoc = await task.promise;
-    spCount = spPjsDoc.numPages;
+    spCount  = spPjsDoc.numPages;
 
-    /* Step 4: update UI labels */
     document.getElementById('splitFname').textContent = file.name.slice(0,32);
     document.getElementById('splitTotal').textContent = String(spCount);
     document.getElementById('splitRangeInp').value = '';
@@ -1966,17 +1993,14 @@ async function loadSplitPdf(file){
     document.getElementById('splitLoaded').style.display = 'flex';
     document.getElementById('splitAbar').style.display = 'flex';
     document.getElementById('splitBtn').disabled = true;
-
-    /* Step 5: numbered grid (instant) then thumbnails (async) */
     buildSpGrid();
-    _renderSpThumbs();          // runs in background, errors silently ignored
-
+    _renderSpThumbs();
   }catch(err){
     console.error('Split load error:', err);
-    toast('❌ PDF açılamadı. Hata: ' + (err&&err.message?err.message:String(err)));
-    document.getElementById('splitEmpty').style.display = '';
-    document.getElementById('splitLoaded').style.display = 'none';
-    document.getElementById('splitAbar').style.display = 'none';
+    toast('❌ PDF açılamadı: '+(err&&err.message?err.message:String(err)));
+    document.getElementById('splitEmpty').style.display='';
+    document.getElementById('splitLoaded').style.display='none';
+    document.getElementById('splitAbar').style.display='none';
   }
   hideProg();
 }
@@ -2064,7 +2088,7 @@ document.getElementById('splitRangeInp').addEventListener('input',e=>{
 });
 
 document.getElementById('splitClearBtn').addEventListener('click',()=>{
-  spBytes=null;spCount=0;
+  spB64=null;spCount=0;
   if(spPjsDoc){spPjsDoc.destroy().catch(()=>{});spPjsDoc=null;}
   document.getElementById('splitLoaded').style.display='none';
   document.getElementById('splitEmpty').style.display='';
@@ -2075,10 +2099,12 @@ document.getElementById('splitClearBtn').addEventListener('click',()=>{
 document.getElementById('splitBtn').addEventListener('click',async()=>{
   const pages=parseRange(document.getElementById('splitRangeInp').value,spCount);
   if(!pages.length){toast(tx('t_no_pages'));return}
-  if(!spBytes){toast('❌ PDF yüklenmedi');return}
+  if(!spB64){toast('❌ PDF yüklenmedi');return}
   showProg(tx('p_splitting'));document.getElementById('splitBtn').disabled=true;
   try{
-    const src=await PDFLib.PDFDocument.load(spBytes.slice(0),{ignoreEncryption:true});
+    /* Decode base64 → fresh ArrayBuffer every time, guaranteed clean */
+    const freshU8 = _b64ToU8(spB64);
+    const src=await PDFLib.PDFDocument.load(freshU8,{ignoreEncryption:true});
     const out=await PDFLib.PDFDocument.create();
     const copied=await out.copyPages(src,pages.map(p=>p-1));
     copied.forEach(p=>out.addPage(p));
