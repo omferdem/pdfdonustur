@@ -457,7 +457,7 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
 /* ─── SHARE BAR ─── */
 .share-bar{
   flex-shrink:0;display:none;align-items:center;gap:8px;
-  padding:8px 10px;
+  padding:10px 10px calc(16px + env(safe-area-inset-bottom));
   background:linear-gradient(90deg,rgba(0,230,118,.06),rgba(255,215,0,.06));
   border-top:1px solid rgba(0,230,118,.2);
 }
@@ -949,18 +949,23 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
 ══════════════════════════════════════════ */
 if(typeof Android !== 'undefined' && Android.isAndroid && Android.isAndroid()){
   window._androidMode = true;
+
+  // İNDİR → sadece Downloads'a kaydet, paylaşım açma
   window.triggerDownload = function(blob, name){
     const reader = new FileReader();
     reader.onloadend = function(){
-      const b64 = reader.result.split(',')[1];
-      Android.saveBlob(b64, name, blob.type || 'application/pdf');
+      Android.saveBlob(reader.result.split(',')[1], name, blob.type||'application/pdf');
     };
     reader.readAsDataURL(blob);
   };
-  // On Android the native share sheet handles everything — hide the share modal app icons
-  // and directly call saveBlob when share buttons are tapped
+
+  // PAYLAŞ → kaydet + Android native paylaşım sheet'i aç
   window.openShareModal = function(blob, name){
-    window.triggerDownload(blob, name);
+    const reader = new FileReader();
+    reader.onloadend = function(){
+      Android.shareBlob(reader.result.split(',')[1], name, blob.type||'application/pdf');
+    };
+    reader.readAsDataURL(blob);
   };
 }
 
@@ -1182,10 +1187,15 @@ new Sortable(photoList,{
   onEnd:()=>photoList.querySelectorAll('.pi .pi-num').forEach((b,i)=>b.textContent=i+1)
 });
 
-function loadPhotos(files){
-  Array.from(files).filter(f=>f.type.startsWith('image/')).forEach(f=>{
-    const r=new FileReader();r.onload=e=>addPhotoCard(e.target.result);r.readAsDataURL(f);
-  });
+async function loadPhotos(files){
+  const arr = Array.from(files).filter(f=>f.type.startsWith('image/'));
+  for(const f of arr){
+    await new Promise(res=>{
+      const r=new FileReader();
+      r.onload=e=>{addPhotoCard(e.target.result);res()};
+      r.readAsDataURL(f);
+    });
+  }
 }
 
 function addPhotoCard(src, skipSave=false){
@@ -1901,19 +1911,27 @@ document.getElementById('shareModal').addEventListener('click',e=>{
   if(e.target===document.getElementById('shareModal'))closeShareModal();
 });
 
+/* Blob'ları DOM property yerine güvenli global objede tut */
+const _barBlobs = {};
+
 function showShareBar(barId, blob, name){
-  const bar=document.getElementById(barId);
-  bar._blob=blob; bar._name=name;
-  bar.classList.add('visible');
+  _barBlobs[barId] = {blob, name};
+  document.getElementById(barId).classList.add('visible');
 }
 
 ['photo','merge','sign'].forEach(prefix=>{
-  const bar=document.getElementById(prefix+'ShareBar');
+  const barId = prefix+'ShareBar';
+
+  /* PAYLAŞ → native share sheet (Android) veya modal (web) */
   document.getElementById(prefix+'ShareBtn').addEventListener('click',()=>{
-    if(bar._blob) openShareModal(bar._blob, bar._name);
+    const d = _barBlobs[barId];
+    if(d) openShareModal(d.blob, d.name);
   });
+
+  /* İNDİR → sadece kaydet, paylaşım açma */
   document.getElementById(prefix+'SaveDlBtn').addEventListener('click',()=>{
-    if(bar._blob) triggerDownload(bar._blob, bar._name);
+    const d = _barBlobs[barId];
+    if(d) triggerDownload(d.blob, d.name);
   });
 });
 
