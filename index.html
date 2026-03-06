@@ -826,6 +826,10 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
     <button class="abtn-sm red" id="splitClearBtn">🗑</button>
     <button class="abtn-main abtn-orange" id="splitBtn" disabled data-i="btn_split">✂️ Böl ve İndir</button>
   </div>
+  <div class="share-bar" id="splitShareBar">
+    <button class="share-btn" id="splitShareBtn">🔗 <span data-i="btn_share">Paylaş</span></button>
+    <button class="share-dl" id="splitSaveDlBtn">⬇ <span data-i="btn_save">Kaydet</span></button>
+  </div>
 </div>
 
 <!-- ═══ SHARE MODAL ═══ -->
@@ -1276,7 +1280,6 @@ phPdfBtn.addEventListener('click',async()=>{
   const pdfName=`photo-to-pdf-${Date.now()}.pdf`;
   hideProg();phPdfBtn.disabled=false;toast(tx('t_pdf_ok'));
   showShareBar('photoShareBar',pdfBlob,pdfName);
-  openShareModal(pdfBlob,pdfName);
 });
 
 /* ══════════════════════════════════════════
@@ -1410,7 +1413,6 @@ document.getElementById('mgBtn').addEventListener('click',async()=>{
     const name=`merged-${Date.now()}.pdf`;
     toast(tx('t_merge_ok'));
     showShareBar('mergeShareBar',blob,name);
-    openShareModal(blob,name);
   }catch(e){console.error(e);toast(tx('t_err')+e.message)}
   hideProg();document.getElementById('mgBtn').disabled=false;
 });
@@ -1658,7 +1660,6 @@ document.getElementById('dlSignedBtn').addEventListener('click',async()=>{
     const imgName=`signed-${Date.now()}.png`;
     out.toBlob(blob=>{
       showShareBar('signShareBar',blob,imgName);
-      openShareModal(blob,imgName);
     },'image/png');
     hideProg();toast(tx('t_sign_img_ok'));
     return;
@@ -1693,7 +1694,6 @@ document.getElementById('dlSignedBtn').addEventListener('click',async()=>{
     const signedName=`signed-${Date.now()}.pdf`;
     toast(tx('t_sign_ok'));
     showShareBar('signShareBar',pdfBlob2,signedName);
-    openShareModal(pdfBlob2,signedName);
   }catch(e){console.error(e);toast(tx('t_err')+e.message)}
   hideProg();
 });
@@ -1927,7 +1927,7 @@ function showShareBar(barId, blob, name){
   document.getElementById(barId).classList.add('visible');
 }
 
-['photo','merge','sign'].forEach(prefix=>{
+['photo','merge','sign','split'].forEach(prefix=>{
   const barId = prefix+'ShareBar';
 
   /* PAYLAŞ → native share sheet (Android) veya modal (web) */
@@ -2119,6 +2119,7 @@ document.getElementById('splitClearBtn').addEventListener('click',()=>{
   document.getElementById('splitLoaded').style.display='none';
   document.getElementById('splitEmpty').style.display='';
   document.getElementById('splitAbar').style.display='none';
+  document.getElementById('splitShareBar').classList.remove('visible');
   document.getElementById('splitPageGrid').innerHTML='';
 });
 
@@ -2138,7 +2139,7 @@ document.getElementById('splitBtn').addEventListener('click',async()=>{
     const blob=new Blob([bytes],{type:'application/pdf'});
     const name=`split-p${pages[0]}-p${pages[pages.length-1]}-${Date.now()}.pdf`;
     hideProg();
-    openShareModal(blob,name);
+    showShareBar('splitShareBar',blob,name);
     toast(tx('t_split_ok'));
   }catch(e){console.error(e);toast(tx('t_split_err'));hideProg();}
   document.getElementById('splitBtn').disabled=false;
