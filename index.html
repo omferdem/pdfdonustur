@@ -1360,9 +1360,17 @@ mergeDZ.addEventListener('drop',e=>{e.preventDefault();mergeDZ.classList.remove(
 async function loadMerge(files){
   for(const f of Array.from(files).filter(f=>f.name.toLowerCase().endsWith('.pdf')||f.type==='application/pdf')){
     try{
-      const ab=await f.arrayBuffer();
-      const pdf=await PDFLib.PDFDocument.load(ab,{ignoreEncryption:true});
-      const data={name:f.name,pages:pdf.getPageCount(),ab};
+      /* b64 string olarak sakla — ArrayBuffer transfer sorununu önler */
+      const b64 = await new Promise((res,rej)=>{
+        const fr=new FileReader();
+        fr.onload=ev=>res(ev.target.result.split(',')[1]);
+        fr.onerror=()=>rej(new Error('Okunamadı'));
+        fr.readAsDataURL(f);
+      });
+      /* Sayfa sayısı için taze decode */
+      const u8=_b64ToU8(b64);
+      const pdf=await PDFLib.PDFDocument.load(u8,{ignoreEncryption:true});
+      const data={name:f.name,pages:pdf.getPageCount(),b64};
       mFiles.push(data);addMItem(data);
     }catch(e){toast(tx('t_pdf_err')+': '+f.name)}
   }
@@ -1402,18 +1410,24 @@ document.getElementById('mgBtn').addEventListener('click',async()=>{
     const src=order.map(n=>mFiles.find(f=>f.name===n)).filter(Boolean);
     const list=src.length===mFiles.length?src:mFiles;
     for(let i=0;i<list.length;i++){
-      const pdf=await PDFLib.PDFDocument.load(list[i].ab,{ignoreEncryption:true});
+      /* Her dosya için b64'ten taze decode — asla boşalmaz */
+      const u8=_b64ToU8(list[i].b64);
+      const pdf=await PDFLib.PDFDocument.load(u8,{ignoreEncryption:true});
       const pages=await merged.copyPages(pdf,pdf.getPageIndices());
       pages.forEach(p=>merged.addPage(p));
       setProg(Math.round((i+1)/list.length*100),`${i+1}/${list.length}`);
       await new Promise(r=>setTimeout(r,8));
     }
+    toast(tx('p_merging')+'…');
     const bytes=await merged.save();
     const blob=new Blob([bytes],{type:'application/pdf'});
     const name=`merged-${Date.now()}.pdf`;
     toast(tx('t_merge_ok'));
     showShareBar('mergeShareBar',blob,name);
-  }catch(e){console.error(e);toast(tx('t_err')+e.message)}
+  }catch(e){
+    console.error('Merge error:',e);
+    toast('❌ Birleştirme hatası: '+(e&&e.message?e.message:String(e)));
+  }
   hideProg();document.getElementById('mgBtn').disabled=false;
 });
 
