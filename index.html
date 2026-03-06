@@ -942,30 +942,38 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
 
 <script>
 /* ══════════════════════════════════════════
-   ANDROID BRIDGE
-   When running inside Android WebView, override
-   triggerDownload to send blob to native layer
-   which saves it and opens the real share sheet.
+   ANDROID BRIDGE — Chunked transfer
+   Büyük dosyaları 512KB parçalara bölerek gönderir.
+   Android tarafı parçaları birleştirip diske yazar.
 ══════════════════════════════════════════ */
 if(typeof Android !== 'undefined' && Android.isAndroid && Android.isAndroid()){
   window._androidMode = true;
 
-  // İNDİR → sadece Downloads'a kaydet, paylaşım açma
-  window.triggerDownload = function(blob, name){
+  const CHUNK = 512 * 1024; // 512KB per chunk (safe for JavascriptInterface)
+
+  function _sendChunked(blob, name, mode){ // mode: 'save' | 'share'
     const reader = new FileReader();
     reader.onloadend = function(){
-      Android.saveBlob(reader.result.split(',')[1], name, blob.type||'application/pdf');
+      const b64full = reader.result.split(',')[1];
+      const total   = Math.ceil(b64full.length / CHUNK);
+      const mime    = blob.type || 'application/pdf';
+      // Send each chunk
+      for(let i = 0; i < total; i++){
+        const chunk = b64full.slice(i * CHUNK, (i+1) * CHUNK);
+        Android.blobChunk(name, mime, i, total, chunk, mode);
+      }
     };
     reader.readAsDataURL(blob);
+  }
+
+  // İNDİR → Downloads klasörüne kaydet
+  window.triggerDownload = function(blob, name){
+    _sendChunked(blob, name, 'save');
   };
 
-  // PAYLAŞ → kaydet + Android native paylaşım sheet'i aç
+  // PAYLAŞ → kaydet + native share sheet aç
   window.openShareModal = function(blob, name){
-    const reader = new FileReader();
-    reader.onloadend = function(){
-      Android.shareBlob(reader.result.split(',')[1], name, blob.type||'application/pdf');
-    };
-    reader.readAsDataURL(blob);
+    _sendChunked(blob, name, 'share');
   };
 }
 
