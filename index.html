@@ -11,6 +11,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -93,21 +95,30 @@ header::before{
 
 /* ─── NAV CARDS ─── */
 .nav-cards{
-  flex-shrink:0;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;
-  padding:8px 8px 6px;
+  flex-shrink:0;display:flex;flex-direction:row;
+  gap:5px;padding:7px 8px;
+  overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
   background:linear-gradient(180deg,#0f0f22 0%,#0a0a14 100%);
   border-bottom:1px solid rgba(255,215,0,.15);
   box-shadow:0 4px 16px rgba(0,0,0,.5);
 }
+.nav-cards::-webkit-scrollbar{display:none}
 .nc{
+  flex-shrink:0;
+  min-width:60px;width:calc(20vw - 6px);max-width:82px;
+  scroll-snap-align:start;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:4px;padding:11px 2px 9px;border-radius:13px;border:1.5px solid transparent;
-  cursor:pointer;font-family:'Syne',sans-serif;font-weight:800;font-size:.58rem;
-  text-align:center;line-height:1.2;color:rgba(255,255,255,.9);
+  gap:3px;padding:8px 3px 7px;border-radius:13px;border:1.5px solid transparent;
+  cursor:pointer;font-family:'Syne',sans-serif;font-weight:800;font-size:.52rem;
+  text-align:center;line-height:1.1;color:rgba(255,255,255,.9);
   transition:opacity .15s,border-color .2s,transform .1s,box-shadow .2s;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;
   text-shadow:0 1px 4px rgba(0,0,0,.6);
   position:relative;overflow:hidden;
+  white-space:nowrap;
 }
 /* Top shimmer line on each card */
 .nc::after{
@@ -121,7 +132,7 @@ header::before{
   box-shadow:0 6px 24px rgba(0,0,0,.5),inset 0 0 20px rgba(255,255,255,.05);
 }
 .nc:not(.active){opacity:.38;filter:saturate(.5) brightness(.8)}
-.nc-icon{font-size:1.4rem;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+.nc-icon{font-size:1.2rem;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
 /* Photo→PDF: Electric Blue */
 .nc.c1{background:linear-gradient(155deg,#0D47A1,#1565C0,#1976D2,#42A5F5)}
 .nc.c1.active{box-shadow:0 6px 22px rgba(21,101,192,.7),0 0 35px rgba(66,165,245,.25);border-color:#64B5F6}
@@ -138,6 +149,8 @@ header::before{
 /* İmzala: Deep Purple */
 .nc.c4{background:linear-gradient(155deg,#4A148C,#6A1B9A,#8E24AA,#CE93D8)}
 .nc.c4.active{box-shadow:0 6px 22px rgba(106,27,154,.7),0 0 35px rgba(206,147,216,.2);border-color:#CE93D8}
+.nc.c5{background:linear-gradient(155deg,#1B5E20,#2E7D32,#388E3C,#66BB6A)}
+.nc.c5.active{box-shadow:0 6px 22px rgba(46,125,50,.7),0 0 35px rgba(102,187,106,.2);border-color:#66BB6A}
 
 /* ─── TAB PANELS ─── */
 .tab-panel{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0;min-width:0}
@@ -146,19 +159,19 @@ header::before{
 
 /* ─── SETTINGS BAR ─── */
 .sbar{
-  flex-shrink:0;display:flex;gap:8px;padding:7px 10px;
+  flex-shrink:0;display:flex;gap:5px;padding:5px 8px;
   background:var(--surf);border-bottom:1px solid var(--border);
   overflow-x:auto;scrollbar-width:none;
 }
 .sbar::-webkit-scrollbar{display:none}
-.sc{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
-.sc label{font-size:.59rem;color:var(--silver2);text-transform:uppercase;letter-spacing:.06em}
+.sc{display:flex;flex-direction:column;gap:1px;flex-shrink:0}
+.sc label{font-size:.54rem;color:var(--silver2);text-transform:uppercase;letter-spacing:.05em}
 select{
   background:var(--surf2);border:1px solid var(--border);color:var(--text);
-  border-radius:7px;padding:5px 8px;font-size:.78rem;font-family:inherit;cursor:pointer;outline:none;
+  border-radius:6px;padding:4px 6px;font-size:.72rem;font-family:inherit;cursor:pointer;outline:none;
 }
-input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
-.qval{font-size:.75rem;color:var(--gold);font-weight:700;min-width:28px}
+input[type=range]{accent-color:var(--gold);cursor:pointer;width:70px}
+.qval{font-size:.7rem;color:var(--gold);font-weight:700;min-width:26px}
 
 /* ─── DROP ZONE ─── */
 .dz{
@@ -258,6 +271,39 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
   background:linear-gradient(135deg,#BF360C,#E64A19,#FF5722);color:#fff;
   box-shadow:0 4px 16px rgba(191,54,12,.5),0 0 20px rgba(255,87,34,.15);
   border-top:1px solid rgba(255,138,101,.3);
+}
+.abtn-green{
+  background:linear-gradient(135deg,#1B5E20,#2E7D32,#43A047);color:#fff;
+  box-shadow:0 4px 16px rgba(46,125,50,.5),0 0 20px rgba(102,187,106,.15);
+  border-top:1px solid rgba(102,187,106,.3);
+}
+/* ─── QR TAB ─── */
+.qr-types{display:flex;gap:6px;flex-wrap:wrap}
+.qrt{
+  padding:8px 12px;border-radius:9px;border:1px solid var(--border);
+  background:var(--surf2);color:var(--muted);font-size:.78rem;cursor:pointer;
+  font-family:'Syne',sans-serif;font-weight:700;touch-action:manipulation;transition:all .15s;
+}
+.qrt.active{background:rgba(102,187,106,.15);border-color:rgba(102,187,106,.5);color:#66BB6A}
+.qr-inp{
+  width:100%;padding:11px 13px;border-radius:10px;
+  border:1px solid var(--border);background:var(--surf2);
+  color:var(--text);font-size:.9rem;font-family:'DM Sans',sans-serif;
+  outline:none;transition:border-color .15s;
+}
+.qr-inp:focus{border-color:rgba(102,187,106,.5)}
+textarea.qr-inp{resize:vertical;min-height:80px}
+.qr-sel{
+  padding:9px 12px;border-radius:9px;border:1px solid var(--border);
+  background:var(--surf2);color:var(--text);font-size:.82rem;cursor:pointer;outline:none;
+}
+.qr-output{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  padding:16px;background:var(--surf);border-radius:14px;
+  border:1px solid rgba(102,187,106,.2);
+}
+.qr-box{background:#fff;padding:12px;border-radius:10px;display:inline-block;line-height:0}
+.qr-box img,.qr-box canvas{display:block}
 }
 .abtn-gold  {
   background:linear-gradient(135deg,#6D4C0A,#B8860B,#D4AF37,#FFD700);color:#1a0f00;
@@ -676,6 +722,10 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
     <div class="nc-icon">✍️</div>
     <div data-i="nav_sign">İmzala</div>
   </div>
+  <div class="nc c5" data-tab="qr">
+    <div class="nc-icon">⚡</div>
+    <div data-i="nav_qr">QR/Barkod</div>
+  </div>
 </div>
 
 <!-- ═══ PHOTO TAB ═══ -->
@@ -715,6 +765,7 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
       <div class="dz-icon">📷</div>
       <h3 data-i="dz_ph_h">Fotoğraf Ekle</h3>
       <p data-i="dz_ph_p">Tıkla veya sürükle · JPG, PNG, WebP</p>
+      <p style="font-size:.68rem;color:var(--gold);margin-top:3px">⚠️ En fazla 75 fotoğraf</p>
     </div>
     <div id="photo-list">
       <div class="empty" id="photoEmpty" data-i="empty_ph">📂 Henüz fotoğraf eklenmedi.</div>
@@ -829,6 +880,86 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
   <div class="share-bar" id="splitShareBar">
     <button class="share-btn" id="splitShareBtn">🔗 <span data-i="btn_share">Paylaş</span></button>
     <button class="share-dl" id="splitSaveDlBtn">⬇ <span data-i="btn_save">Kaydet</span></button>
+  </div>
+</div>
+
+<!-- ═══ KOD TAB (QR + Barkod) ═══ -->
+<div class="tab-panel" id="tab-qr">
+  <div class="scroll" style="padding:12px;gap:10px;display:flex;flex-direction:column;">
+
+    <!-- Mod seçici: QR / Barkod -->
+    <div style="display:flex;gap:6px">
+      <button class="qrt active" id="modeQR" style="flex:1;justify-content:center">⚡ QR Kod</button>
+      <button class="qrt" id="modeBC" style="flex:1;justify-content:center">▌▌▌ <span data-i="bc_title">Barkod</span></button>
+    </div>
+
+    <!-- QR FORMU -->
+    <div id="qrSection">
+      <div class="qr-types" id="qrTypes" style="margin-bottom:8px">
+        <button class="qrt active" data-type="url">🌐 URL</button>
+        <button class="qrt" data-type="text">📝 <span data-i="qr_text">Metin</span></button>
+        <button class="qrt" data-type="tel">📞 Tel</button>
+        <button class="qrt" data-type="email">✉️ Email</button>
+        <button class="qrt" data-type="wifi">📶 WiFi</button>
+      </div>
+      <div class="qr-form" id="qrf-url"><input class="qr-inp" type="url" id="qrUrl" placeholder="https://..."></div>
+      <div class="qr-form" id="qrf-text" style="display:none"><textarea class="qr-inp" id="qrText" rows="3" data-i-ph="qr_text_ph"></textarea></div>
+      <div class="qr-form" id="qrf-tel" style="display:none"><input class="qr-inp" type="tel" id="qrTel" placeholder="+90 555 123 4567"></div>
+      <div class="qr-form" id="qrf-email" style="display:none">
+        <input class="qr-inp" type="email" id="qrEmail" placeholder="ornek@email.com">
+        <input class="qr-inp" id="qrEmailSub" data-i-ph="qr_email_sub" style="margin-top:6px">
+      </div>
+      <div class="qr-form" id="qrf-wifi" style="display:none">
+        <input class="qr-inp" id="qrWifiSsid" data-i-ph="qr_wifi_ssid">
+        <input class="qr-inp" type="password" id="qrWifiPass" data-i-ph="qr_wifi_pass" style="margin-top:6px">
+        <select class="qr-sel" id="qrWifiEnc" style="margin-top:6px;width:100%">
+          <option value="WPA">WPA/WPA2</option>
+          <option value="WEP">WEP</option>
+          <option value="" data-i="qr_wifi_open">Şifresiz</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+        <span style="font-size:.8rem;color:var(--muted)" data-i="qr_size">Boyut:</span>
+        <select class="qr-sel" id="qrSize">
+          <option value="180" data-i="qr_sm">Küçük</option>
+          <option value="280" selected data-i="qr_md">Orta</option>
+          <option value="400" data-i="qr_lg">Büyük</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- BARKOD FORMU -->
+    <div id="bcSection" style="display:none;gap:8px;flex-direction:column;display:none">
+      <select class="qr-sel" id="bcFormat" style="width:100%">
+        <option value="CODE128">CODE 128 (evrensel)</option>
+        <option value="EAN13">EAN-13 (ürün)</option>
+        <option value="EAN8">EAN-8</option>
+        <option value="UPC">UPC-A</option>
+        <option value="CODE39">CODE 39</option>
+        <option value="ITF14">ITF-14</option>
+        <option value="MSI">MSI</option>
+      </select>
+      <input class="qr-inp" id="bcValue" placeholder="Barkod değeri…">
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:.8rem;color:var(--muted)" data-i="bc_color">Renk:</span>
+        <input type="color" id="bcColor" value="#000000" style="width:36px;height:32px;border:none;background:none;cursor:pointer">
+        <input type="color" id="bcBg" value="#ffffff" style="width:36px;height:32px;border:none;background:none;cursor:pointer">
+        <span style="font-size:.75rem;color:var(--muted)" data-i="bc_bg">Zemin</span>
+      </div>
+    </div>
+
+    <!-- ÇIKTI -->
+    <div class="qr-output" id="kodOutput" style="display:none">
+      <div class="qr-box" id="kodBox"></div>
+    </div>
+  </div>
+
+  <div class="abar">
+    <button class="abtn-main abtn-green" id="kodGenBtn">⚡ <span id="kodGenLbl" data-i="qr_gen">QR Oluştur</span></button>
+  </div>
+  <div class="share-bar" id="qrShareBar">
+    <button class="share-btn" id="qrShareBtn">🔗 <span data-i="btn_share">Paylaş</span></button>
+    <button class="share-dl" id="qrSaveDlBtn">⬇ <span data-i="btn_save">Kaydet</span></button>
   </div>
 </div>
 
@@ -953,31 +1084,28 @@ input[type=range]{accent-color:var(--gold);cursor:pointer;width:80px}
 if(typeof Android !== 'undefined' && Android.isAndroid && Android.isAndroid()){
   window._androidMode = true;
 
-  const CHUNK = 512 * 1024; // 512KB per chunk (safe for JavascriptInterface)
-
-  function _sendChunked(blob, name, mode){ // mode: 'save' | 'share'
-    const reader = new FileReader();
-    reader.onloadend = function(){
-      const b64full = reader.result.split(',')[1];
-      const total   = Math.ceil(b64full.length / CHUNK);
-      const mime    = blob.type || 'application/pdf';
-      // Send each chunk
-      for(let i = 0; i < total; i++){
-        const chunk = b64full.slice(i * CHUNK, (i+1) * CHUNK);
-        Android.blobChunk(name, mime, i, total, chunk, mode);
-      }
+  const CHUNK=512*1024;
+  function _sendChunked(blob, name, mode){
+    const reader=new FileReader();
+    reader.onloadend=function(){
+      const b64full=reader.result.split(',')[1];
+      const total=Math.ceil(b64full.length/CHUNK);
+      const mime=blob.type||'application/pdf';
+      for(let i=0;i<total;i++)
+        Android.blobChunk(name,mime,i,total,b64full.slice(i*CHUNK,(i+1)*CHUNK),mode);
     };
     reader.readAsDataURL(blob);
   }
 
   // İNDİR → Downloads klasörüne kaydet
-  window.triggerDownload = function(blob, name){
-    _sendChunked(blob, name, 'save');
-  };
+  window.triggerDownload=function(blob,name){ _sendChunked(blob,name,'save'); };
 
   // PAYLAŞ → kaydet + native share sheet aç
-  window.openShareModal = function(blob, name){
-    _sendChunked(blob, name, 'share');
+  window.openShareModal=function(blob,name){ _sendChunked(blob,name,'share'); };
+
+  // Merge: native dosya seçici
+  window._androidMergePick=function(){
+    Android.pickFilesForMerge();
   };
 }
 
@@ -1028,7 +1156,15 @@ tr:{
   btn_close_file:'✕ Kapat',t_file_closed:'Dosya kapatıldı',
   share_title:'Paylaş / İndir',share_native:'Paylaş (WhatsApp, Telegram…)',
   share_hint:'Sistem paylaşım menüsü · Tüm uygulamalar listelenir',
-  share_or:'veya',share_dl:'Cihaza İndir'
+  share_or:'veya',share_dl:'Cihaza İndir',
+  nav_qr:'QR/Barkod',
+  qr_text:'Metin',qr_gen:'QR Oluştur',qr_size:'Boyut:',
+  qr_sm:'Küçük',qr_md:'Orta',qr_lg:'Büyük',qr_wifi_open:'Şifresiz',
+  qr_text_ph:'Metin girin…',qr_email_sub:'Konu (isteğe bağlı)',
+  qr_wifi_ssid:'WiFi Adı (SSID)',qr_wifi_pass:'Şifre',
+  qr_ok:'✅ QR Kod oluşturuldu!',qr_err:'⚠️ İçerik girin',
+  bc_title:'Barkod',bc_gen:'Barkod Oluştur',bc_color:'Renk:',bc_bg:'Zemin',
+  bc_ok:'✅ Barkod oluşturuldu!',bc_err:'⚠️ Geçersiz değer'
 },
 en:{
   nav_photo:'Photo→PDF',nav_merge:'Merge',nav_sign:'Sign',
@@ -1073,7 +1209,15 @@ en:{
   btn_close_file:'✕ Close',t_file_closed:'File closed',
   share_title:'Share / Download',share_native:'Share (WhatsApp, Telegram…)',
   share_hint:'Opens system share sheet · All apps listed',
-  share_or:'or',share_dl:'Save to Device'
+  share_or:'or',share_dl:'Save to Device',
+  nav_qr:'QR/Barcode',
+  qr_text:'Text',qr_gen:'Generate QR',qr_size:'Size:',
+  qr_sm:'Small',qr_md:'Medium',qr_lg:'Large',qr_wifi_open:'Open',
+  qr_text_ph:'Enter text…',qr_email_sub:'Subject (optional)',
+  qr_wifi_ssid:'WiFi Name (SSID)',qr_wifi_pass:'Password',
+  qr_ok:'✅ QR Code created!',qr_err:'⚠️ Enter content',
+  bc_title:'Barcode',bc_gen:'Generate Barcode',bc_color:'Color:',bc_bg:'Background',
+  bc_ok:'✅ Barcode created!',bc_err:'⚠️ Invalid value'
 }};
 
 let lang='tr';
@@ -1081,6 +1225,9 @@ function tx(k){return S[lang][k]||S.tr[k]||k}
 function applyLang(){
   document.querySelectorAll('[data-i]').forEach(el=>{
     const k=el.dataset.i; if(k)el.textContent=tx(k);
+  });
+  document.querySelectorAll('[data-i-ph]').forEach(el=>{
+    const k=el.dataset.iPh; if(k)el.placeholder=tx(k);
   });
   document.getElementById('btnTR').classList.toggle('active',lang==='tr');
   document.getElementById('btnEN').classList.toggle('active',lang==='en');
@@ -1200,14 +1347,19 @@ new Sortable(photoList,{
 });
 
 async function loadPhotos(files){
-  const arr = Array.from(files).filter(f=>f.type.startsWith('image/'));
-  for(const f of arr){
+  const arr=Array.from(files).filter(f=>f.type.startsWith('image/'));
+  const mevcut=nPhotos();
+  const kalan=MAX_PHOTOS-mevcut;
+  if(kalan<=0){toast(`⚠️ Maksimum ${MAX_PHOTOS} fotoğraf limitine ulaşıldı.`);return;}
+  const eklenecek=Math.min(arr.length,kalan);
+  for(let i=0;i<eklenecek;i++){
     await new Promise(res=>{
       const r=new FileReader();
       r.onload=e=>{addPhotoCard(e.target.result);res()};
-      r.readAsDataURL(f);
+      r.readAsDataURL(arr[i]);
     });
   }
+  if(eklenecek<arr.length) toast(`⚠️ Limit doldu — ${arr.length-eklenecek} fotoğraf eklenmedi.`);
 }
 
 function addPhotoCard(src, skipSave=false){
@@ -1242,6 +1394,12 @@ function updatePhotoState(){
   updatePill();
   phPdfBtn.disabled=n===0;phClearBtn.disabled=n===0;
   if(n===0)document.getElementById('photoEmpty').style.display='';
+  /* Limit dolunca ekleme butonunu kapat */
+  const addBtns=document.querySelectorAll('#photoIn,#photoIn2');
+  addBtns.forEach(b=>b.disabled=(n>=MAX_PHOTOS));
+  const addBtn=document.querySelector('.abtn-sm[title="Ekle"]');
+  if(addBtn) addBtn.disabled=(n>=MAX_PHOTOS);
+  if(n>=MAX_PHOTOS) toast(`Limit: ${MAX_PHOTOS} fotoğraf`);
 }
 
 phClearBtn.addEventListener('click',()=>{
@@ -1252,34 +1410,50 @@ phClearBtn.addEventListener('click',()=>{
 });
 
 const PAGE_SIZES={a4:[210,297],a5:[148,210],letter:[215.9,279.4],square:[150,150]};
+const MAX_PHOTOS=75; // Maksimum fotoğraf limiti
 phPdfBtn.addEventListener('click',async()=>{
   const items=Array.from(photoList.querySelectorAll('.pi'));if(!items.length)return;
+  if(items.length>MAX_PHOTOS){
+    toast(`⚠️ Maksimum ${MAX_PHOTOS} fotoğraf — Şu an ${items.length} var. Lütfen ${items.length-MAX_PHOTOS} tanesini silin.`);
+    return;
+  }
   const [pw0,ph0]=PAGE_SIZES[document.getElementById('selPage').value];
   const ori0=document.getElementById('selOri').value;
   const marg=parseInt(document.getElementById('selMarg').value);
   const qual=parseInt(document.getElementById('qrange').value)/100;
   showProg(tx('p_creating'));phPdfBtn.disabled=true;
   let doc=null;
-  for(let i=0;i<items.length;i++){
-    const img=items[i].querySelector('img');
-    let ori='portrait';
-    if(ori0==='landscape')ori='landscape';
-    else if(ori0==='auto'&&img.naturalWidth>img.naturalHeight)ori='landscape';
-    const pw=ori==='landscape'?ph0:pw0,ph=ori==='landscape'?pw0:ph0;
-    if(!doc)doc=new jsPDF({orientation:ori,unit:'mm',format:[pw,ph]});
-    else doc.addPage([pw,ph],ori);
-    const avW=pw-marg*2,avH=ph-marg*2,rat=img.naturalWidth/img.naturalHeight;
-    let dw=avW,dh=dw/rat;if(dh>avH){dh=avH;dw=dh*rat}
-    const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;
-    c.getContext('2d').drawImage(img,0,0);
-    doc.addImage(c.toDataURL('image/jpeg',qual),'JPEG',(pw-dw)/2,(ph-dh)/2,dw,dh);
-    setProg(Math.round((i+1)/items.length*100),`${i+1}/${items.length}`);
-    await new Promise(r=>setTimeout(r,10));
+  try{
+    for(let i=0;i<items.length;i++){
+      const img=items[i].querySelector('img');
+      let ori='portrait';
+      if(ori0==='landscape')ori='landscape';
+      else if(ori0==='auto'&&img.naturalWidth>img.naturalHeight)ori='landscape';
+      const pw=ori==='landscape'?ph0:pw0,ph=ori==='landscape'?pw0:ph0;
+      if(!doc)doc=new jsPDF({orientation:ori,unit:'mm',format:[pw,ph]});
+      else doc.addPage([pw,ph],ori);
+      const avW=pw-marg*2,avH=ph-marg*2,rat=img.naturalWidth/img.naturalHeight;
+      let dw=avW,dh=dw/rat;if(dh>avH){dh=avH;dw=dh*rat}
+      /* Büyük görseli ölçekle — OOM önlemi */
+      const MAX_DIM=1280;
+      let sw=img.naturalWidth,sh=img.naturalHeight;
+      if(sw>MAX_DIM||sh>MAX_DIM){const s=MAX_DIM/Math.max(sw,sh);sw=Math.round(sw*s);sh=Math.round(sh*s);}
+      const c=document.createElement('canvas');c.width=sw;c.height=sh;
+      c.getContext('2d').drawImage(img,0,0,sw,sh);
+      doc.addImage(c.toDataURL('image/jpeg',qual),'JPEG',(pw-dw)/2,(ph-dh)/2,dw,dh);
+      c.width=1;c.height=1; // canvas belleğini serbest bırak
+      setProg(Math.round((i+1)/items.length*100),`${i+1}/${items.length}`);
+      await new Promise(r=>setTimeout(r,10));
+    }
+    const pdfBlob=new Blob([doc.output('arraybuffer')],{type:'application/pdf'});
+    const pdfName=`photo-to-pdf-${Date.now()}.pdf`;
+    hideProg();phPdfBtn.disabled=false;toast(tx('t_pdf_ok'));
+    showShareBar('photoShareBar',pdfBlob,pdfName);
+  }catch(e){
+    console.error('PDF oluşturma hatası:',e);
+    hideProg();phPdfBtn.disabled=false;
+    toast('❌ PDF oluşturulamadı. Fotoğraf sayısını veya kaliteyi azaltın.');
   }
-  const pdfBlob=new Blob([doc.output('arraybuffer')],{type:'application/pdf'});
-  const pdfName=`photo-to-pdf-${Date.now()}.pdf`;
-  hideProg();phPdfBtn.disabled=false;toast(tx('t_pdf_ok'));
-  showShareBar('photoShareBar',pdfBlob,pdfName);
 });
 
 /* ══════════════════════════════════════════
@@ -1355,7 +1529,26 @@ new Sortable(mList,{
 const mergeDZ=document.getElementById('mergeDZ');
 mergeDZ.addEventListener('dragover',e=>{e.preventDefault();mergeDZ.classList.add('over')});
 mergeDZ.addEventListener('dragleave',()=>mergeDZ.classList.remove('over'));
-mergeDZ.addEventListener('drop',e=>{e.preventDefault();mergeDZ.classList.remove('over');loadMerge(e.dataTransfer.files)});
+mergeDZ.addEventListener('drop',e=>{e.preventDefault();mergeDZ.classList.remove('over');if(!window._androidMode)loadMerge(e.dataTransfer.files)});
+
+if(window._androidMode){
+  /* Android: tüm merge dosya seçimini native picker'a yönlendir */
+  const _doAndroidMergePick=e=>{e.preventDefault();e.stopPropagation();Android.pickFilesForMerge();};
+  mergeDZ.addEventListener('click',_doAndroidMergePick);
+  document.getElementById('mergeIn').addEventListener('click',_doAndroidMergePick);
+  document.getElementById('mergeIn2').addEventListener('click',_doAndroidMergePick);
+  /* Android native'den dosya listesi gelince çağrılır — ESKİ LISTEYE EKLER */
+  window.mergeFilesSelected=function(filesJson){
+    if(!filesJson||!filesJson.length)return;
+    /* Seçilen dosyaları mevcut listeye ekle, sıfırlama */
+    filesJson.forEach(f=>{
+      const data={name:f.name,pages:f.pages,b64:null,androidIndex:f.index};
+      mFiles.push(data);addMItem(data);
+    });
+    updateMState();
+    toast('✅ '+filesJson.length+' dosya eklendi — toplam: '+mFiles.length);
+  };
+}
 
 async function loadMerge(files){
   for(const f of Array.from(files).filter(f=>f.name.toLowerCase().endsWith('.pdf')||f.type==='application/pdf')){
@@ -1400,35 +1593,42 @@ function updateMState(){
 document.getElementById('mgClearBtn').addEventListener('click',()=>{
   if(!confirm(tx('t_confirm_mg')))return;
   mFiles=[];mList.querySelectorAll('.mi').forEach(el=>el.remove());updateMState();
+  if(window._androidMode) Android.clearMergeList();
 });
 document.getElementById('mgBtn').addEventListener('click',async()=>{
   if(mFiles.length<2)return;
+  const name=`merged-${Date.now()}.pdf`;
   showProg(tx('p_merging'));document.getElementById('mgBtn').disabled=true;
-  try{
-    const merged=await PDFLib.PDFDocument.create();
+
+  if(window._androidMode){
+    /* ── Android: dosyaları Android zaten hafızasında tutuyor, sadece birleştir ── */
+    Android.doMerge(name);
+    /* Sonucu mergeComplete() callback ile alacağız */
+  } else {
+    /* ── Web: pdf-lib ile birleştir ── */
     const order=Array.from(mList.querySelectorAll('.mi-name')).map(el=>el.title);
     const src=order.map(n=>mFiles.find(f=>f.name===n)).filter(Boolean);
     const list=src.length===mFiles.length?src:mFiles;
-    for(let i=0;i<list.length;i++){
-      /* Her dosya için b64'ten taze decode — asla boşalmaz */
-      const u8=_b64ToU8(list[i].b64);
-      const pdf=await PDFLib.PDFDocument.load(u8,{ignoreEncryption:true});
-      const pages=await merged.copyPages(pdf,pdf.getPageIndices());
-      pages.forEach(p=>merged.addPage(p));
-      setProg(Math.round((i+1)/list.length*100),`${i+1}/${list.length}`);
-      await new Promise(r=>setTimeout(r,8));
+    try{
+      const merged=await PDFLib.PDFDocument.create();
+      for(let i=0;i<list.length;i++){
+        const u8=_b64ToU8(list[i].b64);
+        const pdf=await PDFLib.PDFDocument.load(u8,{ignoreEncryption:true});
+        const pages=await merged.copyPages(pdf,pdf.getPageIndices());
+        pages.forEach(p=>merged.addPage(p));
+        setProg(Math.round((i+1)/list.length*100),`${i+1}/${list.length}`);
+        await new Promise(r=>setTimeout(r,8));
+      }
+      const bytes=await merged.save();
+      const blob=new Blob([bytes],{type:'application/pdf'});
+      toast(tx('t_merge_ok'));
+      showShareBar('mergeShareBar',blob,name);
+    }catch(e){
+      console.error('Merge error:',e);
+      toast('❌ Birleştirme hatası: '+(e&&e.message?e.message:String(e)));
     }
-    toast(tx('p_merging')+'…');
-    const bytes=await merged.save();
-    const blob=new Blob([bytes],{type:'application/pdf'});
-    const name=`merged-${Date.now()}.pdf`;
-    toast(tx('t_merge_ok'));
-    showShareBar('mergeShareBar',blob,name);
-  }catch(e){
-    console.error('Merge error:',e);
-    toast('❌ Birleştirme hatası: '+(e&&e.message?e.message:String(e)));
+    hideProg();document.getElementById('mgBtn').disabled=false;
   }
-  hideProg();document.getElementById('mgBtn').disabled=false;
 });
 
 /* ══════════════════════════════════════════
@@ -1936,24 +2136,45 @@ document.getElementById('shareModal').addEventListener('click',e=>{
 /* Blob'ları DOM property yerine güvenli global objede tut */
 const _barBlobs = {};
 
+/* Android native merge tamamlandığında çağrılır */
+window.mergeComplete = function(success, message){
+  hideProg();
+  document.getElementById('mgBtn').disabled=false;
+  if(success){
+    toast(tx('t_merge_ok'));
+    _barBlobs['mergeShareBar']={blob:null, name:message, androidNative:true};
+    document.getElementById('mergeShareBar').classList.add('visible');
+  } else {
+    toast('❌ Birleştirme hatası: '+message);
+  }
+};
+
 function showShareBar(barId, blob, name){
-  _barBlobs[barId] = {blob, name};
+  _barBlobs[barId]={blob, name};
   document.getElementById(barId).classList.add('visible');
 }
 
-['photo','merge','sign','split'].forEach(prefix=>{
-  const barId = prefix+'ShareBar';
+['photo','merge','sign','split','qr'].forEach(prefix=>{
+  const barId=prefix+'ShareBar';
 
-  /* PAYLAŞ → native share sheet (Android) veya modal (web) */
   document.getElementById(prefix+'ShareBtn').addEventListener('click',()=>{
-    const d = _barBlobs[barId];
-    if(d) openShareModal(d.blob, d.name);
+    const d=_barBlobs[barId];
+    if(!d) return;
+    if(d.androidNative){
+      if(prefix==='merge') Android.shareMerged();
+    } else {
+      openShareModal(d.blob, d.name);
+    }
   });
 
-  /* İNDİR → sadece kaydet, paylaşım açma */
   document.getElementById(prefix+'SaveDlBtn').addEventListener('click',()=>{
-    const d = _barBlobs[barId];
-    if(d) triggerDownload(d.blob, d.name);
+    const d=_barBlobs[barId];
+    if(!d) return;
+    if(d.androidNative){
+      if(prefix==='merge') Android.saveMerged();
+    } else {
+      triggerDownload(d.blob, d.name);
+    }
   });
 });
 
@@ -2157,6 +2378,116 @@ document.getElementById('splitBtn').addEventListener('click',async()=>{
     toast(tx('t_split_ok'));
   }catch(e){console.error(e);toast(tx('t_split_err'));hideProg();}
   document.getElementById('splitBtn').disabled=false;
+});
+
+/* ══════════════════════════════════════════
+   KOD OLUŞTURUCU — QR + Barkod
+══════════════════════════════════════════ */
+let _qrType='url';
+let _kodMode='qr'; // 'qr' | 'bc'
+
+/* Mod geçişi */
+document.getElementById('modeQR').addEventListener('click',()=>{
+  _kodMode='qr';
+  document.getElementById('modeQR').classList.add('active');
+  document.getElementById('modeBC').classList.remove('active');
+  document.getElementById('qrSection').style.display='';
+  document.getElementById('bcSection').style.display='none';
+  document.getElementById('kodGenLbl').dataset.i='qr_gen';
+  document.getElementById('kodGenLbl').textContent=tx('qr_gen');
+  document.getElementById('kodOutput').style.display='none';
+});
+document.getElementById('modeBC').addEventListener('click',()=>{
+  _kodMode='bc';
+  document.getElementById('modeBC').classList.add('active');
+  document.getElementById('modeQR').classList.remove('active');
+  document.getElementById('qrSection').style.display='none';
+  document.getElementById('bcSection').style.display='flex';
+  document.getElementById('kodGenLbl').dataset.i='bc_gen';
+  document.getElementById('kodGenLbl').textContent=tx('bc_gen');
+  document.getElementById('kodOutput').style.display='none';
+});
+
+/* QR tip seçimi */
+document.querySelectorAll('.qrt[data-type]').forEach(b=>b.addEventListener('click',()=>{
+  _qrType=b.dataset.type;
+  document.querySelectorAll('.qrt[data-type]').forEach(x=>x.classList.toggle('active',x===b));
+  document.querySelectorAll('.qr-form').forEach(f=>f.style.display='none');
+  document.getElementById('qrf-'+_qrType).style.display='';
+}));
+
+/* Oluştur butonu */
+document.getElementById('kodGenBtn').addEventListener('click',()=>{
+  const box=document.getElementById('kodBox');
+  box.innerHTML='';
+  document.getElementById('kodOutput').style.display='none';
+
+  if(_kodMode==='qr'){
+    let content='';
+    switch(_qrType){
+      case 'url':   content=document.getElementById('qrUrl').value.trim(); break;
+      case 'text':  content=document.getElementById('qrText').value.trim(); break;
+      case 'tel':   content='tel:'+document.getElementById('qrTel').value.trim(); break;
+      case 'email':{
+        const em=document.getElementById('qrEmail').value.trim();
+        const sub=document.getElementById('qrEmailSub').value.trim();
+        content='mailto:'+em+(sub?'?subject='+encodeURIComponent(sub):''); break;
+      }
+      case 'wifi':{
+        const ssid=document.getElementById('qrWifiSsid').value.trim();
+        const pass=document.getElementById('qrWifiPass').value;
+        const enc=document.getElementById('qrWifiEnc').value;
+        content='WIFI:T:'+enc+';S:'+ssid+';P:'+pass+';;'; break;
+      }
+    }
+    if(!content){toast(tx('qr_err'));return;}
+    const size=parseInt(document.getElementById('qrSize').value);
+    try{
+      new QRCode(box,{text:content,width:size,height:size,
+        colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+    }catch(e){toast('❌ QR oluşturulamadı');return;}
+    document.getElementById('kodOutput').style.display='';
+    toast(tx('qr_ok'));
+  } else {
+    /* Barkod */
+    const val=document.getElementById('bcValue').value.trim();
+    if(!val){toast(tx('bc_err'));return;}
+    const fmt=document.getElementById('bcFormat').value;
+    const clr=document.getElementById('bcColor').value;
+    const bg =document.getElementById('bcBg').value;
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    box.appendChild(svg);
+    try{
+      JsBarcode(svg,val,{format:fmt,lineColor:clr,background:bg,
+        width:2,height:80,displayValue:true,fontSize:14,margin:10});
+    }catch(e){toast(tx('bc_err')+': '+e.message);box.innerHTML='';return;}
+    document.getElementById('kodOutput').style.display='';
+    toast(tx('bc_ok'));
+  }
+
+  /* PNG blob → share bar */
+  setTimeout(()=>{
+    const canvas=box.querySelector('canvas');
+    const svg=box.querySelector('svg');
+    if(canvas){
+      canvas.toBlob(b=>{ if(b) showShareBar('qrShareBar',b,'qrcode-'+Date.now()+'.png'); },'image/png');
+    } else if(svg){
+      /* SVG → canvas → PNG */
+      const xml=new XMLSerializer().serializeToString(svg);
+      const img2=new Image();
+      const svgBlob=new Blob([xml],{type:'image/svg+xml'});
+      const url=URL.createObjectURL(svgBlob);
+      img2.onload=()=>{
+        const cv=document.createElement('canvas');
+        cv.width=svg.getBoundingClientRect().width||300;
+        cv.height=svg.getBoundingClientRect().height||120;
+        cv.getContext('2d').drawImage(img2,0,0);
+        URL.revokeObjectURL(url);
+        cv.toBlob(b=>{ if(b) showShareBar('qrShareBar',b,'barcode-'+Date.now()+'.png'); },'image/png');
+      };
+      img2.src=url;
+    }
+  },150);
 });
 
 /* ══════════════════════════════════════════
