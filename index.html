@@ -765,7 +765,7 @@ textarea.qr-inp{resize:vertical;min-height:80px}
       <div class="dz-icon">📷</div>
       <h3 data-i="dz_ph_h">Fotoğraf Ekle</h3>
       <p data-i="dz_ph_p">Tıkla veya sürükle · JPG, PNG, WebP</p>
-      <p style="font-size:.68rem;color:var(--gold);margin-top:3px">⚠️ En fazla 75 fotoğraf</p>
+      <p style="font-size:.68rem;color:var(--gold);margin-top:3px" data-i="dz_ph_limit">⚠️ En fazla 99 fotoğraf</p>
     </div>
     <div id="photo-list">
       <div class="empty" id="photoEmpty" data-i="empty_ph">📂 Henüz fotoğraf eklenmedi.</div>
@@ -1118,7 +1118,7 @@ tr:{
   lbl_page:'Sayfa',lbl_ori:'Yön',lbl_marg:'Kenar',lbl_qual:'Kalite:',
   lbl_ratio:'Oran:',lbl_clr:'Renk:',lbl_thk:'Kalınlık:',lbl_pages:'sayfa',
   opt_sq:'Kare',opt_auto:'Otomatik',opt_port:'Dikey',opt_land:'Yatay',opt_none:'Kenarsız',opt_free:'Serbest',
-  dz_ph_h:'Fotoğraf Ekle',dz_ph_p:'Tıkla veya sürükle · JPG, PNG, WebP',
+  dz_ph_h:'Fotoğraf Ekle',dz_ph_p:'Tıkla veya sürükle · JPG, PNG, WebP',dz_ph_limit:'⚠️ En fazla 99 fotoğraf',
   dz_mg_h:'PDF Dosyaları Ekle',dz_mg_p:'Birleştirmek istediğin PDF\'leri seç',
   empty_ph:'📂 Henüz fotoğraf eklenmedi.',empty_mg:'📂 Henüz PDF eklenmedi.',
   btn_cpdf:'📄 PDF Oluştur',btn_merge:'🔗 Birleştir',
@@ -1171,7 +1171,7 @@ en:{
   lbl_page:'Page',lbl_ori:'Orient',lbl_marg:'Margin',lbl_qual:'Quality:',
   lbl_ratio:'Ratio:',lbl_clr:'Color:',lbl_thk:'Size:',lbl_pages:'pages',
   opt_sq:'Square',opt_auto:'Auto',opt_port:'Portrait',opt_land:'Landscape',opt_none:'Borderless',opt_free:'Free',
-  dz_ph_h:'Add Photos',dz_ph_p:'Tap or drag · JPG, PNG, WebP',
+  dz_ph_h:'Add Photos',dz_ph_p:'Tap or drag · JPG, PNG, WebP',dz_ph_limit:'⚠️ Max 99 photos',
   dz_mg_h:'Add PDF Files',dz_mg_p:'Select PDFs to merge',
   empty_ph:'📂 No photos added.',empty_mg:'📂 No PDFs added.',
   btn_cpdf:'📄 Create PDF',btn_merge:'🔗 Merge',
@@ -1410,7 +1410,7 @@ phClearBtn.addEventListener('click',()=>{
 });
 
 const PAGE_SIZES={a4:[210,297],a5:[148,210],letter:[215.9,279.4],square:[150,150]};
-const MAX_PHOTOS=75; // Maksimum fotoğraf limiti
+const MAX_PHOTOS=99; // Maksimum fotoğraf limiti
 phPdfBtn.addEventListener('click',async()=>{
   const items=Array.from(photoList.querySelectorAll('.pi'));if(!items.length)return;
   if(items.length>MAX_PHOTOS){
